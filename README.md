@@ -150,19 +150,40 @@ Hello Triangle: [pyronyx Triangle](https://github.com/unschlagbar/pyronyx-triang
 
 ## Generating bindings with pyronyx-gen
 
-The `pyronyx-gen` crate generates the Vulkan bindings into `pyronyx/src/` from `vk.xml` and `video.xml`.
+The `pyronyx-gen` crate generates the Vulkan bindings into `pyronyx/src/` from
+`vk.xml` and `video.xml`.
 
-From the workspace root, run:
+To execute, run:
+
+```bash
+cargo run -p pyronyx-gen
+```
+
+### Linux
+
+Most distributions install the Vulkan registry files under
+`/usr/share/vulkan/registry/`, so no additional setup is required.
+
+If the registry files are installed elsewhere, set VULKAN_SDK to the root
+of your Vulkan SDK installation before running the generator:
 
 ```bash
 export VULKAN_SDK=/path/to/VulkanSDK
 cargo run -p pyronyx-gen
 ```
 
-That will regenerate the code and automatically run `cargo fmt` in `pyronyx`.
+### macOS
+
+Install the Vulkan SDK and set `VULKAN_SDK` to the root of the SDK
+installation before running the generator:
+
+```bash
+export VULKAN_SDK=/path/to/VulkanSDK
+cargo run -p pyronyx-gen
+```
 
 ---
 
 ## License
 
-MIT
+[MIT](./LICENSE)

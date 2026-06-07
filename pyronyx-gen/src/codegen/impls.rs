@@ -8,7 +8,8 @@ use super::{Writer, file_header};
 use crate::codegen::bitflags::value_to_const_name;
 use crate::codegen::commands::{fn_field, fn_sig};
 use crate::codegen::{
-    HAND_WRITTEN_FNS, VEC_FNS, find_assert_fn, find_len_fn, rust_name, simple_rust_member,
+    HAND_WRITTEN_FNS, RETURNS_SUBOPTIMAL, VEC_FNS, find_assert_fn, find_len_fn, rust_name,
+    simple_rust_member,
 };
 use crate::parse::commands::Param;
 use crate::parse::registry::{Depends, Registry, RenderPass, VkCommand};
@@ -146,13 +147,19 @@ fn compute_fn_signature(
 
     let ret = if len_fn {
         match cmd.return_type.as_str() {
-            "vkResult" => format!("Result<usize>"),
+            "vkResult" => "Result<usize>".to_string(),
             "c_void" => "usize".to_string(),
             other => rust_name(other),
         }
     } else {
         match (cmd.return_type.as_str(), &output_ty) {
+            ("vkResult", Some(ty)) if RETURNS_SUBOPTIMAL.contains(&cmd.name.as_str()) => {
+                format!("Result<Suboptimal<{ty}>>")
+            }
             ("vkResult", Some(ty)) => format!("Result<{ty}>"),
+            ("vkResult", None) if RETURNS_SUBOPTIMAL.contains(&cmd.name.as_str()) => {
+                "Result<Suboptimal<()>>".to_string()
+            }
             ("vkResult", None) => "Result<()>".to_string(),
             ("c_void", Some(ty)) => ty.to_string(),
             ("c_void", None) => String::new(),
@@ -541,7 +548,7 @@ fn write_fn_body(
                 .push(slice_name.as_str());
         }
     }
-    for (_, slices) in &by_count {
+    for slices in by_count.values() {
         if slices.len() >= 2 {
             // Emit pairwise: first.len() == second.len() == …
             let first = slices[0];
@@ -636,6 +643,7 @@ fn write_fn_body(
             if ty == "bool" {
                 bool_out = true;
             }
+
             if vec {
                 if ty == "Vec<u8>" {
                     format!(
@@ -648,6 +656,11 @@ fn write_fn_body(
                         call_args.join(", ")
                     )
                 }
+            } else if RETURNS_SUBOPTIMAL.contains(&cmd.name.as_str()) {
+                format!(
+                    "unsafe {{ (call)({}) }}.init_on_success_or_suboptimal(out)",
+                    call_args.join(", ")
+                )
             } else {
                 format!(
                     "unsafe {{ (call)({}) }}.init_on_success(out)",
@@ -656,7 +669,14 @@ fn write_fn_body(
             }
         }
         ("vkResult", None) => {
-            format!("unsafe {{ (call)({}) }}.result()", call_args.join(", "))
+            if RETURNS_SUBOPTIMAL.contains(&cmd.name.as_str()) {
+                format!(
+                    "unsafe {{ (call)({}) }}.result_or_suboptimal()",
+                    call_args.join(", ")
+                )
+            } else {
+                format!("unsafe {{ (call)({}) }}.result()", call_args.join(", "))
+            }
         }
         ("c_void", Some(_)) => {
             if vec {

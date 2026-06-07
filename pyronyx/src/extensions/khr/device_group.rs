@@ -19,7 +19,10 @@ pub trait DeviceGroupDevice {
         surface: SurfaceKHR,
     ) -> Result<DeviceGroupPresentModeFlagsKHR>;
 
-    fn acquire_next_image2(&self, acquire_info: &AcquireNextImageInfoKHR) -> Result<u32>;
+    fn acquire_next_image2(
+        &self,
+        acquire_info: &AcquireNextImageInfoKHR,
+    ) -> Result<Suboptimal<u32>>;
 }
 
 impl DeviceGroupDevice for Device {
@@ -56,7 +59,10 @@ impl DeviceGroupDevice for Device {
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkAcquireNextImage2KHR.html>
     #[inline]
-    fn acquire_next_image2(&self, acquire_info: &AcquireNextImageInfoKHR) -> Result<u32> {
+    fn acquire_next_image2(
+        &self,
+        acquire_info: &AcquireNextImageInfoKHR,
+    ) -> Result<Suboptimal<u32>> {
         let mut out = MaybeUninit::uninit();
         let call = self
             .fns()
@@ -65,7 +71,8 @@ impl DeviceGroupDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .acquire_next_image2_khr;
 
-        unsafe { (call)(self.handle, acquire_info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, acquire_info, out.as_mut_ptr()) }
+            .init_on_success_or_suboptimal(out)
     }
 }
 

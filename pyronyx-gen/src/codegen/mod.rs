@@ -173,6 +173,8 @@ pub const HAND_WRITTEN_FNS: &[(&str, &str)] = &[
     ("Device", "vkGetDeviceQueue2"),
 ];
 
+pub const RETURNS_SUBOPTIMAL: &[&str] = &["vkAcquireNextImageKHR", "vkAcquireNextImage2KHR"];
+
 /// "function Name", "additional params", "body lines", "remove return"
 pub const ASSERT_FNS: &[(&str, &str)] = &[
     (

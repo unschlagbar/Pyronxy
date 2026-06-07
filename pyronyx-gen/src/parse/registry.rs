@@ -1,5 +1,8 @@
 #![allow(unused)]
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+};
 
 use crate::{
     codegen::{impls::ImplTarget, rust_name},
@@ -149,12 +152,11 @@ pub enum Depends {
     Undefined,
 }
 
-impl Depends {
-    pub fn to_string(&self) -> String {
+impl fmt::Display for Depends {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Depends::Core(v) => v.clone(),
-            Depends::Ext(e) => e.to_string(),
-            Depends::Undefined => "U".to_string(),
+            Depends::Core(v) | Depends::Ext(v) => f.write_str(v),
+            Depends::Undefined => f.write_str("U"),
         }
     }
 }

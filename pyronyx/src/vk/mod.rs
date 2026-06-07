@@ -91,9 +91,39 @@ impl vkResult {
     }
 
     #[inline]
+    pub fn init_on_success_or_suboptimal<T>(&self, v: MaybeUninit<T>) -> Result<Suboptimal<T>> {
+        match self {
+            Self::Success => Ok(Suboptimal {
+                value: unsafe { v.assume_init() },
+                suboptimal: false,
+            }),
+            Self::SuboptimalKHR => Ok(Suboptimal {
+                value: unsafe { v.assume_init() },
+                suboptimal: true,
+            }),
+            _ => Err((*self).into()),
+        }
+    }
+
+    #[inline]
     pub fn result(&self) -> Result<()> {
         match self {
             Self::Success => Ok(()),
+            _ => Err((*self).into()),
+        }
+    }
+
+    #[inline]
+    pub fn result_or_suboptimal(&self) -> Result<Suboptimal<()>> {
+        match self {
+            Self::Success => Ok(Suboptimal {
+                value: (),
+                suboptimal: false,
+            }),
+            Self::SuboptimalKHR => Ok(Suboptimal {
+                value: (),
+                suboptimal: true,
+            }),
             _ => Err((*self).into()),
         }
     }
@@ -202,4 +232,10 @@ impl From<Extent2D> for Rect2D {
             extent: value,
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Suboptimal<T> {
+    pub value: T,
+    pub suboptimal: bool,
 }

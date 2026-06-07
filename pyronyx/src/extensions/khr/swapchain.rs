@@ -30,7 +30,7 @@ pub trait SwapchainDevice {
         timeout: u64,
         semaphore: Semaphore,
         fence: Fence,
-    ) -> Result<u32>;
+    ) -> Result<Suboptimal<u32>>;
 }
 
 impl SwapchainDevice for Device {
@@ -94,7 +94,7 @@ impl SwapchainDevice for Device {
         timeout: u64,
         semaphore: Semaphore,
         fence: Fence,
-    ) -> Result<u32> {
+    ) -> Result<Suboptimal<u32>> {
         let mut out = MaybeUninit::uninit();
         let call = self
             .fns()
@@ -113,7 +113,7 @@ impl SwapchainDevice for Device {
                 out.as_mut_ptr(),
             )
         }
-        .init_on_success(out)
+        .init_on_success_or_suboptimal(out)
     }
 }
 

@@ -1,25 +1,32 @@
+//! This crate might be the ugliest thing you've ever seen, but it gets the job done.
+//! It parses the vk.xml and video.xml files from the Vulkan SDK and generates Rust code for the Pyronyx crate.
+//! The crate is the place where the code should be perfect. Still good to make this also cleaner.
+
 mod codegen;
 mod parse;
 
 use parse::registry::Registry;
+use std::path::PathBuf;
 use std::{collections::HashSet, fs, process::Command};
 
 pub const VK_OUT: &str = "pyronyx/src/vk";
 pub const OUT: &str = "pyronyx/src";
 
-pub const VULKAN_SDK: &str = env!("VULKAN_SDK");
-const VK_XML: &str = "/share/vulkan/registry/vk.xml";
-const VIDEO_XML: &str = "/share/vulkan/registry/video.xml";
-
-/// This crate might be the ugliest thing you've ever seen, but it gets the job done. It parses the vk.xml and video.xml files from the Vulkan SDK and generates Rust code for the Pyronyx crate.
-/// The crate is the place where the code should be perfect. Still good to make this also cleaner.
+fn registry_path(file: &str) -> PathBuf {
+    if let Ok(sdk) = std::env::var("VULKAN_SDK") {
+        PathBuf::from(sdk)
+            .join("share")
+            .join("vulkan")
+            .join("registry")
+            .join(file)
+    } else {
+        PathBuf::from("/usr/share/vulkan/registry").join(file)
+    }
+}
 
 fn main() {
-    let vk_xml = format!("{VULKAN_SDK}{VK_XML}");
-    let video_xml = format!("{VULKAN_SDK}{VIDEO_XML}");
-
-    let xml = fs::read_to_string(&vk_xml).expect("vk.xml nicht gefunden");
-    let video_src = fs::read_to_string(&video_xml).expect("video.xml nicht gefunden");
+    let xml = fs::read_to_string(registry_path("vk.xml")).expect("vk.xml not found");
+    let video_src = fs::read_to_string(registry_path("video.xml")).expect("video.xml not found");
 
     let mut lifetimes = HashSet::new();
 
