@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0]
+
+### Changes
+
+`Device::acquire_next_image` now returns `Result<Suboptimal<u32>>` to allow for suboptimal checking
+
 ## [0.2.5]
 
 ### Updated to Vulkan 1.4.350.0

@@ -1,4 +1,3 @@
 [workspace]
 members = ["pyronyx", "pyronyx-gen"]
-exclude = ["pyronyx-triangle"]
 resolver = "3"
