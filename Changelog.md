@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1]
+
+### Changes
+
+Surface creation now supports MacOS
+
 ## [0.3.0]
 
 ### Changes

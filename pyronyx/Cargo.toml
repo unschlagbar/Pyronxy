@@ -1,6 +1,6 @@
 [package]
 name = "pyronyx"
-version = "0.3.0+1.4.350"
+version = "0.3.1+1.4.350"
 edition = "2024"
 rust-version = "1.85.0"
 license = "MIT"
