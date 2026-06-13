@@ -17,6 +17,9 @@ use crate::khr::wayland_surface;
 #[cfg(target_os = "linux")]
 use crate::khr::wayland_surface::WaylandSurfaceInstance;
 
+#[cfg(target_os = "macos")]
+use crate::ext::metal_surface::{self, MetalSurfaceInstance};
+
 #[cfg(target_os = "android")]
 use crate::khr::android_surface::{self, AndroidSurfaceInstance};
 
@@ -86,6 +89,19 @@ pub fn create_surface(
             instance.create_xcb_surface(&create_info, None)
         }
 
+        #[cfg(target_os = "macos")]
+        (RawDisplayHandle::AppKit(_), RawWindowHandle::AppKit(window)) => {
+            // raw-window-metal returns the NSView's existing CAMetalLayer or
+            // attaches a new one. `into_raw` hands ownership to the surface,
+            // which retains the layer for its lifetime.
+            let layer = unsafe { raw_window_metal::Layer::from_ns_view(window.ns_view) };
+            let create_info = vk::MetalSurfaceCreateInfoEXT {
+                layer: layer.into_raw().as_ptr().cast(),
+                ..Default::default()
+            };
+            instance.create_metal_surface(&create_info, None)
+        }
+
         #[cfg(target_os = "android")]
         (RawDisplayHandle::Android(_), RawWindowHandle::AndroidNdk(window)) => {
             let create_info = vk::AndroidSurfaceCreateInfoKHR {
@@ -128,6 +144,9 @@ pub fn get_required_extensions(display_handle: RawDisplayHandle) -> Result<[*con
 
         #[cfg(target_os = "linux")]
         RawDisplayHandle::Xcb(_) => [surface::NAME.as_ptr(), xcb_surface::NAME.as_ptr()],
+
+        #[cfg(target_os = "macos")]
+        RawDisplayHandle::AppKit(_) => [surface::NAME.as_ptr(), metal_surface::NAME.as_ptr()],
 
         #[cfg(target_os = "android")]
         RawDisplayHandle::Android(_) => [surface::NAME.as_ptr(), android_surface::NAME.as_ptr()],

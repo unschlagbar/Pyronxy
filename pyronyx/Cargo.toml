@@ -19,6 +19,10 @@ categories = [
 [dependencies]
 raw-window-handle = { version = "0.6.2", optional = true }
 
+# Bridges an AppKit NSView to the CAMetalLayer that Metal surface creation needs.
+[target.'cfg(target_os = "macos")'.dependencies]
+raw-window-metal = "1"
+
 [features]
 default = []
 rwh_06 = ["raw-window-handle"]
