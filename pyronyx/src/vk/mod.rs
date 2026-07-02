@@ -5,6 +5,7 @@ mod display_bitflags;
 mod enums;
 mod error;
 mod handles;
+mod packed;
 mod platform_types;
 mod types;
 
@@ -18,6 +19,7 @@ pub use constants::*;
 pub use enums::*;
 pub use error::Error;
 pub use handles::*;
+pub use packed::*;
 pub use platform_types::*;
 pub use types::*;
 

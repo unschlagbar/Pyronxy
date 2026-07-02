@@ -11,6 +11,7 @@ pub fn generate(registry: &Registry, out_path: &str, lifetimes: &HashSet<String>
     file_header(&mut w, "vk/types.rs");
 
     w.ln("#![allow(non_camel_case_types)]");
+    w.ln("#![allow(non_upper_case_globals)]");
     w.blank();
     w.ln("use super::enums::*;");
     w.ln("use core::{mem, ptr};");

@@ -63,6 +63,8 @@ pub struct Member {
     pub pointer_depth: u32,
     pub array_dims: Vec<String>,
     pub comment: String,
+    /// Bitfield width (`<name>foo</name>:24` in the registry), if any.
+    pub bits: Option<u32>,
 }
 
 impl Member {
@@ -380,6 +382,7 @@ pub fn parse_member(node: Node) -> Member {
     let mut array_dims = parse_array_dimensions(node);
     let mut past_name = false;
     let mut comment = String::new();
+    let mut bits = None;
 
     for child in node.children() {
         match child.tag_name().name() {
@@ -397,10 +400,12 @@ pub fn parse_member(node: Node) -> Member {
                 comment = child.text().unwrap_or("").trim().to_string();
             }
             "" => {
-                if let Some(text) = child.text()
-                    && !past_name
-                {
-                    full_ty.push_str(text);
+                if let Some(text) = child.text() {
+                    if !past_name {
+                        full_ty.push_str(text);
+                    } else if let Some(width) = text.trim().strip_prefix(':') {
+                        bits = width.trim().parse().ok();
+                    }
                 }
             }
             _ => {}
@@ -421,6 +426,7 @@ pub fn parse_member(node: Node) -> Member {
         name,
         array_dims,
         comment,
+        bits,
     }
 }
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2]
+
+### Fix
+
+C bitfield members (`:24`/`:8`/`:1`) were generated as full `u32` fields, breaking the memory layout of every struct using them (`vk::AccelerationStructureInstanceKHR` was 72 instead of 64 bytes, the StdVideo `*Flags` structs were up to 32x too big). All generated struct sizes are now verified against the C headers.
+
+### Changes
+
+Bitfield groups are merged into a single member of the new packed types `Packed24_8`, `Packed24_5_3` and `Packed9_9_6_4_4` (ash-style), e.g. `AccelerationStructureInstanceKHR::instance_custom_index_and_mask: Packed24_8`
+StdVideo `*Flags` structs are now vk-style bitflag newtypes with one constant per bit (e.g. `H264SpsVuiFlags::VideoFullRangeFlag`) including Display/Debug by flag name
+`H265HrdFlags` is the one exception with multi-bit fields; it packs them into a `bitfields: u32` member with getter/setter methods
+
 ## [0.3.1]
 
 ### Changes

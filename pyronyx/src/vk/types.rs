@@ -8,6 +8,7 @@
 use super::bitflags::*;
 use super::constants::*;
 use super::enums::*;
+use super::packed::*;
 use super::platform_types::*;
 use crate::video::*;
 use core::ffi::{c_char, c_int, c_void};
@@ -7972,16 +7973,13 @@ impl ExtendsRayTracingPipelineCreateInfoKHR
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct ClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV {
-    pub geometry_index: u32,
-    pub reserved: u32,
-    pub geometry_flags: u32,
+    /// Bitfields (LSB to MSB) `geometry_index`: 24, `reserved`: 5, `geometry_flags`: 3 - construct with [`Packed24_5_3::new`]
+    pub geometry_index_and_geometry_flags: Packed24_5_3,
 }
 impl Default for ClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV {
     fn default() -> Self {
         Self {
-            geometry_index: 0,
-            reserved: 0,
-            geometry_flags: 0,
+            geometry_index_and_geometry_flags: Default::default(),
         }
     }
 }
@@ -8034,11 +8032,8 @@ impl Default for ClusterAccelerationStructureGetTemplateIndicesInfoNV {
 pub struct ClusterAccelerationStructureBuildTriangleClusterInfoNV {
     pub cluster_id: u32,
     pub cluster_flags: ClusterAccelerationStructureClusterFlagsNV,
-    pub triangle_count: u32,
-    pub vertex_count: u32,
-    pub position_truncate_bit_count: u32,
-    pub index_type: u32,
-    pub opacity_micromap_index_type: u32,
+    /// Bitfields (LSB to MSB) `triangle_count`: 9, `vertex_count`: 9, `position_truncate_bit_count`: 6, `index_type`: 4, `opacity_micromap_index_type`: 4 - construct with [`Packed9_9_6_4_4::new`]
+    pub triangle_cluster_info_packed: Packed9_9_6_4_4,
     pub base_geometry_index_and_geometry_flags:
         ClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV,
     pub index_buffer_stride: u16,
@@ -8056,11 +8051,7 @@ impl Default for ClusterAccelerationStructureBuildTriangleClusterInfoNV {
         Self {
             cluster_id: 0,
             cluster_flags: Default::default(),
-            triangle_count: 0,
-            vertex_count: 0,
-            position_truncate_bit_count: 0,
-            index_type: 0,
-            opacity_micromap_index_type: 0,
+            triangle_cluster_info_packed: Default::default(),
             base_geometry_index_and_geometry_flags: Default::default(),
             index_buffer_stride: 0,
             vertex_buffer_stride: 0,
@@ -8080,11 +8071,8 @@ impl Default for ClusterAccelerationStructureBuildTriangleClusterInfoNV {
 pub struct ClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV {
     pub cluster_id: u32,
     pub cluster_flags: ClusterAccelerationStructureClusterFlagsNV,
-    pub triangle_count: u32,
-    pub vertex_count: u32,
-    pub position_truncate_bit_count: u32,
-    pub index_type: u32,
-    pub opacity_micromap_index_type: u32,
+    /// Bitfields (LSB to MSB) `triangle_count`: 9, `vertex_count`: 9, `position_truncate_bit_count`: 6, `index_type`: 4, `opacity_micromap_index_type`: 4 - construct with [`Packed9_9_6_4_4::new`]
+    pub triangle_cluster_info_packed: Packed9_9_6_4_4,
     pub base_geometry_index_and_geometry_flags:
         ClusterAccelerationStructureGeometryIndexAndGeometryFlagsNV,
     pub index_buffer_stride: u16,
@@ -8103,11 +8091,7 @@ impl Default for ClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV 
         Self {
             cluster_id: 0,
             cluster_flags: Default::default(),
-            triangle_count: 0,
-            vertex_count: 0,
-            position_truncate_bit_count: 0,
-            index_type: 0,
-            opacity_micromap_index_type: 0,
+            triangle_cluster_info_packed: Default::default(),
             base_geometry_index_and_geometry_flags: Default::default(),
             index_buffer_stride: 0,
             vertex_buffer_stride: 0,
@@ -8127,8 +8111,8 @@ impl Default for ClusterAccelerationStructureBuildTriangleClusterTemplateInfoNV 
 #[derive(Copy, Clone, Debug)]
 pub struct ClusterAccelerationStructureInstantiateClusterInfoNV {
     pub cluster_id_offset: u32,
-    pub geometry_index_offset: u32,
-    pub reserved: u32,
+    /// Bitfields (LSB to MSB) `geometry_index_offset`: 24, `reserved`: 8 - construct with [`Packed24_8::new`]
+    pub geometry_index_offset_and_reserved: Packed24_8,
     pub cluster_template_address: DeviceAddress,
     pub vertex_buffer: StridedDeviceAddressNV,
 }
@@ -8136,8 +8120,7 @@ impl Default for ClusterAccelerationStructureInstantiateClusterInfoNV {
     fn default() -> Self {
         Self {
             cluster_id_offset: 0,
-            geometry_index_offset: 0,
-            reserved: 0,
+            geometry_index_offset_and_reserved: Default::default(),
             cluster_template_address: Default::default(),
             vertex_buffer: Default::default(),
         }
@@ -22836,20 +22819,18 @@ pub type TransformMatrixNV = TransformMatrixKHR;
 #[derive(Copy, Clone, Debug)]
 pub struct AccelerationStructureInstanceKHR {
     pub transform: TransformMatrixKHR,
-    pub instance_custom_index: u32,
-    pub mask: u32,
-    pub instance_shader_binding_table_record_offset: u32,
-    pub flags: GeometryInstanceFlagsKHR,
+    /// Bitfields (LSB to MSB) `instance_custom_index`: 24, `mask`: 8 - construct with [`Packed24_8::new`]
+    pub instance_custom_index_and_mask: Packed24_8,
+    /// Bitfields (LSB to MSB) `instance_shader_binding_table_record_offset`: 24, `flags`: 8 - construct with [`Packed24_8::new`]
+    pub instance_shader_binding_table_record_offset_and_flags: Packed24_8,
     pub acceleration_structure_reference: u64,
 }
 impl Default for AccelerationStructureInstanceKHR {
     fn default() -> Self {
         Self {
             transform: Default::default(),
-            instance_custom_index: 0,
-            mask: 0,
-            instance_shader_binding_table_record_offset: 0,
-            flags: Default::default(),
+            instance_custom_index_and_mask: Default::default(),
+            instance_shader_binding_table_record_offset_and_flags: Default::default(),
             acceleration_structure_reference: 0,
         }
     }
@@ -32036,10 +32017,10 @@ impl Default for SRTDataNV {
 pub struct AccelerationStructureSRTMotionInstanceNV {
     pub transform_t0: SRTDataNV,
     pub transform_t1: SRTDataNV,
-    pub instance_custom_index: u32,
-    pub mask: u32,
-    pub instance_shader_binding_table_record_offset: u32,
-    pub flags: GeometryInstanceFlagsKHR,
+    /// Bitfields (LSB to MSB) `instance_custom_index`: 24, `mask`: 8 - construct with [`Packed24_8::new`]
+    pub instance_custom_index_and_mask: Packed24_8,
+    /// Bitfields (LSB to MSB) `instance_shader_binding_table_record_offset`: 24, `flags`: 8 - construct with [`Packed24_8::new`]
+    pub instance_shader_binding_table_record_offset_and_flags: Packed24_8,
     pub acceleration_structure_reference: u64,
 }
 impl Default for AccelerationStructureSRTMotionInstanceNV {
@@ -32047,10 +32028,8 @@ impl Default for AccelerationStructureSRTMotionInstanceNV {
         Self {
             transform_t0: Default::default(),
             transform_t1: Default::default(),
-            instance_custom_index: 0,
-            mask: 0,
-            instance_shader_binding_table_record_offset: 0,
-            flags: Default::default(),
+            instance_custom_index_and_mask: Default::default(),
+            instance_shader_binding_table_record_offset_and_flags: Default::default(),
             acceleration_structure_reference: 0,
         }
     }
@@ -32061,10 +32040,10 @@ impl Default for AccelerationStructureSRTMotionInstanceNV {
 pub struct AccelerationStructureMatrixMotionInstanceNV {
     pub transform_t0: TransformMatrixKHR,
     pub transform_t1: TransformMatrixKHR,
-    pub instance_custom_index: u32,
-    pub mask: u32,
-    pub instance_shader_binding_table_record_offset: u32,
-    pub flags: GeometryInstanceFlagsKHR,
+    /// Bitfields (LSB to MSB) `instance_custom_index`: 24, `mask`: 8 - construct with [`Packed24_8::new`]
+    pub instance_custom_index_and_mask: Packed24_8,
+    /// Bitfields (LSB to MSB) `instance_shader_binding_table_record_offset`: 24, `flags`: 8 - construct with [`Packed24_8::new`]
+    pub instance_shader_binding_table_record_offset_and_flags: Packed24_8,
     pub acceleration_structure_reference: u64,
 }
 impl Default for AccelerationStructureMatrixMotionInstanceNV {
@@ -32072,10 +32051,8 @@ impl Default for AccelerationStructureMatrixMotionInstanceNV {
         Self {
             transform_t0: Default::default(),
             transform_t1: Default::default(),
-            instance_custom_index: 0,
-            mask: 0,
-            instance_shader_binding_table_record_offset: 0,
-            flags: Default::default(),
+            instance_custom_index_and_mask: Default::default(),
+            instance_shader_binding_table_record_offset_and_flags: Default::default(),
             acceleration_structure_reference: 0,
         }
     }

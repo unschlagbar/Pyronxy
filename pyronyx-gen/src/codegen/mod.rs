@@ -175,6 +175,22 @@ pub const HAND_WRITTEN_FNS: &[(&str, &str)] = &[
 
 pub const RETURNS_SUBOPTIMAL: &[&str] = &["vkAcquireNextImageKHR", "vkAcquireNextImage2KHR"];
 
+/// Bitfield groups (consecutive `:N` members filling one u32) → hand-written
+/// packed type in `pyronyx/src/vk/packed.rs`. Widths are listed LSB → MSB.
+/// A new layout in the registry requires a new packed type there plus an entry here.
+pub const PACKED_TYPES: &[(&[u32], &str)] = &[
+    (&[24, 8], "Packed24_8"),
+    (&[24, 5, 3], "Packed24_5_3"),
+    (&[9, 9, 6, 4, 4], "Packed9_9_6_4_4"),
+];
+
+/// Overrides for merged bitfield member names where joining the original
+/// member names with `_and_` would be unreadable. Keyed by the joined name.
+pub const PACKED_FIELD_NAMES: &[(&str, &str)] = &[(
+    "triangle_count_and_vertex_count_and_position_truncate_bit_count_and_index_type_and_opacity_micromap_index_type",
+    "triangle_cluster_info_packed",
+)];
+
 /// "function Name", "additional params", "body lines", "remove return"
 pub const ASSERT_FNS: &[(&str, &str)] = &[
     (

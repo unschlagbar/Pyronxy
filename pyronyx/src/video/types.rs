@@ -4,6 +4,7 @@
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #![allow(non_camel_case_types)]
+#![allow(non_upper_case_globals)]
 
 use super::enums::*;
 use core::marker::PhantomData;
@@ -73,38 +74,90 @@ pub const AV1_MAX_NUM_CR_POINTS: u32 = 10;
 pub const AV1_MAX_NUM_POS_LUMA: u32 = 24;
 pub const AV1_MAX_NUM_POS_CHROMA: u32 = 25;
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H264SpsVuiFlags {
-    pub aspect_ratio_info_present_flag: u32,
-    pub overscan_info_present_flag: u32,
-    pub overscan_appropriate_flag: u32,
-    pub video_signal_type_present_flag: u32,
-    pub video_full_range_flag: u32,
-    pub color_description_present_flag: u32,
-    pub chroma_loc_info_present_flag: u32,
-    pub timing_info_present_flag: u32,
-    pub fixed_frame_rate_flag: u32,
-    pub bitstream_restriction_flag: u32,
-    pub nal_hrd_parameters_present_flag: u32,
-    pub vcl_hrd_parameters_present_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H264SpsVuiFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H264SpsVuiFlags, u32);
+impl H264SpsVuiFlags {
+    pub const AspectRatioInfoPresentFlag: Self = Self(1 << 0);
+    pub const OverscanInfoPresentFlag: Self = Self(1 << 1);
+    pub const OverscanAppropriateFlag: Self = Self(1 << 2);
+    pub const VideoSignalTypePresentFlag: Self = Self(1 << 3);
+    pub const VideoFullRangeFlag: Self = Self(1 << 4);
+    pub const ColorDescriptionPresentFlag: Self = Self(1 << 5);
+    pub const ChromaLocInfoPresentFlag: Self = Self(1 << 6);
+    pub const TimingInfoPresentFlag: Self = Self(1 << 7);
+    pub const FixedFrameRateFlag: Self = Self(1 << 8);
+    pub const BitstreamRestrictionFlag: Self = Self(1 << 9);
+    pub const NalHrdParametersPresentFlag: Self = Self(1 << 10);
+    pub const VclHrdParametersPresentFlag: Self = Self(1 << 11);
 }
-impl Default for H264SpsVuiFlags {
-    fn default() -> Self {
-        Self {
-            aspect_ratio_info_present_flag: 0,
-            overscan_info_present_flag: 0,
-            overscan_appropriate_flag: 0,
-            video_signal_type_present_flag: 0,
-            video_full_range_flag: 0,
-            color_description_present_flag: 0,
-            chroma_loc_info_present_flag: 0,
-            timing_info_present_flag: 0,
-            fixed_frame_rate_flag: 0,
-            bitstream_restriction_flag: 0,
-            nal_hrd_parameters_present_flag: 0,
-            vcl_hrd_parameters_present_flag: 0,
+impl core::fmt::Display for H264SpsVuiFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H264SpsVuiFlags, &str)] = &[
+            (
+                H264SpsVuiFlags::AspectRatioInfoPresentFlag,
+                "AspectRatioInfoPresentFlag",
+            ),
+            (
+                H264SpsVuiFlags::OverscanInfoPresentFlag,
+                "OverscanInfoPresentFlag",
+            ),
+            (
+                H264SpsVuiFlags::OverscanAppropriateFlag,
+                "OverscanAppropriateFlag",
+            ),
+            (
+                H264SpsVuiFlags::VideoSignalTypePresentFlag,
+                "VideoSignalTypePresentFlag",
+            ),
+            (H264SpsVuiFlags::VideoFullRangeFlag, "VideoFullRangeFlag"),
+            (
+                H264SpsVuiFlags::ColorDescriptionPresentFlag,
+                "ColorDescriptionPresentFlag",
+            ),
+            (
+                H264SpsVuiFlags::ChromaLocInfoPresentFlag,
+                "ChromaLocInfoPresentFlag",
+            ),
+            (
+                H264SpsVuiFlags::TimingInfoPresentFlag,
+                "TimingInfoPresentFlag",
+            ),
+            (H264SpsVuiFlags::FixedFrameRateFlag, "FixedFrameRateFlag"),
+            (
+                H264SpsVuiFlags::BitstreamRestrictionFlag,
+                "BitstreamRestrictionFlag",
+            ),
+            (
+                H264SpsVuiFlags::NalHrdParametersPresentFlag,
+                "NalHrdParametersPresentFlag",
+            ),
+            (
+                H264SpsVuiFlags::VclHrdParametersPresentFlag,
+                "VclHrdParametersPresentFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H264SpsVuiFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -193,46 +246,92 @@ impl Default for H264SequenceParameterSetVui<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H264SpsFlags {
-    pub constraint_set0_flag: u32,
-    pub constraint_set1_flag: u32,
-    pub constraint_set2_flag: u32,
-    pub constraint_set3_flag: u32,
-    pub constraint_set4_flag: u32,
-    pub constraint_set5_flag: u32,
-    pub direct_8x8_inference_flag: u32,
-    pub mb_adaptive_frame_field_flag: u32,
-    pub frame_mbs_only_flag: u32,
-    pub delta_pic_order_always_zero_flag: u32,
-    pub separate_colour_plane_flag: u32,
-    pub gaps_in_frame_num_value_allowed_flag: u32,
-    pub qpprime_y_zero_transform_bypass_flag: u32,
-    pub frame_cropping_flag: u32,
-    pub seq_scaling_matrix_present_flag: u32,
-    pub vui_parameters_present_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H264SpsFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H264SpsFlags, u32);
+impl H264SpsFlags {
+    pub const ConstraintSet0Flag: Self = Self(1 << 0);
+    pub const ConstraintSet1Flag: Self = Self(1 << 1);
+    pub const ConstraintSet2Flag: Self = Self(1 << 2);
+    pub const ConstraintSet3Flag: Self = Self(1 << 3);
+    pub const ConstraintSet4Flag: Self = Self(1 << 4);
+    pub const ConstraintSet5Flag: Self = Self(1 << 5);
+    pub const Direct8x8InferenceFlag: Self = Self(1 << 6);
+    pub const MbAdaptiveFrameFieldFlag: Self = Self(1 << 7);
+    pub const FrameMbsOnlyFlag: Self = Self(1 << 8);
+    pub const DeltaPicOrderAlwaysZeroFlag: Self = Self(1 << 9);
+    pub const SeparateColourPlaneFlag: Self = Self(1 << 10);
+    pub const GapsInFrameNumValueAllowedFlag: Self = Self(1 << 11);
+    pub const QpprimeYZeroTransformBypassFlag: Self = Self(1 << 12);
+    pub const FrameCroppingFlag: Self = Self(1 << 13);
+    pub const SeqScalingMatrixPresentFlag: Self = Self(1 << 14);
+    pub const VuiParametersPresentFlag: Self = Self(1 << 15);
 }
-impl Default for H264SpsFlags {
-    fn default() -> Self {
-        Self {
-            constraint_set0_flag: 0,
-            constraint_set1_flag: 0,
-            constraint_set2_flag: 0,
-            constraint_set3_flag: 0,
-            constraint_set4_flag: 0,
-            constraint_set5_flag: 0,
-            direct_8x8_inference_flag: 0,
-            mb_adaptive_frame_field_flag: 0,
-            frame_mbs_only_flag: 0,
-            delta_pic_order_always_zero_flag: 0,
-            separate_colour_plane_flag: 0,
-            gaps_in_frame_num_value_allowed_flag: 0,
-            qpprime_y_zero_transform_bypass_flag: 0,
-            frame_cropping_flag: 0,
-            seq_scaling_matrix_present_flag: 0,
-            vui_parameters_present_flag: 0,
+impl core::fmt::Display for H264SpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H264SpsFlags, &str)] = &[
+            (H264SpsFlags::ConstraintSet0Flag, "ConstraintSet0Flag"),
+            (H264SpsFlags::ConstraintSet1Flag, "ConstraintSet1Flag"),
+            (H264SpsFlags::ConstraintSet2Flag, "ConstraintSet2Flag"),
+            (H264SpsFlags::ConstraintSet3Flag, "ConstraintSet3Flag"),
+            (H264SpsFlags::ConstraintSet4Flag, "ConstraintSet4Flag"),
+            (H264SpsFlags::ConstraintSet5Flag, "ConstraintSet5Flag"),
+            (
+                H264SpsFlags::Direct8x8InferenceFlag,
+                "Direct8x8InferenceFlag",
+            ),
+            (
+                H264SpsFlags::MbAdaptiveFrameFieldFlag,
+                "MbAdaptiveFrameFieldFlag",
+            ),
+            (H264SpsFlags::FrameMbsOnlyFlag, "FrameMbsOnlyFlag"),
+            (
+                H264SpsFlags::DeltaPicOrderAlwaysZeroFlag,
+                "DeltaPicOrderAlwaysZeroFlag",
+            ),
+            (
+                H264SpsFlags::SeparateColourPlaneFlag,
+                "SeparateColourPlaneFlag",
+            ),
+            (
+                H264SpsFlags::GapsInFrameNumValueAllowedFlag,
+                "GapsInFrameNumValueAllowedFlag",
+            ),
+            (
+                H264SpsFlags::QpprimeYZeroTransformBypassFlag,
+                "QpprimeYZeroTransformBypassFlag",
+            ),
+            (H264SpsFlags::FrameCroppingFlag, "FrameCroppingFlag"),
+            (
+                H264SpsFlags::SeqScalingMatrixPresentFlag,
+                "SeqScalingMatrixPresentFlag",
+            ),
+            (
+                H264SpsFlags::VuiParametersPresentFlag,
+                "VuiParametersPresentFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H264SpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -327,30 +426,67 @@ impl Default for H264SequenceParameterSet<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H264PpsFlags {
-    pub transform_8x8_mode_flag: u32,
-    pub redundant_pic_cnt_present_flag: u32,
-    pub constrained_intra_pred_flag: u32,
-    pub deblocking_filter_control_present_flag: u32,
-    pub weighted_pred_flag: u32,
-    pub bottom_field_pic_order_in_frame_present_flag: u32,
-    pub entropy_coding_mode_flag: u32,
-    pub pic_scaling_matrix_present_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H264PpsFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H264PpsFlags, u32);
+impl H264PpsFlags {
+    pub const Transform8x8ModeFlag: Self = Self(1 << 0);
+    pub const RedundantPicCntPresentFlag: Self = Self(1 << 1);
+    pub const ConstrainedIntraPredFlag: Self = Self(1 << 2);
+    pub const DeblockingFilterControlPresentFlag: Self = Self(1 << 3);
+    pub const WeightedPredFlag: Self = Self(1 << 4);
+    pub const BottomFieldPicOrderInFramePresentFlag: Self = Self(1 << 5);
+    pub const EntropyCodingModeFlag: Self = Self(1 << 6);
+    pub const PicScalingMatrixPresentFlag: Self = Self(1 << 7);
 }
-impl Default for H264PpsFlags {
-    fn default() -> Self {
-        Self {
-            transform_8x8_mode_flag: 0,
-            redundant_pic_cnt_present_flag: 0,
-            constrained_intra_pred_flag: 0,
-            deblocking_filter_control_present_flag: 0,
-            weighted_pred_flag: 0,
-            bottom_field_pic_order_in_frame_present_flag: 0,
-            entropy_coding_mode_flag: 0,
-            pic_scaling_matrix_present_flag: 0,
+impl core::fmt::Display for H264PpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H264PpsFlags, &str)] = &[
+            (H264PpsFlags::Transform8x8ModeFlag, "Transform8x8ModeFlag"),
+            (
+                H264PpsFlags::RedundantPicCntPresentFlag,
+                "RedundantPicCntPresentFlag",
+            ),
+            (
+                H264PpsFlags::ConstrainedIntraPredFlag,
+                "ConstrainedIntraPredFlag",
+            ),
+            (
+                H264PpsFlags::DeblockingFilterControlPresentFlag,
+                "DeblockingFilterControlPresentFlag",
+            ),
+            (H264PpsFlags::WeightedPredFlag, "WeightedPredFlag"),
+            (
+                H264PpsFlags::BottomFieldPicOrderInFramePresentFlag,
+                "BottomFieldPicOrderInFramePresentFlag",
+            ),
+            (H264PpsFlags::EntropyCodingModeFlag, "EntropyCodingModeFlag"),
+            (
+                H264PpsFlags::PicScalingMatrixPresentFlag,
+                "PicScalingMatrixPresentFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H264PpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -391,32 +527,60 @@ impl Default for H264PictureParameterSet<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeH264PictureInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeH264PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeH264PictureInfoFlags, u32);
+impl DecodeH264PictureInfoFlags {
     /// Is field picture
-    pub field_pic_flag: u32,
+    pub const FieldPicFlag: Self = Self(1 << 0);
     /// Is intra picture
-    pub is_intra: u32,
+    pub const IsIntra: Self = Self(1 << 1);
     /// instantaneous decoding refresh (IDR) picture
-    pub idr_pic_flag: u32,
+    pub const IdrPicFlag: Self = Self(1 << 2);
     /// bottom (true) or top (false) field if field_pic_flag is set.
-    pub bottom_field_flag: u32,
+    pub const BottomFieldFlag: Self = Self(1 << 3);
     /// This only applies to picture info, and not to the DPB lists.
-    pub is_reference: u32,
+    pub const IsReference: Self = Self(1 << 4);
     /// complementary field pair, complementary non-reference field pair, complementary reference field pair
-    pub complementary_field_pair: u32,
+    pub const ComplementaryFieldPair: Self = Self(1 << 5);
 }
-impl Default for DecodeH264PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            field_pic_flag: 0,
-            is_intra: 0,
-            idr_pic_flag: 0,
-            bottom_field_flag: 0,
-            is_reference: 0,
-            complementary_field_pair: 0,
+impl core::fmt::Display for DecodeH264PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeH264PictureInfoFlags, &str)] = &[
+            (DecodeH264PictureInfoFlags::FieldPicFlag, "FieldPicFlag"),
+            (DecodeH264PictureInfoFlags::IsIntra, "IsIntra"),
+            (DecodeH264PictureInfoFlags::IdrPicFlag, "IdrPicFlag"),
+            (
+                DecodeH264PictureInfoFlags::BottomFieldFlag,
+                "BottomFieldFlag",
+            ),
+            (DecodeH264PictureInfoFlags::IsReference, "IsReference"),
+            (
+                DecodeH264PictureInfoFlags::ComplementaryFieldPair,
+                "ComplementaryFieldPair",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeH264PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -454,26 +618,54 @@ impl Default for DecodeH264PictureInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeH264ReferenceInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeH264ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeH264ReferenceInfoFlags, u32);
+impl DecodeH264ReferenceInfoFlags {
     /// Reference is used for top field reference.
-    pub top_field_flag: u32,
+    pub const TopFieldFlag: Self = Self(1 << 0);
     /// Reference is used for bottom field reference.
-    pub bottom_field_flag: u32,
+    pub const BottomFieldFlag: Self = Self(1 << 1);
     /// A picture that is marked as "used for long-term reference", derived binary value from clause 8.2.5.1 Sequence of operations for decoded reference picture marking process
-    pub used_for_long_term_reference: u32,
+    pub const UsedForLongTermReference: Self = Self(1 << 2);
     /// Must be handled in accordance with 8.2.5.2: Decoding process for gaps in frame_num
-    pub is_non_existing: u32,
+    pub const IsNonExisting: Self = Self(1 << 3);
 }
-impl Default for DecodeH264ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            top_field_flag: 0,
-            bottom_field_flag: 0,
-            used_for_long_term_reference: 0,
-            is_non_existing: 0,
+impl core::fmt::Display for DecodeH264ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeH264ReferenceInfoFlags, &str)] = &[
+            (DecodeH264ReferenceInfoFlags::TopFieldFlag, "TopFieldFlag"),
+            (
+                DecodeH264ReferenceInfoFlags::BottomFieldFlag,
+                "BottomFieldFlag",
+            ),
+            (
+                DecodeH264ReferenceInfoFlags::UsedForLongTermReference,
+                "UsedForLongTermReference",
+            ),
+            (DecodeH264ReferenceInfoFlags::IsNonExisting, "IsNonExisting"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeH264ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -563,77 +755,179 @@ impl Default for EncodeH264WeightTable {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH264SliceHeaderFlags {
-    pub direct_spatial_mv_pred_flag: u32,
-    pub num_ref_idx_active_override_flag: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH264SliceHeaderFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH264SliceHeaderFlags, u32);
+impl EncodeH264SliceHeaderFlags {
+    pub const DirectSpatialMvPredFlag: Self = Self(1 << 0);
+    pub const NumRefIdxActiveOverrideFlag: Self = Self(1 << 1);
 }
-impl Default for EncodeH264SliceHeaderFlags {
-    fn default() -> Self {
-        Self {
-            direct_spatial_mv_pred_flag: 0,
-            num_ref_idx_active_override_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH264SliceHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH264SliceHeaderFlags, &str)] = &[
+            (
+                EncodeH264SliceHeaderFlags::DirectSpatialMvPredFlag,
+                "DirectSpatialMvPredFlag",
+            ),
+            (
+                EncodeH264SliceHeaderFlags::NumRefIdxActiveOverrideFlag,
+                "NumRefIdxActiveOverrideFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH264SliceHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH264PictureInfoFlags {
-    pub idr_pic_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH264PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH264PictureInfoFlags, u32);
+impl EncodeH264PictureInfoFlags {
+    pub const IdrPicFlag: Self = Self(1 << 0);
     /// A reference picture, i.e. a picture with nal_ref_idc not equal to 0, as defined in clause 3.136
-    pub is_reference: u32,
-    pub no_output_of_prior_pics_flag: u32,
-    pub long_term_reference_flag: u32,
-    pub adaptive_ref_pic_marking_mode_flag: u32,
-    pub reserved: u32,
+    pub const IsReference: Self = Self(1 << 1);
+    pub const NoOutputOfPriorPicsFlag: Self = Self(1 << 2);
+    pub const LongTermReferenceFlag: Self = Self(1 << 3);
+    pub const AdaptiveRefPicMarkingModeFlag: Self = Self(1 << 4);
 }
-impl Default for EncodeH264PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            idr_pic_flag: 0,
-            is_reference: 0,
-            no_output_of_prior_pics_flag: 0,
-            long_term_reference_flag: 0,
-            adaptive_ref_pic_marking_mode_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH264PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH264PictureInfoFlags, &str)] = &[
+            (EncodeH264PictureInfoFlags::IdrPicFlag, "IdrPicFlag"),
+            (EncodeH264PictureInfoFlags::IsReference, "IsReference"),
+            (
+                EncodeH264PictureInfoFlags::NoOutputOfPriorPicsFlag,
+                "NoOutputOfPriorPicsFlag",
+            ),
+            (
+                EncodeH264PictureInfoFlags::LongTermReferenceFlag,
+                "LongTermReferenceFlag",
+            ),
+            (
+                EncodeH264PictureInfoFlags::AdaptiveRefPicMarkingModeFlag,
+                "AdaptiveRefPicMarkingModeFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH264PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH264ReferenceInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH264ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH264ReferenceInfoFlags, u32);
+impl EncodeH264ReferenceInfoFlags {
     /// A picture that is marked as "used for long-term reference", derived binary value from clause 8.2.5.1 Sequence of operations for decoded reference picture marking process
-    pub used_for_long_term_reference: u32,
-    pub reserved: u32,
+    pub const UsedForLongTermReference: Self = Self(1 << 0);
 }
-impl Default for EncodeH264ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            used_for_long_term_reference: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH264ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH264ReferenceInfoFlags, &str)] = &[(
+            EncodeH264ReferenceInfoFlags::UsedForLongTermReference,
+            "UsedForLongTermReference",
+        )];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH264ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH264ReferenceListsInfoFlags {
-    pub ref_pic_list_modification_flag_l0: u32,
-    pub ref_pic_list_modification_flag_l1: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH264ReferenceListsInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH264ReferenceListsInfoFlags, u32);
+impl EncodeH264ReferenceListsInfoFlags {
+    pub const RefPicListModificationFlagL0: Self = Self(1 << 0);
+    pub const RefPicListModificationFlagL1: Self = Self(1 << 1);
 }
-impl Default for EncodeH264ReferenceListsInfoFlags {
-    fn default() -> Self {
-        Self {
-            ref_pic_list_modification_flag_l0: 0,
-            ref_pic_list_modification_flag_l1: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH264ReferenceListsInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH264ReferenceListsInfoFlags, &str)] = &[
+            (
+                EncodeH264ReferenceListsInfoFlags::RefPicListModificationFlagL0,
+                "RefPicListModificationFlagL0",
+            ),
+            (
+                EncodeH264ReferenceListsInfoFlags::RefPicListModificationFlagL1,
+                "RefPicListModificationFlagL1",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH264ReferenceListsInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -823,24 +1117,61 @@ impl Default for EncodeH264SliceHeader<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265ProfileTierLevelFlags {
-    pub general_tier_flag: u32,
-    pub general_progressive_source_flag: u32,
-    pub general_interlaced_source_flag: u32,
-    pub general_non_packed_constraint_flag: u32,
-    pub general_frame_only_constraint_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265ProfileTierLevelFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265ProfileTierLevelFlags, u32);
+impl H265ProfileTierLevelFlags {
+    pub const GeneralTierFlag: Self = Self(1 << 0);
+    pub const GeneralProgressiveSourceFlag: Self = Self(1 << 1);
+    pub const GeneralInterlacedSourceFlag: Self = Self(1 << 2);
+    pub const GeneralNonPackedConstraintFlag: Self = Self(1 << 3);
+    pub const GeneralFrameOnlyConstraintFlag: Self = Self(1 << 4);
 }
-impl Default for H265ProfileTierLevelFlags {
-    fn default() -> Self {
-        Self {
-            general_tier_flag: 0,
-            general_progressive_source_flag: 0,
-            general_interlaced_source_flag: 0,
-            general_non_packed_constraint_flag: 0,
-            general_frame_only_constraint_flag: 0,
+impl core::fmt::Display for H265ProfileTierLevelFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265ProfileTierLevelFlags, &str)] = &[
+            (
+                H265ProfileTierLevelFlags::GeneralTierFlag,
+                "GeneralTierFlag",
+            ),
+            (
+                H265ProfileTierLevelFlags::GeneralProgressiveSourceFlag,
+                "GeneralProgressiveSourceFlag",
+            ),
+            (
+                H265ProfileTierLevelFlags::GeneralInterlacedSourceFlag,
+                "GeneralInterlacedSourceFlag",
+            ),
+            (
+                H265ProfileTierLevelFlags::GeneralNonPackedConstraintFlag,
+                "GeneralNonPackedConstraintFlag",
+            ),
+            (
+                H265ProfileTierLevelFlags::GeneralFrameOnlyConstraintFlag,
+                "GeneralFrameOnlyConstraintFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265ProfileTierLevelFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -906,28 +1237,77 @@ impl Default for H265SubLayerHrdParameters {
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct H265HrdFlags {
-    pub nal_hrd_parameters_present_flag: u32,
-    pub vcl_hrd_parameters_present_flag: u32,
-    pub sub_pic_hrd_params_present_flag: u32,
-    pub sub_pic_cpb_params_in_pic_timing_sei_flag: u32,
-    /// each bit represents a sublayer, bit 0 - vps_max_sub_layers_minus1
-    pub fixed_pic_rate_general_flag: u32,
-    /// each bit represents a sublayer, bit 0 - vps_max_sub_layers_minus1
-    pub fixed_pic_rate_within_cvs_flag: u32,
-    /// each bit represents a sublayer, bit 0 - vps_max_sub_layers_minus1
-    pub low_delay_hrd_flag: u32,
+    /// Packed bitfields - use the generated getter/setter methods
+    pub bitfields: u32,
 }
 impl Default for H265HrdFlags {
     fn default() -> Self {
-        Self {
-            nal_hrd_parameters_present_flag: 0,
-            vcl_hrd_parameters_present_flag: 0,
-            sub_pic_hrd_params_present_flag: 0,
-            sub_pic_cpb_params_in_pic_timing_sei_flag: 0,
-            fixed_pic_rate_general_flag: 0,
-            fixed_pic_rate_within_cvs_flag: 0,
-            low_delay_hrd_flag: 0,
-        }
+        Self { bitfields: 0 }
+    }
+}
+
+impl H265HrdFlags {
+    #[inline]
+    pub const fn nal_hrd_parameters_present_flag(&self) -> bool {
+        self.bitfields & (1 << 0) != 0
+    }
+    #[inline]
+    pub const fn set_nal_hrd_parameters_present_flag(&mut self, value: bool) {
+        self.bitfields = (self.bitfields & !(1 << 0)) | ((value as u32) << 0);
+    }
+    #[inline]
+    pub const fn vcl_hrd_parameters_present_flag(&self) -> bool {
+        self.bitfields & (1 << 1) != 0
+    }
+    #[inline]
+    pub const fn set_vcl_hrd_parameters_present_flag(&mut self, value: bool) {
+        self.bitfields = (self.bitfields & !(1 << 1)) | ((value as u32) << 1);
+    }
+    #[inline]
+    pub const fn sub_pic_hrd_params_present_flag(&self) -> bool {
+        self.bitfields & (1 << 2) != 0
+    }
+    #[inline]
+    pub const fn set_sub_pic_hrd_params_present_flag(&mut self, value: bool) {
+        self.bitfields = (self.bitfields & !(1 << 2)) | ((value as u32) << 2);
+    }
+    #[inline]
+    pub const fn sub_pic_cpb_params_in_pic_timing_sei_flag(&self) -> bool {
+        self.bitfields & (1 << 3) != 0
+    }
+    #[inline]
+    pub const fn set_sub_pic_cpb_params_in_pic_timing_sei_flag(&mut self, value: bool) {
+        self.bitfields = (self.bitfields & !(1 << 3)) | ((value as u32) << 3);
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn fixed_pic_rate_general_flag(&self) -> u32 {
+        (self.bitfields >> 4) & 0xff
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn set_fixed_pic_rate_general_flag(&mut self, value: u32) {
+        self.bitfields = (self.bitfields & !(0xff << 4)) | ((value & 0xff) << 4);
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn fixed_pic_rate_within_cvs_flag(&self) -> u32 {
+        (self.bitfields >> 12) & 0xff
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn set_fixed_pic_rate_within_cvs_flag(&mut self, value: u32) {
+        self.bitfields = (self.bitfields & !(0xff << 12)) | ((value & 0xff) << 12);
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn low_delay_hrd_flag(&self) -> u32 {
+        (self.bitfields >> 20) & 0xff
+    }
+    /// Only the low 8 bits are used.
+    #[inline]
+    pub const fn set_low_delay_hrd_flag(&mut self, value: u32) {
+        self.bitfields = (self.bitfields & !(0xff << 20)) | ((value & 0xff) << 20);
     }
 }
 
@@ -981,22 +1361,56 @@ impl Default for H265HrdParameters<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265VpsFlags {
-    pub vps_temporal_id_nesting_flag: u32,
-    pub vps_sub_layer_ordering_info_present_flag: u32,
-    pub vps_timing_info_present_flag: u32,
-    pub vps_poc_proportional_to_timing_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265VpsFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265VpsFlags, u32);
+impl H265VpsFlags {
+    pub const VpsTemporalIdNestingFlag: Self = Self(1 << 0);
+    pub const VpsSubLayerOrderingInfoPresentFlag: Self = Self(1 << 1);
+    pub const VpsTimingInfoPresentFlag: Self = Self(1 << 2);
+    pub const VpsPocProportionalToTimingFlag: Self = Self(1 << 3);
 }
-impl Default for H265VpsFlags {
-    fn default() -> Self {
-        Self {
-            vps_temporal_id_nesting_flag: 0,
-            vps_sub_layer_ordering_info_present_flag: 0,
-            vps_timing_info_present_flag: 0,
-            vps_poc_proportional_to_timing_flag: 0,
+impl core::fmt::Display for H265VpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265VpsFlags, &str)] = &[
+            (
+                H265VpsFlags::VpsTemporalIdNestingFlag,
+                "VpsTemporalIdNestingFlag",
+            ),
+            (
+                H265VpsFlags::VpsSubLayerOrderingInfoPresentFlag,
+                "VpsSubLayerOrderingInfoPresentFlag",
+            ),
+            (
+                H265VpsFlags::VpsTimingInfoPresentFlag,
+                "VpsTimingInfoPresentFlag",
+            ),
+            (
+                H265VpsFlags::VpsPocProportionalToTimingFlag,
+                "VpsPocProportionalToTimingFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265VpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1076,18 +1490,43 @@ impl Default for H265ScalingLists {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265ShortTermRefPicSetFlags {
-    pub inter_ref_pic_set_prediction_flag: u32,
-    pub delta_rps_sign: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265ShortTermRefPicSetFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265ShortTermRefPicSetFlags, u32);
+impl H265ShortTermRefPicSetFlags {
+    pub const InterRefPicSetPredictionFlag: Self = Self(1 << 0);
+    pub const DeltaRpsSign: Self = Self(1 << 1);
 }
-impl Default for H265ShortTermRefPicSetFlags {
-    fn default() -> Self {
-        Self {
-            inter_ref_pic_set_prediction_flag: 0,
-            delta_rps_sign: 0,
+impl core::fmt::Display for H265ShortTermRefPicSetFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265ShortTermRefPicSetFlags, &str)] = &[
+            (
+                H265ShortTermRefPicSetFlags::InterRefPicSetPredictionFlag,
+                "InterRefPicSetPredictionFlag",
+            ),
+            (H265ShortTermRefPicSetFlags::DeltaRpsSign, "DeltaRpsSign"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265ShortTermRefPicSetFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1153,50 +1592,120 @@ impl Default for H265LongTermRefPicsSps {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265SpsVuiFlags {
-    pub aspect_ratio_info_present_flag: u32,
-    pub overscan_info_present_flag: u32,
-    pub overscan_appropriate_flag: u32,
-    pub video_signal_type_present_flag: u32,
-    pub video_full_range_flag: u32,
-    pub colour_description_present_flag: u32,
-    pub chroma_loc_info_present_flag: u32,
-    pub neutral_chroma_indication_flag: u32,
-    pub field_seq_flag: u32,
-    pub frame_field_info_present_flag: u32,
-    pub default_display_window_flag: u32,
-    pub vui_timing_info_present_flag: u32,
-    pub vui_poc_proportional_to_timing_flag: u32,
-    pub vui_hrd_parameters_present_flag: u32,
-    pub bitstream_restriction_flag: u32,
-    pub tiles_fixed_structure_flag: u32,
-    pub motion_vectors_over_pic_boundaries_flag: u32,
-    pub restricted_ref_pic_lists_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265SpsVuiFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265SpsVuiFlags, u32);
+impl H265SpsVuiFlags {
+    pub const AspectRatioInfoPresentFlag: Self = Self(1 << 0);
+    pub const OverscanInfoPresentFlag: Self = Self(1 << 1);
+    pub const OverscanAppropriateFlag: Self = Self(1 << 2);
+    pub const VideoSignalTypePresentFlag: Self = Self(1 << 3);
+    pub const VideoFullRangeFlag: Self = Self(1 << 4);
+    pub const ColourDescriptionPresentFlag: Self = Self(1 << 5);
+    pub const ChromaLocInfoPresentFlag: Self = Self(1 << 6);
+    pub const NeutralChromaIndicationFlag: Self = Self(1 << 7);
+    pub const FieldSeqFlag: Self = Self(1 << 8);
+    pub const FrameFieldInfoPresentFlag: Self = Self(1 << 9);
+    pub const DefaultDisplayWindowFlag: Self = Self(1 << 10);
+    pub const VuiTimingInfoPresentFlag: Self = Self(1 << 11);
+    pub const VuiPocProportionalToTimingFlag: Self = Self(1 << 12);
+    pub const VuiHrdParametersPresentFlag: Self = Self(1 << 13);
+    pub const BitstreamRestrictionFlag: Self = Self(1 << 14);
+    pub const TilesFixedStructureFlag: Self = Self(1 << 15);
+    pub const MotionVectorsOverPicBoundariesFlag: Self = Self(1 << 16);
+    pub const RestrictedRefPicListsFlag: Self = Self(1 << 17);
 }
-impl Default for H265SpsVuiFlags {
-    fn default() -> Self {
-        Self {
-            aspect_ratio_info_present_flag: 0,
-            overscan_info_present_flag: 0,
-            overscan_appropriate_flag: 0,
-            video_signal_type_present_flag: 0,
-            video_full_range_flag: 0,
-            colour_description_present_flag: 0,
-            chroma_loc_info_present_flag: 0,
-            neutral_chroma_indication_flag: 0,
-            field_seq_flag: 0,
-            frame_field_info_present_flag: 0,
-            default_display_window_flag: 0,
-            vui_timing_info_present_flag: 0,
-            vui_poc_proportional_to_timing_flag: 0,
-            vui_hrd_parameters_present_flag: 0,
-            bitstream_restriction_flag: 0,
-            tiles_fixed_structure_flag: 0,
-            motion_vectors_over_pic_boundaries_flag: 0,
-            restricted_ref_pic_lists_flag: 0,
+impl core::fmt::Display for H265SpsVuiFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265SpsVuiFlags, &str)] = &[
+            (
+                H265SpsVuiFlags::AspectRatioInfoPresentFlag,
+                "AspectRatioInfoPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::OverscanInfoPresentFlag,
+                "OverscanInfoPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::OverscanAppropriateFlag,
+                "OverscanAppropriateFlag",
+            ),
+            (
+                H265SpsVuiFlags::VideoSignalTypePresentFlag,
+                "VideoSignalTypePresentFlag",
+            ),
+            (H265SpsVuiFlags::VideoFullRangeFlag, "VideoFullRangeFlag"),
+            (
+                H265SpsVuiFlags::ColourDescriptionPresentFlag,
+                "ColourDescriptionPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::ChromaLocInfoPresentFlag,
+                "ChromaLocInfoPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::NeutralChromaIndicationFlag,
+                "NeutralChromaIndicationFlag",
+            ),
+            (H265SpsVuiFlags::FieldSeqFlag, "FieldSeqFlag"),
+            (
+                H265SpsVuiFlags::FrameFieldInfoPresentFlag,
+                "FrameFieldInfoPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::DefaultDisplayWindowFlag,
+                "DefaultDisplayWindowFlag",
+            ),
+            (
+                H265SpsVuiFlags::VuiTimingInfoPresentFlag,
+                "VuiTimingInfoPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::VuiPocProportionalToTimingFlag,
+                "VuiPocProportionalToTimingFlag",
+            ),
+            (
+                H265SpsVuiFlags::VuiHrdParametersPresentFlag,
+                "VuiHrdParametersPresentFlag",
+            ),
+            (
+                H265SpsVuiFlags::BitstreamRestrictionFlag,
+                "BitstreamRestrictionFlag",
+            ),
+            (
+                H265SpsVuiFlags::TilesFixedStructureFlag,
+                "TilesFixedStructureFlag",
+            ),
+            (
+                H265SpsVuiFlags::MotionVectorsOverPicBoundariesFlag,
+                "MotionVectorsOverPicBoundariesFlag",
+            ),
+            (
+                H265SpsVuiFlags::RestrictedRefPicListsFlag,
+                "RestrictedRefPicListsFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265SpsVuiFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1283,74 +1792,171 @@ impl Default for H265PredictorPaletteEntries {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265SpsFlags {
-    pub sps_temporal_id_nesting_flag: u32,
-    pub separate_colour_plane_flag: u32,
-    pub conformance_window_flag: u32,
-    pub sps_sub_layer_ordering_info_present_flag: u32,
-    pub scaling_list_enabled_flag: u32,
-    pub sps_scaling_list_data_present_flag: u32,
-    pub amp_enabled_flag: u32,
-    pub sample_adaptive_offset_enabled_flag: u32,
-    pub pcm_enabled_flag: u32,
-    pub pcm_loop_filter_disabled_flag: u32,
-    pub long_term_ref_pics_present_flag: u32,
-    pub sps_temporal_mvp_enabled_flag: u32,
-    pub strong_intra_smoothing_enabled_flag: u32,
-    pub vui_parameters_present_flag: u32,
-    pub sps_extension_present_flag: u32,
-    pub sps_range_extension_flag: u32,
-    pub transform_skip_rotation_enabled_flag: u32,
-    pub transform_skip_context_enabled_flag: u32,
-    pub implicit_rdpcm_enabled_flag: u32,
-    pub explicit_rdpcm_enabled_flag: u32,
-    pub extended_precision_processing_flag: u32,
-    pub intra_smoothing_disabled_flag: u32,
-    pub high_precision_offsets_enabled_flag: u32,
-    pub persistent_rice_adaptation_enabled_flag: u32,
-    pub cabac_bypass_alignment_enabled_flag: u32,
-    pub sps_scc_extension_flag: u32,
-    pub sps_curr_pic_ref_enabled_flag: u32,
-    pub palette_mode_enabled_flag: u32,
-    pub sps_palette_predictor_initializers_present_flag: u32,
-    pub intra_boundary_filtering_disabled_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265SpsFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265SpsFlags, u32);
+impl H265SpsFlags {
+    pub const SpsTemporalIdNestingFlag: Self = Self(1 << 0);
+    pub const SeparateColourPlaneFlag: Self = Self(1 << 1);
+    pub const ConformanceWindowFlag: Self = Self(1 << 2);
+    pub const SpsSubLayerOrderingInfoPresentFlag: Self = Self(1 << 3);
+    pub const ScalingListEnabledFlag: Self = Self(1 << 4);
+    pub const SpsScalingListDataPresentFlag: Self = Self(1 << 5);
+    pub const AmpEnabledFlag: Self = Self(1 << 6);
+    pub const SampleAdaptiveOffsetEnabledFlag: Self = Self(1 << 7);
+    pub const PcmEnabledFlag: Self = Self(1 << 8);
+    pub const PcmLoopFilterDisabledFlag: Self = Self(1 << 9);
+    pub const LongTermRefPicsPresentFlag: Self = Self(1 << 10);
+    pub const SpsTemporalMvpEnabledFlag: Self = Self(1 << 11);
+    pub const StrongIntraSmoothingEnabledFlag: Self = Self(1 << 12);
+    pub const VuiParametersPresentFlag: Self = Self(1 << 13);
+    pub const SpsExtensionPresentFlag: Self = Self(1 << 14);
+    pub const SpsRangeExtensionFlag: Self = Self(1 << 15);
+    pub const TransformSkipRotationEnabledFlag: Self = Self(1 << 16);
+    pub const TransformSkipContextEnabledFlag: Self = Self(1 << 17);
+    pub const ImplicitRdpcmEnabledFlag: Self = Self(1 << 18);
+    pub const ExplicitRdpcmEnabledFlag: Self = Self(1 << 19);
+    pub const ExtendedPrecisionProcessingFlag: Self = Self(1 << 20);
+    pub const IntraSmoothingDisabledFlag: Self = Self(1 << 21);
+    pub const HighPrecisionOffsetsEnabledFlag: Self = Self(1 << 22);
+    pub const PersistentRiceAdaptationEnabledFlag: Self = Self(1 << 23);
+    pub const CabacBypassAlignmentEnabledFlag: Self = Self(1 << 24);
+    pub const SpsSccExtensionFlag: Self = Self(1 << 25);
+    pub const SpsCurrPicRefEnabledFlag: Self = Self(1 << 26);
+    pub const PaletteModeEnabledFlag: Self = Self(1 << 27);
+    pub const SpsPalettePredictorInitializersPresentFlag: Self = Self(1 << 28);
+    pub const IntraBoundaryFilteringDisabledFlag: Self = Self(1 << 29);
 }
-impl Default for H265SpsFlags {
-    fn default() -> Self {
-        Self {
-            sps_temporal_id_nesting_flag: 0,
-            separate_colour_plane_flag: 0,
-            conformance_window_flag: 0,
-            sps_sub_layer_ordering_info_present_flag: 0,
-            scaling_list_enabled_flag: 0,
-            sps_scaling_list_data_present_flag: 0,
-            amp_enabled_flag: 0,
-            sample_adaptive_offset_enabled_flag: 0,
-            pcm_enabled_flag: 0,
-            pcm_loop_filter_disabled_flag: 0,
-            long_term_ref_pics_present_flag: 0,
-            sps_temporal_mvp_enabled_flag: 0,
-            strong_intra_smoothing_enabled_flag: 0,
-            vui_parameters_present_flag: 0,
-            sps_extension_present_flag: 0,
-            sps_range_extension_flag: 0,
-            transform_skip_rotation_enabled_flag: 0,
-            transform_skip_context_enabled_flag: 0,
-            implicit_rdpcm_enabled_flag: 0,
-            explicit_rdpcm_enabled_flag: 0,
-            extended_precision_processing_flag: 0,
-            intra_smoothing_disabled_flag: 0,
-            high_precision_offsets_enabled_flag: 0,
-            persistent_rice_adaptation_enabled_flag: 0,
-            cabac_bypass_alignment_enabled_flag: 0,
-            sps_scc_extension_flag: 0,
-            sps_curr_pic_ref_enabled_flag: 0,
-            palette_mode_enabled_flag: 0,
-            sps_palette_predictor_initializers_present_flag: 0,
-            intra_boundary_filtering_disabled_flag: 0,
+impl core::fmt::Display for H265SpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265SpsFlags, &str)] = &[
+            (
+                H265SpsFlags::SpsTemporalIdNestingFlag,
+                "SpsTemporalIdNestingFlag",
+            ),
+            (
+                H265SpsFlags::SeparateColourPlaneFlag,
+                "SeparateColourPlaneFlag",
+            ),
+            (H265SpsFlags::ConformanceWindowFlag, "ConformanceWindowFlag"),
+            (
+                H265SpsFlags::SpsSubLayerOrderingInfoPresentFlag,
+                "SpsSubLayerOrderingInfoPresentFlag",
+            ),
+            (
+                H265SpsFlags::ScalingListEnabledFlag,
+                "ScalingListEnabledFlag",
+            ),
+            (
+                H265SpsFlags::SpsScalingListDataPresentFlag,
+                "SpsScalingListDataPresentFlag",
+            ),
+            (H265SpsFlags::AmpEnabledFlag, "AmpEnabledFlag"),
+            (
+                H265SpsFlags::SampleAdaptiveOffsetEnabledFlag,
+                "SampleAdaptiveOffsetEnabledFlag",
+            ),
+            (H265SpsFlags::PcmEnabledFlag, "PcmEnabledFlag"),
+            (
+                H265SpsFlags::PcmLoopFilterDisabledFlag,
+                "PcmLoopFilterDisabledFlag",
+            ),
+            (
+                H265SpsFlags::LongTermRefPicsPresentFlag,
+                "LongTermRefPicsPresentFlag",
+            ),
+            (
+                H265SpsFlags::SpsTemporalMvpEnabledFlag,
+                "SpsTemporalMvpEnabledFlag",
+            ),
+            (
+                H265SpsFlags::StrongIntraSmoothingEnabledFlag,
+                "StrongIntraSmoothingEnabledFlag",
+            ),
+            (
+                H265SpsFlags::VuiParametersPresentFlag,
+                "VuiParametersPresentFlag",
+            ),
+            (
+                H265SpsFlags::SpsExtensionPresentFlag,
+                "SpsExtensionPresentFlag",
+            ),
+            (H265SpsFlags::SpsRangeExtensionFlag, "SpsRangeExtensionFlag"),
+            (
+                H265SpsFlags::TransformSkipRotationEnabledFlag,
+                "TransformSkipRotationEnabledFlag",
+            ),
+            (
+                H265SpsFlags::TransformSkipContextEnabledFlag,
+                "TransformSkipContextEnabledFlag",
+            ),
+            (
+                H265SpsFlags::ImplicitRdpcmEnabledFlag,
+                "ImplicitRdpcmEnabledFlag",
+            ),
+            (
+                H265SpsFlags::ExplicitRdpcmEnabledFlag,
+                "ExplicitRdpcmEnabledFlag",
+            ),
+            (
+                H265SpsFlags::ExtendedPrecisionProcessingFlag,
+                "ExtendedPrecisionProcessingFlag",
+            ),
+            (
+                H265SpsFlags::IntraSmoothingDisabledFlag,
+                "IntraSmoothingDisabledFlag",
+            ),
+            (
+                H265SpsFlags::HighPrecisionOffsetsEnabledFlag,
+                "HighPrecisionOffsetsEnabledFlag",
+            ),
+            (
+                H265SpsFlags::PersistentRiceAdaptationEnabledFlag,
+                "PersistentRiceAdaptationEnabledFlag",
+            ),
+            (
+                H265SpsFlags::CabacBypassAlignmentEnabledFlag,
+                "CabacBypassAlignmentEnabledFlag",
+            ),
+            (H265SpsFlags::SpsSccExtensionFlag, "SpsSccExtensionFlag"),
+            (
+                H265SpsFlags::SpsCurrPicRefEnabledFlag,
+                "SpsCurrPicRefEnabledFlag",
+            ),
+            (
+                H265SpsFlags::PaletteModeEnabledFlag,
+                "PaletteModeEnabledFlag",
+            ),
+            (
+                H265SpsFlags::SpsPalettePredictorInitializersPresentFlag,
+                "SpsPalettePredictorInitializersPresentFlag",
+            ),
+            (
+                H265SpsFlags::IntraBoundaryFilteringDisabledFlag,
+                "IntraBoundaryFilteringDisabledFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265SpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1459,76 +2065,164 @@ impl Default for H265SequenceParameterSet<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct H265PpsFlags {
-    pub dependent_slice_segments_enabled_flag: u32,
-    pub output_flag_present_flag: u32,
-    pub sign_data_hiding_enabled_flag: u32,
-    pub cabac_init_present_flag: u32,
-    pub constrained_intra_pred_flag: u32,
-    pub transform_skip_enabled_flag: u32,
-    pub cu_qp_delta_enabled_flag: u32,
-    pub pps_slice_chroma_qp_offsets_present_flag: u32,
-    pub weighted_pred_flag: u32,
-    pub weighted_bipred_flag: u32,
-    pub transquant_bypass_enabled_flag: u32,
-    pub tiles_enabled_flag: u32,
-    pub entropy_coding_sync_enabled_flag: u32,
-    pub uniform_spacing_flag: u32,
-    pub loop_filter_across_tiles_enabled_flag: u32,
-    pub pps_loop_filter_across_slices_enabled_flag: u32,
-    pub deblocking_filter_control_present_flag: u32,
-    pub deblocking_filter_override_enabled_flag: u32,
-    pub pps_deblocking_filter_disabled_flag: u32,
-    pub pps_scaling_list_data_present_flag: u32,
-    pub lists_modification_present_flag: u32,
-    pub slice_segment_header_extension_present_flag: u32,
-    pub pps_extension_present_flag: u32,
-    pub cross_component_prediction_enabled_flag: u32,
-    pub chroma_qp_offset_list_enabled_flag: u32,
-    pub pps_curr_pic_ref_enabled_flag: u32,
-    pub residual_adaptive_colour_transform_enabled_flag: u32,
-    pub pps_slice_act_qp_offsets_present_flag: u32,
-    pub pps_palette_predictor_initializers_present_flag: u32,
-    pub monochrome_palette_flag: u32,
-    pub pps_range_extension_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct H265PpsFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(H265PpsFlags, u32);
+impl H265PpsFlags {
+    pub const DependentSliceSegmentsEnabledFlag: Self = Self(1 << 0);
+    pub const OutputFlagPresentFlag: Self = Self(1 << 1);
+    pub const SignDataHidingEnabledFlag: Self = Self(1 << 2);
+    pub const CabacInitPresentFlag: Self = Self(1 << 3);
+    pub const ConstrainedIntraPredFlag: Self = Self(1 << 4);
+    pub const TransformSkipEnabledFlag: Self = Self(1 << 5);
+    pub const CuQpDeltaEnabledFlag: Self = Self(1 << 6);
+    pub const PpsSliceChromaQpOffsetsPresentFlag: Self = Self(1 << 7);
+    pub const WeightedPredFlag: Self = Self(1 << 8);
+    pub const WeightedBipredFlag: Self = Self(1 << 9);
+    pub const TransquantBypassEnabledFlag: Self = Self(1 << 10);
+    pub const TilesEnabledFlag: Self = Self(1 << 11);
+    pub const EntropyCodingSyncEnabledFlag: Self = Self(1 << 12);
+    pub const UniformSpacingFlag: Self = Self(1 << 13);
+    pub const LoopFilterAcrossTilesEnabledFlag: Self = Self(1 << 14);
+    pub const PpsLoopFilterAcrossSlicesEnabledFlag: Self = Self(1 << 15);
+    pub const DeblockingFilterControlPresentFlag: Self = Self(1 << 16);
+    pub const DeblockingFilterOverrideEnabledFlag: Self = Self(1 << 17);
+    pub const PpsDeblockingFilterDisabledFlag: Self = Self(1 << 18);
+    pub const PpsScalingListDataPresentFlag: Self = Self(1 << 19);
+    pub const ListsModificationPresentFlag: Self = Self(1 << 20);
+    pub const SliceSegmentHeaderExtensionPresentFlag: Self = Self(1 << 21);
+    pub const PpsExtensionPresentFlag: Self = Self(1 << 22);
+    pub const CrossComponentPredictionEnabledFlag: Self = Self(1 << 23);
+    pub const ChromaQpOffsetListEnabledFlag: Self = Self(1 << 24);
+    pub const PpsCurrPicRefEnabledFlag: Self = Self(1 << 25);
+    pub const ResidualAdaptiveColourTransformEnabledFlag: Self = Self(1 << 26);
+    pub const PpsSliceActQpOffsetsPresentFlag: Self = Self(1 << 27);
+    pub const PpsPalettePredictorInitializersPresentFlag: Self = Self(1 << 28);
+    pub const MonochromePaletteFlag: Self = Self(1 << 29);
+    pub const PpsRangeExtensionFlag: Self = Self(1 << 30);
 }
-impl Default for H265PpsFlags {
-    fn default() -> Self {
-        Self {
-            dependent_slice_segments_enabled_flag: 0,
-            output_flag_present_flag: 0,
-            sign_data_hiding_enabled_flag: 0,
-            cabac_init_present_flag: 0,
-            constrained_intra_pred_flag: 0,
-            transform_skip_enabled_flag: 0,
-            cu_qp_delta_enabled_flag: 0,
-            pps_slice_chroma_qp_offsets_present_flag: 0,
-            weighted_pred_flag: 0,
-            weighted_bipred_flag: 0,
-            transquant_bypass_enabled_flag: 0,
-            tiles_enabled_flag: 0,
-            entropy_coding_sync_enabled_flag: 0,
-            uniform_spacing_flag: 0,
-            loop_filter_across_tiles_enabled_flag: 0,
-            pps_loop_filter_across_slices_enabled_flag: 0,
-            deblocking_filter_control_present_flag: 0,
-            deblocking_filter_override_enabled_flag: 0,
-            pps_deblocking_filter_disabled_flag: 0,
-            pps_scaling_list_data_present_flag: 0,
-            lists_modification_present_flag: 0,
-            slice_segment_header_extension_present_flag: 0,
-            pps_extension_present_flag: 0,
-            cross_component_prediction_enabled_flag: 0,
-            chroma_qp_offset_list_enabled_flag: 0,
-            pps_curr_pic_ref_enabled_flag: 0,
-            residual_adaptive_colour_transform_enabled_flag: 0,
-            pps_slice_act_qp_offsets_present_flag: 0,
-            pps_palette_predictor_initializers_present_flag: 0,
-            monochrome_palette_flag: 0,
-            pps_range_extension_flag: 0,
+impl core::fmt::Display for H265PpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(H265PpsFlags, &str)] = &[
+            (
+                H265PpsFlags::DependentSliceSegmentsEnabledFlag,
+                "DependentSliceSegmentsEnabledFlag",
+            ),
+            (H265PpsFlags::OutputFlagPresentFlag, "OutputFlagPresentFlag"),
+            (
+                H265PpsFlags::SignDataHidingEnabledFlag,
+                "SignDataHidingEnabledFlag",
+            ),
+            (H265PpsFlags::CabacInitPresentFlag, "CabacInitPresentFlag"),
+            (
+                H265PpsFlags::ConstrainedIntraPredFlag,
+                "ConstrainedIntraPredFlag",
+            ),
+            (
+                H265PpsFlags::TransformSkipEnabledFlag,
+                "TransformSkipEnabledFlag",
+            ),
+            (H265PpsFlags::CuQpDeltaEnabledFlag, "CuQpDeltaEnabledFlag"),
+            (
+                H265PpsFlags::PpsSliceChromaQpOffsetsPresentFlag,
+                "PpsSliceChromaQpOffsetsPresentFlag",
+            ),
+            (H265PpsFlags::WeightedPredFlag, "WeightedPredFlag"),
+            (H265PpsFlags::WeightedBipredFlag, "WeightedBipredFlag"),
+            (
+                H265PpsFlags::TransquantBypassEnabledFlag,
+                "TransquantBypassEnabledFlag",
+            ),
+            (H265PpsFlags::TilesEnabledFlag, "TilesEnabledFlag"),
+            (
+                H265PpsFlags::EntropyCodingSyncEnabledFlag,
+                "EntropyCodingSyncEnabledFlag",
+            ),
+            (H265PpsFlags::UniformSpacingFlag, "UniformSpacingFlag"),
+            (
+                H265PpsFlags::LoopFilterAcrossTilesEnabledFlag,
+                "LoopFilterAcrossTilesEnabledFlag",
+            ),
+            (
+                H265PpsFlags::PpsLoopFilterAcrossSlicesEnabledFlag,
+                "PpsLoopFilterAcrossSlicesEnabledFlag",
+            ),
+            (
+                H265PpsFlags::DeblockingFilterControlPresentFlag,
+                "DeblockingFilterControlPresentFlag",
+            ),
+            (
+                H265PpsFlags::DeblockingFilterOverrideEnabledFlag,
+                "DeblockingFilterOverrideEnabledFlag",
+            ),
+            (
+                H265PpsFlags::PpsDeblockingFilterDisabledFlag,
+                "PpsDeblockingFilterDisabledFlag",
+            ),
+            (
+                H265PpsFlags::PpsScalingListDataPresentFlag,
+                "PpsScalingListDataPresentFlag",
+            ),
+            (
+                H265PpsFlags::ListsModificationPresentFlag,
+                "ListsModificationPresentFlag",
+            ),
+            (
+                H265PpsFlags::SliceSegmentHeaderExtensionPresentFlag,
+                "SliceSegmentHeaderExtensionPresentFlag",
+            ),
+            (
+                H265PpsFlags::PpsExtensionPresentFlag,
+                "PpsExtensionPresentFlag",
+            ),
+            (
+                H265PpsFlags::CrossComponentPredictionEnabledFlag,
+                "CrossComponentPredictionEnabledFlag",
+            ),
+            (
+                H265PpsFlags::ChromaQpOffsetListEnabledFlag,
+                "ChromaQpOffsetListEnabledFlag",
+            ),
+            (
+                H265PpsFlags::PpsCurrPicRefEnabledFlag,
+                "PpsCurrPicRefEnabledFlag",
+            ),
+            (
+                H265PpsFlags::ResidualAdaptiveColourTransformEnabledFlag,
+                "ResidualAdaptiveColourTransformEnabledFlag",
+            ),
+            (
+                H265PpsFlags::PpsSliceActQpOffsetsPresentFlag,
+                "PpsSliceActQpOffsetsPresentFlag",
+            ),
+            (
+                H265PpsFlags::PpsPalettePredictorInitializersPresentFlag,
+                "PpsPalettePredictorInitializersPresentFlag",
+            ),
+            (H265PpsFlags::MonochromePaletteFlag, "MonochromePaletteFlag"),
+            (H265PpsFlags::PpsRangeExtensionFlag, "PpsRangeExtensionFlag"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for H265PpsFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1624,22 +2318,47 @@ impl Default for H265PictureParameterSet<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeH265PictureInfoFlags {
-    pub irap_pic_flag: u32,
-    pub idr_pic_flag: u32,
-    pub is_reference: u32,
-    pub short_term_ref_pic_set_sps_flag: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeH265PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeH265PictureInfoFlags, u32);
+impl DecodeH265PictureInfoFlags {
+    pub const IrapPicFlag: Self = Self(1 << 0);
+    pub const IdrPicFlag: Self = Self(1 << 1);
+    pub const IsReference: Self = Self(1 << 2);
+    pub const ShortTermRefPicSetSpsFlag: Self = Self(1 << 3);
 }
-impl Default for DecodeH265PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            irap_pic_flag: 0,
-            idr_pic_flag: 0,
-            is_reference: 0,
-            short_term_ref_pic_set_sps_flag: 0,
+impl core::fmt::Display for DecodeH265PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeH265PictureInfoFlags, &str)] = &[
+            (DecodeH265PictureInfoFlags::IrapPicFlag, "IrapPicFlag"),
+            (DecodeH265PictureInfoFlags::IdrPicFlag, "IdrPicFlag"),
+            (DecodeH265PictureInfoFlags::IsReference, "IsReference"),
+            (
+                DecodeH265PictureInfoFlags::ShortTermRefPicSetSpsFlag,
+                "ShortTermRefPicSetSpsFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeH265PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1684,20 +2403,48 @@ impl Default for DecodeH265PictureInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeH265ReferenceInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeH265ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeH265ReferenceInfoFlags, u32);
+impl DecodeH265ReferenceInfoFlags {
     /// A picture that is marked as "used for long-term reference", derived binary value from clause 8.3.2 Decoding process for reference picture set
-    pub used_for_long_term_reference: u32,
+    pub const UsedForLongTermReference: Self = Self(1 << 0);
     /// A picture that is marked as "unused for reference", derived binary value from clause 8.3.2 Decoding process for reference picture set
-    pub unused_for_reference: u32,
+    pub const UnusedForReference: Self = Self(1 << 1);
 }
-impl Default for DecodeH265ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            used_for_long_term_reference: 0,
-            unused_for_reference: 0,
+impl core::fmt::Display for DecodeH265ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeH265ReferenceInfoFlags, &str)] = &[
+            (
+                DecodeH265ReferenceInfoFlags::UsedForLongTermReference,
+                "UsedForLongTermReference",
+            ),
+            (
+                DecodeH265ReferenceInfoFlags::UnusedForReference,
+                "UnusedForReference",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeH265ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1809,40 +2556,96 @@ impl Default for EncodeH265LongTermRefPics {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH265SliceSegmentHeaderFlags {
-    pub first_slice_segment_in_pic_flag: u32,
-    pub dependent_slice_segment_flag: u32,
-    pub slice_sao_luma_flag: u32,
-    pub slice_sao_chroma_flag: u32,
-    pub num_ref_idx_active_override_flag: u32,
-    pub mvd_l1_zero_flag: u32,
-    pub cabac_init_flag: u32,
-    pub cu_chroma_qp_offset_enabled_flag: u32,
-    pub deblocking_filter_override_flag: u32,
-    pub slice_deblocking_filter_disabled_flag: u32,
-    pub collocated_from_l0_flag: u32,
-    pub slice_loop_filter_across_slices_enabled_flag: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH265SliceSegmentHeaderFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH265SliceSegmentHeaderFlags, u32);
+impl EncodeH265SliceSegmentHeaderFlags {
+    pub const FirstSliceSegmentInPicFlag: Self = Self(1 << 0);
+    pub const DependentSliceSegmentFlag: Self = Self(1 << 1);
+    pub const SliceSaoLumaFlag: Self = Self(1 << 2);
+    pub const SliceSaoChromaFlag: Self = Self(1 << 3);
+    pub const NumRefIdxActiveOverrideFlag: Self = Self(1 << 4);
+    pub const MvdL1ZeroFlag: Self = Self(1 << 5);
+    pub const CabacInitFlag: Self = Self(1 << 6);
+    pub const CuChromaQpOffsetEnabledFlag: Self = Self(1 << 7);
+    pub const DeblockingFilterOverrideFlag: Self = Self(1 << 8);
+    pub const SliceDeblockingFilterDisabledFlag: Self = Self(1 << 9);
+    pub const CollocatedFromL0Flag: Self = Self(1 << 10);
+    pub const SliceLoopFilterAcrossSlicesEnabledFlag: Self = Self(1 << 11);
 }
-impl Default for EncodeH265SliceSegmentHeaderFlags {
-    fn default() -> Self {
-        Self {
-            first_slice_segment_in_pic_flag: 0,
-            dependent_slice_segment_flag: 0,
-            slice_sao_luma_flag: 0,
-            slice_sao_chroma_flag: 0,
-            num_ref_idx_active_override_flag: 0,
-            mvd_l1_zero_flag: 0,
-            cabac_init_flag: 0,
-            cu_chroma_qp_offset_enabled_flag: 0,
-            deblocking_filter_override_flag: 0,
-            slice_deblocking_filter_disabled_flag: 0,
-            collocated_from_l0_flag: 0,
-            slice_loop_filter_across_slices_enabled_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH265SliceSegmentHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH265SliceSegmentHeaderFlags, &str)] = &[
+            (
+                EncodeH265SliceSegmentHeaderFlags::FirstSliceSegmentInPicFlag,
+                "FirstSliceSegmentInPicFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::DependentSliceSegmentFlag,
+                "DependentSliceSegmentFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::SliceSaoLumaFlag,
+                "SliceSaoLumaFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::SliceSaoChromaFlag,
+                "SliceSaoChromaFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::NumRefIdxActiveOverrideFlag,
+                "NumRefIdxActiveOverrideFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::MvdL1ZeroFlag,
+                "MvdL1ZeroFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::CabacInitFlag,
+                "CabacInitFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::CuChromaQpOffsetEnabledFlag,
+                "CuChromaQpOffsetEnabledFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::DeblockingFilterOverrideFlag,
+                "DeblockingFilterOverrideFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::SliceDeblockingFilterDisabledFlag,
+                "SliceDeblockingFilterDisabledFlag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::CollocatedFromL0Flag,
+                "CollocatedFromL0Flag",
+            ),
+            (
+                EncodeH265SliceSegmentHeaderFlags::SliceLoopFilterAcrossSlicesEnabledFlag,
+                "SliceLoopFilterAcrossSlicesEnabledFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH265SliceSegmentHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1895,20 +2698,46 @@ impl Default for EncodeH265SliceSegmentHeader<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH265ReferenceListsInfoFlags {
-    pub ref_pic_list_modification_flag_l0: u32,
-    pub ref_pic_list_modification_flag_l1: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH265ReferenceListsInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH265ReferenceListsInfoFlags, u32);
+impl EncodeH265ReferenceListsInfoFlags {
+    pub const RefPicListModificationFlagL0: Self = Self(1 << 0);
+    pub const RefPicListModificationFlagL1: Self = Self(1 << 1);
 }
-impl Default for EncodeH265ReferenceListsInfoFlags {
-    fn default() -> Self {
-        Self {
-            ref_pic_list_modification_flag_l0: 0,
-            ref_pic_list_modification_flag_l1: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH265ReferenceListsInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH265ReferenceListsInfoFlags, &str)] = &[
+            (
+                EncodeH265ReferenceListsInfoFlags::RefPicListModificationFlagL0,
+                "RefPicListModificationFlagL0",
+            ),
+            (
+                EncodeH265ReferenceListsInfoFlags::RefPicListModificationFlagL1,
+                "RefPicListModificationFlagL1",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH265ReferenceListsInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -1939,37 +2768,75 @@ impl Default for EncodeH265ReferenceListsInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH265PictureInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH265PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH265PictureInfoFlags, u32);
+impl EncodeH265PictureInfoFlags {
     /// A reference picture, as defined in clause 3.132
-    pub is_reference: u32,
+    pub const IsReference: Self = Self(1 << 0);
     /// A reference picture, as defined in clause 3.73
-    pub irap_pic_flag: u32,
+    pub const IrapPicFlag: Self = Self(1 << 1);
     /// A picture that is marked as "used for long-term reference", derived binary value from clause 8.3.2 Decoding process for reference picture set
-    pub used_for_long_term_reference: u32,
-    pub discardable_flag: u32,
-    pub cross_layer_bla_flag: u32,
-    pub pic_output_flag: u32,
-    pub no_output_of_prior_pics_flag: u32,
-    pub short_term_ref_pic_set_sps_flag: u32,
-    pub slice_temporal_mvp_enabled_flag: u32,
-    pub reserved: u32,
+    pub const UsedForLongTermReference: Self = Self(1 << 2);
+    pub const DiscardableFlag: Self = Self(1 << 3);
+    pub const CrossLayerBlaFlag: Self = Self(1 << 4);
+    pub const PicOutputFlag: Self = Self(1 << 5);
+    pub const NoOutputOfPriorPicsFlag: Self = Self(1 << 6);
+    pub const ShortTermRefPicSetSpsFlag: Self = Self(1 << 7);
+    pub const SliceTemporalMvpEnabledFlag: Self = Self(1 << 8);
 }
-impl Default for EncodeH265PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            is_reference: 0,
-            irap_pic_flag: 0,
-            used_for_long_term_reference: 0,
-            discardable_flag: 0,
-            cross_layer_bla_flag: 0,
-            pic_output_flag: 0,
-            no_output_of_prior_pics_flag: 0,
-            short_term_ref_pic_set_sps_flag: 0,
-            slice_temporal_mvp_enabled_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH265PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH265PictureInfoFlags, &str)] = &[
+            (EncodeH265PictureInfoFlags::IsReference, "IsReference"),
+            (EncodeH265PictureInfoFlags::IrapPicFlag, "IrapPicFlag"),
+            (
+                EncodeH265PictureInfoFlags::UsedForLongTermReference,
+                "UsedForLongTermReference",
+            ),
+            (
+                EncodeH265PictureInfoFlags::DiscardableFlag,
+                "DiscardableFlag",
+            ),
+            (
+                EncodeH265PictureInfoFlags::CrossLayerBlaFlag,
+                "CrossLayerBlaFlag",
+            ),
+            (EncodeH265PictureInfoFlags::PicOutputFlag, "PicOutputFlag"),
+            (
+                EncodeH265PictureInfoFlags::NoOutputOfPriorPicsFlag,
+                "NoOutputOfPriorPicsFlag",
+            ),
+            (
+                EncodeH265PictureInfoFlags::ShortTermRefPicSetSpsFlag,
+                "ShortTermRefPicSetSpsFlag",
+            ),
+            (
+                EncodeH265PictureInfoFlags::SliceTemporalMvpEnabledFlag,
+                "SliceTemporalMvpEnabledFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH265PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2021,22 +2888,48 @@ impl Default for EncodeH265PictureInfo<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeH265ReferenceInfoFlags {
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeH265ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeH265ReferenceInfoFlags, u32);
+impl EncodeH265ReferenceInfoFlags {
     /// A picture that is marked as "used for long-term reference", derived binary value from clause 8.3.2 Decoding process for reference picture set
-    pub used_for_long_term_reference: u32,
+    pub const UsedForLongTermReference: Self = Self(1 << 0);
     /// A picture that is marked as "unused for reference", derived binary value from clause 8.3.2 Decoding process for reference picture set
-    pub unused_for_reference: u32,
-    pub reserved: u32,
+    pub const UnusedForReference: Self = Self(1 << 1);
 }
-impl Default for EncodeH265ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            used_for_long_term_reference: 0,
-            unused_for_reference: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeH265ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeH265ReferenceInfoFlags, &str)] = &[
+            (
+                EncodeH265ReferenceInfoFlags::UsedForLongTermReference,
+                "UsedForLongTermReference",
+            ),
+            (
+                EncodeH265ReferenceInfoFlags::UnusedForReference,
+                "UnusedForReference",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeH265ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2061,18 +2954,37 @@ impl Default for EncodeH265ReferenceInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct VP9ColorConfigFlags {
-    pub color_range: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct VP9ColorConfigFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(VP9ColorConfigFlags, u32);
+impl VP9ColorConfigFlags {
+    pub const ColorRange: Self = Self(1 << 0);
 }
-impl Default for VP9ColorConfigFlags {
-    fn default() -> Self {
-        Self {
-            color_range: 0,
-            reserved: 0,
+impl core::fmt::Display for VP9ColorConfigFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(VP9ColorConfigFlags, &str)] =
+            &[(VP9ColorConfigFlags::ColorRange, "ColorRange")];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for VP9ColorConfigFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2100,20 +3012,46 @@ impl Default for VP9ColorConfig {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct VP9LoopFilterFlags {
-    pub loop_filter_delta_enabled: u32,
-    pub loop_filter_delta_update: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct VP9LoopFilterFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(VP9LoopFilterFlags, u32);
+impl VP9LoopFilterFlags {
+    pub const LoopFilterDeltaEnabled: Self = Self(1 << 0);
+    pub const LoopFilterDeltaUpdate: Self = Self(1 << 1);
 }
-impl Default for VP9LoopFilterFlags {
-    fn default() -> Self {
-        Self {
-            loop_filter_delta_enabled: 0,
-            loop_filter_delta_update: 0,
-            reserved: 0,
+impl core::fmt::Display for VP9LoopFilterFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(VP9LoopFilterFlags, &str)] = &[
+            (
+                VP9LoopFilterFlags::LoopFilterDeltaEnabled,
+                "LoopFilterDeltaEnabled",
+            ),
+            (
+                VP9LoopFilterFlags::LoopFilterDeltaUpdate,
+                "LoopFilterDeltaUpdate",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for VP9LoopFilterFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2142,24 +3080,56 @@ impl Default for VP9LoopFilter {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct VP9SegmentationFlags {
-    pub segmentation_update_map: u32,
-    pub segmentation_temporal_update: u32,
-    pub segmentation_update_data: u32,
-    pub segmentation_abs_or_delta_update: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct VP9SegmentationFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(VP9SegmentationFlags, u32);
+impl VP9SegmentationFlags {
+    pub const SegmentationUpdateMap: Self = Self(1 << 0);
+    pub const SegmentationTemporalUpdate: Self = Self(1 << 1);
+    pub const SegmentationUpdateData: Self = Self(1 << 2);
+    pub const SegmentationAbsOrDeltaUpdate: Self = Self(1 << 3);
 }
-impl Default for VP9SegmentationFlags {
-    fn default() -> Self {
-        Self {
-            segmentation_update_map: 0,
-            segmentation_temporal_update: 0,
-            segmentation_update_data: 0,
-            segmentation_abs_or_delta_update: 0,
-            reserved: 0,
+impl core::fmt::Display for VP9SegmentationFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(VP9SegmentationFlags, &str)] = &[
+            (
+                VP9SegmentationFlags::SegmentationUpdateMap,
+                "SegmentationUpdateMap",
+            ),
+            (
+                VP9SegmentationFlags::SegmentationTemporalUpdate,
+                "SegmentationTemporalUpdate",
+            ),
+            (
+                VP9SegmentationFlags::SegmentationUpdateData,
+                "SegmentationUpdateData",
+            ),
+            (
+                VP9SegmentationFlags::SegmentationAbsOrDeltaUpdate,
+                "SegmentationAbsOrDeltaUpdate",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for VP9SegmentationFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2184,32 +3154,70 @@ impl Default for VP9Segmentation {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeVP9PictureInfoFlags {
-    pub error_resilient_mode: u32,
-    pub intra_only: u32,
-    pub allow_high_precision_mv: u32,
-    pub refresh_frame_context: u32,
-    pub frame_parallel_decoding_mode: u32,
-    pub segmentation_enabled: u32,
-    pub show_frame: u32,
-    pub use_prev_frame_mvs: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeVP9PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeVP9PictureInfoFlags, u32);
+impl DecodeVP9PictureInfoFlags {
+    pub const ErrorResilientMode: Self = Self(1 << 0);
+    pub const IntraOnly: Self = Self(1 << 1);
+    pub const AllowHighPrecisionMv: Self = Self(1 << 2);
+    pub const RefreshFrameContext: Self = Self(1 << 3);
+    pub const FrameParallelDecodingMode: Self = Self(1 << 4);
+    pub const SegmentationEnabled: Self = Self(1 << 5);
+    pub const ShowFrame: Self = Self(1 << 6);
+    pub const UsePrevFrameMvs: Self = Self(1 << 7);
 }
-impl Default for DecodeVP9PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            error_resilient_mode: 0,
-            intra_only: 0,
-            allow_high_precision_mv: 0,
-            refresh_frame_context: 0,
-            frame_parallel_decoding_mode: 0,
-            segmentation_enabled: 0,
-            show_frame: 0,
-            use_prev_frame_mvs: 0,
-            reserved: 0,
+impl core::fmt::Display for DecodeVP9PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeVP9PictureInfoFlags, &str)] = &[
+            (
+                DecodeVP9PictureInfoFlags::ErrorResilientMode,
+                "ErrorResilientMode",
+            ),
+            (DecodeVP9PictureInfoFlags::IntraOnly, "IntraOnly"),
+            (
+                DecodeVP9PictureInfoFlags::AllowHighPrecisionMv,
+                "AllowHighPrecisionMv",
+            ),
+            (
+                DecodeVP9PictureInfoFlags::RefreshFrameContext,
+                "RefreshFrameContext",
+            ),
+            (
+                DecodeVP9PictureInfoFlags::FrameParallelDecodingMode,
+                "FrameParallelDecodingMode",
+            ),
+            (
+                DecodeVP9PictureInfoFlags::SegmentationEnabled,
+                "SegmentationEnabled",
+            ),
+            (DecodeVP9PictureInfoFlags::ShowFrame, "ShowFrame"),
+            (
+                DecodeVP9PictureInfoFlags::UsePrevFrameMvs,
+                "UsePrevFrameMvs",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeVP9PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2264,24 +3272,47 @@ impl Default for DecodeVP9PictureInfo<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1ColorConfigFlags {
-    pub mono_chrome: u32,
-    pub color_range: u32,
-    pub separate_uv_delta_q: u32,
-    pub color_description_present_flag: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1ColorConfigFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1ColorConfigFlags, u32);
+impl AV1ColorConfigFlags {
+    pub const MonoChrome: Self = Self(1 << 0);
+    pub const ColorRange: Self = Self(1 << 1);
+    pub const SeparateUvDeltaQ: Self = Self(1 << 2);
+    pub const ColorDescriptionPresentFlag: Self = Self(1 << 3);
 }
-impl Default for AV1ColorConfigFlags {
-    fn default() -> Self {
-        Self {
-            mono_chrome: 0,
-            color_range: 0,
-            separate_uv_delta_q: 0,
-            color_description_present_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1ColorConfigFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1ColorConfigFlags, &str)] = &[
+            (AV1ColorConfigFlags::MonoChrome, "MonoChrome"),
+            (AV1ColorConfigFlags::ColorRange, "ColorRange"),
+            (AV1ColorConfigFlags::SeparateUvDeltaQ, "SeparateUvDeltaQ"),
+            (
+                AV1ColorConfigFlags::ColorDescriptionPresentFlag,
+                "ColorDescriptionPresentFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1ColorConfigFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2315,18 +3346,39 @@ impl Default for AV1ColorConfig {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1TimingInfoFlags {
-    pub equal_picture_interval: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1TimingInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1TimingInfoFlags, u32);
+impl AV1TimingInfoFlags {
+    pub const EqualPictureInterval: Self = Self(1 << 0);
 }
-impl Default for AV1TimingInfoFlags {
-    fn default() -> Self {
-        Self {
-            equal_picture_interval: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1TimingInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1TimingInfoFlags, &str)] = &[(
+            AV1TimingInfoFlags::EqualPictureInterval,
+            "EqualPictureInterval",
+        )];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1TimingInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2349,54 +3401,113 @@ impl Default for AV1TimingInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1SequenceHeaderFlags {
-    pub still_picture: u32,
-    pub reduced_still_picture_header: u32,
-    pub use_128x128_superblock: u32,
-    pub enable_filter_intra: u32,
-    pub enable_intra_edge_filter: u32,
-    pub enable_interintra_compound: u32,
-    pub enable_masked_compound: u32,
-    pub enable_warped_motion: u32,
-    pub enable_dual_filter: u32,
-    pub enable_order_hint: u32,
-    pub enable_jnt_comp: u32,
-    pub enable_ref_frame_mvs: u32,
-    pub frame_id_numbers_present_flag: u32,
-    pub enable_superres: u32,
-    pub enable_cdef: u32,
-    pub enable_restoration: u32,
-    pub film_grain_params_present: u32,
-    pub timing_info_present_flag: u32,
-    pub initial_display_delay_present_flag: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1SequenceHeaderFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1SequenceHeaderFlags, u32);
+impl AV1SequenceHeaderFlags {
+    pub const StillPicture: Self = Self(1 << 0);
+    pub const ReducedStillPictureHeader: Self = Self(1 << 1);
+    pub const Use128x128Superblock: Self = Self(1 << 2);
+    pub const EnableFilterIntra: Self = Self(1 << 3);
+    pub const EnableIntraEdgeFilter: Self = Self(1 << 4);
+    pub const EnableInterintraCompound: Self = Self(1 << 5);
+    pub const EnableMaskedCompound: Self = Self(1 << 6);
+    pub const EnableWarpedMotion: Self = Self(1 << 7);
+    pub const EnableDualFilter: Self = Self(1 << 8);
+    pub const EnableOrderHint: Self = Self(1 << 9);
+    pub const EnableJntComp: Self = Self(1 << 10);
+    pub const EnableRefFrameMvs: Self = Self(1 << 11);
+    pub const FrameIdNumbersPresentFlag: Self = Self(1 << 12);
+    pub const EnableSuperres: Self = Self(1 << 13);
+    pub const EnableCdef: Self = Self(1 << 14);
+    pub const EnableRestoration: Self = Self(1 << 15);
+    pub const FilmGrainParamsPresent: Self = Self(1 << 16);
+    pub const TimingInfoPresentFlag: Self = Self(1 << 17);
+    pub const InitialDisplayDelayPresentFlag: Self = Self(1 << 18);
 }
-impl Default for AV1SequenceHeaderFlags {
-    fn default() -> Self {
-        Self {
-            still_picture: 0,
-            reduced_still_picture_header: 0,
-            use_128x128_superblock: 0,
-            enable_filter_intra: 0,
-            enable_intra_edge_filter: 0,
-            enable_interintra_compound: 0,
-            enable_masked_compound: 0,
-            enable_warped_motion: 0,
-            enable_dual_filter: 0,
-            enable_order_hint: 0,
-            enable_jnt_comp: 0,
-            enable_ref_frame_mvs: 0,
-            frame_id_numbers_present_flag: 0,
-            enable_superres: 0,
-            enable_cdef: 0,
-            enable_restoration: 0,
-            film_grain_params_present: 0,
-            timing_info_present_flag: 0,
-            initial_display_delay_present_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1SequenceHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1SequenceHeaderFlags, &str)] = &[
+            (AV1SequenceHeaderFlags::StillPicture, "StillPicture"),
+            (
+                AV1SequenceHeaderFlags::ReducedStillPictureHeader,
+                "ReducedStillPictureHeader",
+            ),
+            (
+                AV1SequenceHeaderFlags::Use128x128Superblock,
+                "Use128x128Superblock",
+            ),
+            (
+                AV1SequenceHeaderFlags::EnableFilterIntra,
+                "EnableFilterIntra",
+            ),
+            (
+                AV1SequenceHeaderFlags::EnableIntraEdgeFilter,
+                "EnableIntraEdgeFilter",
+            ),
+            (
+                AV1SequenceHeaderFlags::EnableInterintraCompound,
+                "EnableInterintraCompound",
+            ),
+            (
+                AV1SequenceHeaderFlags::EnableMaskedCompound,
+                "EnableMaskedCompound",
+            ),
+            (
+                AV1SequenceHeaderFlags::EnableWarpedMotion,
+                "EnableWarpedMotion",
+            ),
+            (AV1SequenceHeaderFlags::EnableDualFilter, "EnableDualFilter"),
+            (AV1SequenceHeaderFlags::EnableOrderHint, "EnableOrderHint"),
+            (AV1SequenceHeaderFlags::EnableJntComp, "EnableJntComp"),
+            (
+                AV1SequenceHeaderFlags::EnableRefFrameMvs,
+                "EnableRefFrameMvs",
+            ),
+            (
+                AV1SequenceHeaderFlags::FrameIdNumbersPresentFlag,
+                "FrameIdNumbersPresentFlag",
+            ),
+            (AV1SequenceHeaderFlags::EnableSuperres, "EnableSuperres"),
+            (AV1SequenceHeaderFlags::EnableCdef, "EnableCdef"),
+            (
+                AV1SequenceHeaderFlags::EnableRestoration,
+                "EnableRestoration",
+            ),
+            (
+                AV1SequenceHeaderFlags::FilmGrainParamsPresent,
+                "FilmGrainParamsPresent",
+            ),
+            (
+                AV1SequenceHeaderFlags::TimingInfoPresentFlag,
+                "TimingInfoPresentFlag",
+            ),
+            (
+                AV1SequenceHeaderFlags::InitialDisplayDelayPresentFlag,
+                "InitialDisplayDelayPresentFlag",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1SequenceHeaderFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2445,20 +3556,46 @@ impl Default for AV1SequenceHeader<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1LoopFilterFlags {
-    pub loop_filter_delta_enabled: u32,
-    pub loop_filter_delta_update: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1LoopFilterFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1LoopFilterFlags, u32);
+impl AV1LoopFilterFlags {
+    pub const LoopFilterDeltaEnabled: Self = Self(1 << 0);
+    pub const LoopFilterDeltaUpdate: Self = Self(1 << 1);
 }
-impl Default for AV1LoopFilterFlags {
-    fn default() -> Self {
-        Self {
-            loop_filter_delta_enabled: 0,
-            loop_filter_delta_update: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1LoopFilterFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1LoopFilterFlags, &str)] = &[
+            (
+                AV1LoopFilterFlags::LoopFilterDeltaEnabled,
+                "LoopFilterDeltaEnabled",
+            ),
+            (
+                AV1LoopFilterFlags::LoopFilterDeltaUpdate,
+                "LoopFilterDeltaUpdate",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1LoopFilterFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2487,20 +3624,40 @@ impl Default for AV1LoopFilter {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1QuantizationFlags {
-    pub using_qmatrix: u32,
-    pub diff_uv_delta: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1QuantizationFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1QuantizationFlags, u32);
+impl AV1QuantizationFlags {
+    pub const UsingQmatrix: Self = Self(1 << 0);
+    pub const DiffUvDelta: Self = Self(1 << 1);
 }
-impl Default for AV1QuantizationFlags {
-    fn default() -> Self {
-        Self {
-            using_qmatrix: 0,
-            diff_uv_delta: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1QuantizationFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1QuantizationFlags, &str)] = &[
+            (AV1QuantizationFlags::UsingQmatrix, "UsingQmatrix"),
+            (AV1QuantizationFlags::DiffUvDelta, "DiffUvDelta"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1QuantizationFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2551,18 +3708,39 @@ impl Default for AV1Segmentation {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1TileInfoFlags {
-    pub uniform_tile_spacing_flag: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1TileInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1TileInfoFlags, u32);
+impl AV1TileInfoFlags {
+    pub const UniformTileSpacingFlag: Self = Self(1 << 0);
 }
-impl Default for AV1TileInfoFlags {
-    fn default() -> Self {
-        Self {
-            uniform_tile_spacing_flag: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1TileInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1TileInfoFlags, &str)] = &[(
+            AV1TileInfoFlags::UniformTileSpacingFlag,
+            "UniformTileSpacingFlag",
+        )];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1TileInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2661,24 +3839,50 @@ impl Default for AV1GlobalMotion {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct AV1FilmGrainFlags {
-    pub chroma_scaling_from_luma: u32,
-    pub overlap_flag: u32,
-    pub clip_to_restricted_range: u32,
-    pub update_grain: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct AV1FilmGrainFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(AV1FilmGrainFlags, u32);
+impl AV1FilmGrainFlags {
+    pub const ChromaScalingFromLuma: Self = Self(1 << 0);
+    pub const OverlapFlag: Self = Self(1 << 1);
+    pub const ClipToRestrictedRange: Self = Self(1 << 2);
+    pub const UpdateGrain: Self = Self(1 << 3);
 }
-impl Default for AV1FilmGrainFlags {
-    fn default() -> Self {
-        Self {
-            chroma_scaling_from_luma: 0,
-            overlap_flag: 0,
-            clip_to_restricted_range: 0,
-            update_grain: 0,
-            reserved: 0,
+impl core::fmt::Display for AV1FilmGrainFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(AV1FilmGrainFlags, &str)] = &[
+            (
+                AV1FilmGrainFlags::ChromaScalingFromLuma,
+                "ChromaScalingFromLuma",
+            ),
+            (AV1FilmGrainFlags::OverlapFlag, "OverlapFlag"),
+            (
+                AV1FilmGrainFlags::ClipToRestrictedRange,
+                "ClipToRestrictedRange",
+            ),
+            (AV1FilmGrainFlags::UpdateGrain, "UpdateGrain"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for AV1FilmGrainFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2743,74 +3947,148 @@ impl Default for AV1FilmGrain {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeAV1PictureInfoFlags {
-    pub error_resilient_mode: u32,
-    pub disable_cdf_update: u32,
-    pub use_superres: u32,
-    pub render_and_frame_size_different: u32,
-    pub allow_screen_content_tools: u32,
-    pub is_filter_switchable: u32,
-    pub force_integer_mv: u32,
-    pub frame_size_override_flag: u32,
-    pub buffer_removal_time_present_flag: u32,
-    pub allow_intrabc: u32,
-    pub frame_refs_short_signaling: u32,
-    pub allow_high_precision_mv: u32,
-    pub is_motion_mode_switchable: u32,
-    pub use_ref_frame_mvs: u32,
-    pub disable_frame_end_update_cdf: u32,
-    pub allow_warped_motion: u32,
-    pub reduced_tx_set: u32,
-    pub reference_select: u32,
-    pub skip_mode_present: u32,
-    pub delta_q_present: u32,
-    pub delta_lf_present: u32,
-    pub delta_lf_multi: u32,
-    pub segmentation_enabled: u32,
-    pub segmentation_update_map: u32,
-    pub segmentation_temporal_update: u32,
-    pub segmentation_update_data: u32,
-    pub uses_lr: u32,
-    pub uses_chroma_lr: u32,
-    pub apply_grain: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeAV1PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeAV1PictureInfoFlags, u32);
+impl DecodeAV1PictureInfoFlags {
+    pub const ErrorResilientMode: Self = Self(1 << 0);
+    pub const DisableCdfUpdate: Self = Self(1 << 1);
+    pub const UseSuperres: Self = Self(1 << 2);
+    pub const RenderAndFrameSizeDifferent: Self = Self(1 << 3);
+    pub const AllowScreenContentTools: Self = Self(1 << 4);
+    pub const IsFilterSwitchable: Self = Self(1 << 5);
+    pub const ForceIntegerMv: Self = Self(1 << 6);
+    pub const FrameSizeOverrideFlag: Self = Self(1 << 7);
+    pub const BufferRemovalTimePresentFlag: Self = Self(1 << 8);
+    pub const AllowIntrabc: Self = Self(1 << 9);
+    pub const FrameRefsShortSignaling: Self = Self(1 << 10);
+    pub const AllowHighPrecisionMv: Self = Self(1 << 11);
+    pub const IsMotionModeSwitchable: Self = Self(1 << 12);
+    pub const UseRefFrameMvs: Self = Self(1 << 13);
+    pub const DisableFrameEndUpdateCdf: Self = Self(1 << 14);
+    pub const AllowWarpedMotion: Self = Self(1 << 15);
+    pub const ReducedTxSet: Self = Self(1 << 16);
+    pub const ReferenceSelect: Self = Self(1 << 17);
+    pub const SkipModePresent: Self = Self(1 << 18);
+    pub const DeltaQPresent: Self = Self(1 << 19);
+    pub const DeltaLfPresent: Self = Self(1 << 20);
+    pub const DeltaLfMulti: Self = Self(1 << 21);
+    pub const SegmentationEnabled: Self = Self(1 << 22);
+    pub const SegmentationUpdateMap: Self = Self(1 << 23);
+    pub const SegmentationTemporalUpdate: Self = Self(1 << 24);
+    pub const SegmentationUpdateData: Self = Self(1 << 25);
+    pub const UsesLr: Self = Self(1 << 26);
+    pub const UsesChromaLr: Self = Self(1 << 27);
+    pub const ApplyGrain: Self = Self(1 << 28);
 }
-impl Default for DecodeAV1PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            error_resilient_mode: 0,
-            disable_cdf_update: 0,
-            use_superres: 0,
-            render_and_frame_size_different: 0,
-            allow_screen_content_tools: 0,
-            is_filter_switchable: 0,
-            force_integer_mv: 0,
-            frame_size_override_flag: 0,
-            buffer_removal_time_present_flag: 0,
-            allow_intrabc: 0,
-            frame_refs_short_signaling: 0,
-            allow_high_precision_mv: 0,
-            is_motion_mode_switchable: 0,
-            use_ref_frame_mvs: 0,
-            disable_frame_end_update_cdf: 0,
-            allow_warped_motion: 0,
-            reduced_tx_set: 0,
-            reference_select: 0,
-            skip_mode_present: 0,
-            delta_q_present: 0,
-            delta_lf_present: 0,
-            delta_lf_multi: 0,
-            segmentation_enabled: 0,
-            segmentation_update_map: 0,
-            segmentation_temporal_update: 0,
-            segmentation_update_data: 0,
-            uses_lr: 0,
-            uses_chroma_lr: 0,
-            apply_grain: 0,
-            reserved: 0,
+impl core::fmt::Display for DecodeAV1PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeAV1PictureInfoFlags, &str)] = &[
+            (
+                DecodeAV1PictureInfoFlags::ErrorResilientMode,
+                "ErrorResilientMode",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::DisableCdfUpdate,
+                "DisableCdfUpdate",
+            ),
+            (DecodeAV1PictureInfoFlags::UseSuperres, "UseSuperres"),
+            (
+                DecodeAV1PictureInfoFlags::RenderAndFrameSizeDifferent,
+                "RenderAndFrameSizeDifferent",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::AllowScreenContentTools,
+                "AllowScreenContentTools",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::IsFilterSwitchable,
+                "IsFilterSwitchable",
+            ),
+            (DecodeAV1PictureInfoFlags::ForceIntegerMv, "ForceIntegerMv"),
+            (
+                DecodeAV1PictureInfoFlags::FrameSizeOverrideFlag,
+                "FrameSizeOverrideFlag",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::BufferRemovalTimePresentFlag,
+                "BufferRemovalTimePresentFlag",
+            ),
+            (DecodeAV1PictureInfoFlags::AllowIntrabc, "AllowIntrabc"),
+            (
+                DecodeAV1PictureInfoFlags::FrameRefsShortSignaling,
+                "FrameRefsShortSignaling",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::AllowHighPrecisionMv,
+                "AllowHighPrecisionMv",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::IsMotionModeSwitchable,
+                "IsMotionModeSwitchable",
+            ),
+            (DecodeAV1PictureInfoFlags::UseRefFrameMvs, "UseRefFrameMvs"),
+            (
+                DecodeAV1PictureInfoFlags::DisableFrameEndUpdateCdf,
+                "DisableFrameEndUpdateCdf",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::AllowWarpedMotion,
+                "AllowWarpedMotion",
+            ),
+            (DecodeAV1PictureInfoFlags::ReducedTxSet, "ReducedTxSet"),
+            (
+                DecodeAV1PictureInfoFlags::ReferenceSelect,
+                "ReferenceSelect",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::SkipModePresent,
+                "SkipModePresent",
+            ),
+            (DecodeAV1PictureInfoFlags::DeltaQPresent, "DeltaQPresent"),
+            (DecodeAV1PictureInfoFlags::DeltaLfPresent, "DeltaLfPresent"),
+            (DecodeAV1PictureInfoFlags::DeltaLfMulti, "DeltaLfMulti"),
+            (
+                DecodeAV1PictureInfoFlags::SegmentationEnabled,
+                "SegmentationEnabled",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::SegmentationUpdateMap,
+                "SegmentationUpdateMap",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::SegmentationTemporalUpdate,
+                "SegmentationTemporalUpdate",
+            ),
+            (
+                DecodeAV1PictureInfoFlags::SegmentationUpdateData,
+                "SegmentationUpdateData",
+            ),
+            (DecodeAV1PictureInfoFlags::UsesLr, "UsesLr"),
+            (DecodeAV1PictureInfoFlags::UsesChromaLr, "UsesChromaLr"),
+            (DecodeAV1PictureInfoFlags::ApplyGrain, "ApplyGrain"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeAV1PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2881,20 +4159,46 @@ impl Default for DecodeAV1PictureInfo<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct DecodeAV1ReferenceInfoFlags {
-    pub disable_frame_end_update_cdf: u32,
-    pub segmentation_enabled: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct DecodeAV1ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(DecodeAV1ReferenceInfoFlags, u32);
+impl DecodeAV1ReferenceInfoFlags {
+    pub const DisableFrameEndUpdateCdf: Self = Self(1 << 0);
+    pub const SegmentationEnabled: Self = Self(1 << 1);
 }
-impl Default for DecodeAV1ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            disable_frame_end_update_cdf: 0,
-            segmentation_enabled: 0,
-            reserved: 0,
+impl core::fmt::Display for DecodeAV1ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(DecodeAV1ReferenceInfoFlags, &str)] = &[
+            (
+                DecodeAV1ReferenceInfoFlags::DisableFrameEndUpdateCdf,
+                "DisableFrameEndUpdateCdf",
+            ),
+            (
+                DecodeAV1ReferenceInfoFlags::SegmentationEnabled,
+                "SegmentationEnabled",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for DecodeAV1ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -2956,22 +4260,51 @@ impl Default for EncodeAV1DecoderModelInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeAV1OperatingPointInfoFlags {
-    pub decoder_model_present_for_this_op: u32,
-    pub low_delay_mode_flag: u32,
-    pub initial_display_delay_present_for_this_op: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeAV1OperatingPointInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeAV1OperatingPointInfoFlags, u32);
+impl EncodeAV1OperatingPointInfoFlags {
+    pub const DecoderModelPresentForThisOp: Self = Self(1 << 0);
+    pub const LowDelayModeFlag: Self = Self(1 << 1);
+    pub const InitialDisplayDelayPresentForThisOp: Self = Self(1 << 2);
 }
-impl Default for EncodeAV1OperatingPointInfoFlags {
-    fn default() -> Self {
-        Self {
-            decoder_model_present_for_this_op: 0,
-            low_delay_mode_flag: 0,
-            initial_display_delay_present_for_this_op: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeAV1OperatingPointInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeAV1OperatingPointInfoFlags, &str)] = &[
+            (
+                EncodeAV1OperatingPointInfoFlags::DecoderModelPresentForThisOp,
+                "DecoderModelPresentForThisOp",
+            ),
+            (
+                EncodeAV1OperatingPointInfoFlags::LowDelayModeFlag,
+                "LowDelayModeFlag",
+            ),
+            (
+                EncodeAV1OperatingPointInfoFlags::InitialDisplayDelayPresentForThisOp,
+                "InitialDisplayDelayPresentForThisOp",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeAV1OperatingPointInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -3000,74 +4333,145 @@ impl Default for EncodeAV1OperatingPointInfo {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeAV1PictureInfoFlags {
-    pub error_resilient_mode: u32,
-    pub disable_cdf_update: u32,
-    pub use_superres: u32,
-    pub render_and_frame_size_different: u32,
-    pub allow_screen_content_tools: u32,
-    pub is_filter_switchable: u32,
-    pub force_integer_mv: u32,
-    pub frame_size_override_flag: u32,
-    pub buffer_removal_time_present_flag: u32,
-    pub allow_intrabc: u32,
-    pub frame_refs_short_signaling: u32,
-    pub allow_high_precision_mv: u32,
-    pub is_motion_mode_switchable: u32,
-    pub use_ref_frame_mvs: u32,
-    pub disable_frame_end_update_cdf: u32,
-    pub allow_warped_motion: u32,
-    pub reduced_tx_set: u32,
-    pub skip_mode_present: u32,
-    pub delta_q_present: u32,
-    pub delta_lf_present: u32,
-    pub delta_lf_multi: u32,
-    pub segmentation_enabled: u32,
-    pub segmentation_update_map: u32,
-    pub segmentation_temporal_update: u32,
-    pub segmentation_update_data: u32,
-    pub uses_lr: u32,
-    pub uses_chroma_lr: u32,
-    pub show_frame: u32,
-    pub showable_frame: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeAV1PictureInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeAV1PictureInfoFlags, u32);
+impl EncodeAV1PictureInfoFlags {
+    pub const ErrorResilientMode: Self = Self(1 << 0);
+    pub const DisableCdfUpdate: Self = Self(1 << 1);
+    pub const UseSuperres: Self = Self(1 << 2);
+    pub const RenderAndFrameSizeDifferent: Self = Self(1 << 3);
+    pub const AllowScreenContentTools: Self = Self(1 << 4);
+    pub const IsFilterSwitchable: Self = Self(1 << 5);
+    pub const ForceIntegerMv: Self = Self(1 << 6);
+    pub const FrameSizeOverrideFlag: Self = Self(1 << 7);
+    pub const BufferRemovalTimePresentFlag: Self = Self(1 << 8);
+    pub const AllowIntrabc: Self = Self(1 << 9);
+    pub const FrameRefsShortSignaling: Self = Self(1 << 10);
+    pub const AllowHighPrecisionMv: Self = Self(1 << 11);
+    pub const IsMotionModeSwitchable: Self = Self(1 << 12);
+    pub const UseRefFrameMvs: Self = Self(1 << 13);
+    pub const DisableFrameEndUpdateCdf: Self = Self(1 << 14);
+    pub const AllowWarpedMotion: Self = Self(1 << 15);
+    pub const ReducedTxSet: Self = Self(1 << 16);
+    pub const SkipModePresent: Self = Self(1 << 17);
+    pub const DeltaQPresent: Self = Self(1 << 18);
+    pub const DeltaLfPresent: Self = Self(1 << 19);
+    pub const DeltaLfMulti: Self = Self(1 << 20);
+    pub const SegmentationEnabled: Self = Self(1 << 21);
+    pub const SegmentationUpdateMap: Self = Self(1 << 22);
+    pub const SegmentationTemporalUpdate: Self = Self(1 << 23);
+    pub const SegmentationUpdateData: Self = Self(1 << 24);
+    pub const UsesLr: Self = Self(1 << 25);
+    pub const UsesChromaLr: Self = Self(1 << 26);
+    pub const ShowFrame: Self = Self(1 << 27);
+    pub const ShowableFrame: Self = Self(1 << 28);
 }
-impl Default for EncodeAV1PictureInfoFlags {
-    fn default() -> Self {
-        Self {
-            error_resilient_mode: 0,
-            disable_cdf_update: 0,
-            use_superres: 0,
-            render_and_frame_size_different: 0,
-            allow_screen_content_tools: 0,
-            is_filter_switchable: 0,
-            force_integer_mv: 0,
-            frame_size_override_flag: 0,
-            buffer_removal_time_present_flag: 0,
-            allow_intrabc: 0,
-            frame_refs_short_signaling: 0,
-            allow_high_precision_mv: 0,
-            is_motion_mode_switchable: 0,
-            use_ref_frame_mvs: 0,
-            disable_frame_end_update_cdf: 0,
-            allow_warped_motion: 0,
-            reduced_tx_set: 0,
-            skip_mode_present: 0,
-            delta_q_present: 0,
-            delta_lf_present: 0,
-            delta_lf_multi: 0,
-            segmentation_enabled: 0,
-            segmentation_update_map: 0,
-            segmentation_temporal_update: 0,
-            segmentation_update_data: 0,
-            uses_lr: 0,
-            uses_chroma_lr: 0,
-            show_frame: 0,
-            showable_frame: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeAV1PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeAV1PictureInfoFlags, &str)] = &[
+            (
+                EncodeAV1PictureInfoFlags::ErrorResilientMode,
+                "ErrorResilientMode",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::DisableCdfUpdate,
+                "DisableCdfUpdate",
+            ),
+            (EncodeAV1PictureInfoFlags::UseSuperres, "UseSuperres"),
+            (
+                EncodeAV1PictureInfoFlags::RenderAndFrameSizeDifferent,
+                "RenderAndFrameSizeDifferent",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::AllowScreenContentTools,
+                "AllowScreenContentTools",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::IsFilterSwitchable,
+                "IsFilterSwitchable",
+            ),
+            (EncodeAV1PictureInfoFlags::ForceIntegerMv, "ForceIntegerMv"),
+            (
+                EncodeAV1PictureInfoFlags::FrameSizeOverrideFlag,
+                "FrameSizeOverrideFlag",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::BufferRemovalTimePresentFlag,
+                "BufferRemovalTimePresentFlag",
+            ),
+            (EncodeAV1PictureInfoFlags::AllowIntrabc, "AllowIntrabc"),
+            (
+                EncodeAV1PictureInfoFlags::FrameRefsShortSignaling,
+                "FrameRefsShortSignaling",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::AllowHighPrecisionMv,
+                "AllowHighPrecisionMv",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::IsMotionModeSwitchable,
+                "IsMotionModeSwitchable",
+            ),
+            (EncodeAV1PictureInfoFlags::UseRefFrameMvs, "UseRefFrameMvs"),
+            (
+                EncodeAV1PictureInfoFlags::DisableFrameEndUpdateCdf,
+                "DisableFrameEndUpdateCdf",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::AllowWarpedMotion,
+                "AllowWarpedMotion",
+            ),
+            (EncodeAV1PictureInfoFlags::ReducedTxSet, "ReducedTxSet"),
+            (
+                EncodeAV1PictureInfoFlags::SkipModePresent,
+                "SkipModePresent",
+            ),
+            (EncodeAV1PictureInfoFlags::DeltaQPresent, "DeltaQPresent"),
+            (EncodeAV1PictureInfoFlags::DeltaLfPresent, "DeltaLfPresent"),
+            (EncodeAV1PictureInfoFlags::DeltaLfMulti, "DeltaLfMulti"),
+            (
+                EncodeAV1PictureInfoFlags::SegmentationEnabled,
+                "SegmentationEnabled",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::SegmentationUpdateMap,
+                "SegmentationUpdateMap",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::SegmentationTemporalUpdate,
+                "SegmentationTemporalUpdate",
+            ),
+            (
+                EncodeAV1PictureInfoFlags::SegmentationUpdateData,
+                "SegmentationUpdateData",
+            ),
+            (EncodeAV1PictureInfoFlags::UsesLr, "UsesLr"),
+            (EncodeAV1PictureInfoFlags::UsesChromaLr, "UsesChromaLr"),
+            (EncodeAV1PictureInfoFlags::ShowFrame, "ShowFrame"),
+            (EncodeAV1PictureInfoFlags::ShowableFrame, "ShowableFrame"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeAV1PictureInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -3145,20 +4549,46 @@ impl Default for EncodeAV1PictureInfo<'_> {
     }
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, Debug)]
-pub struct EncodeAV1ReferenceInfoFlags {
-    pub disable_frame_end_update_cdf: u32,
-    pub segmentation_enabled: u32,
-    pub reserved: u32,
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct EncodeAV1ReferenceInfoFlags(pub(crate) u32);
+crate::vk_bitflags_wrapped!(EncodeAV1ReferenceInfoFlags, u32);
+impl EncodeAV1ReferenceInfoFlags {
+    pub const DisableFrameEndUpdateCdf: Self = Self(1 << 0);
+    pub const SegmentationEnabled: Self = Self(1 << 1);
 }
-impl Default for EncodeAV1ReferenceInfoFlags {
-    fn default() -> Self {
-        Self {
-            disable_frame_end_update_cdf: 0,
-            segmentation_enabled: 0,
-            reserved: 0,
+impl core::fmt::Display for EncodeAV1ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        const BITS: &[(EncodeAV1ReferenceInfoFlags, &str)] = &[
+            (
+                EncodeAV1ReferenceInfoFlags::DisableFrameEndUpdateCdf,
+                "DisableFrameEndUpdateCdf",
+            ),
+            (
+                EncodeAV1ReferenceInfoFlags::SegmentationEnabled,
+                "SegmentationEnabled",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
         }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+impl core::fmt::Debug for EncodeAV1ReferenceInfoFlags {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 

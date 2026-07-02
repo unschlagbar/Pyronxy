@@ -2,9 +2,12 @@ use std::collections::HashSet;
 
 use indexmap::IndexMap;
 
+use heck::{ToSnakeCase, ToUpperCamelCase};
+
 use super::{Writer, file_header};
 use crate::codegen::{
-    COPY, LATEXMATH_LEN_MAP, a_lifetime, const_name, rust_member, rust_name, u_lifetime,
+    COPY, LATEXMATH_LEN_MAP, PACKED_FIELD_NAMES, PACKED_TYPES, a_lifetime, const_name, rust_member,
+    rust_name, u_lifetime,
 };
 use crate::parse::c_to_rust;
 use crate::parse::commands::Param;
@@ -19,6 +22,7 @@ pub fn generate(registry: &Registry, out_path: &str, lifetimes: &HashSet<String>
     w.blank();
     w.ln("use crate::video::*;");
     w.ln("use super::enums::*;");
+    w.ln("use super::packed::*;");
     w.ln("use super::platform_types::*;");
     w.ln("use super::bitflags::*;");
     w.ln("use super::constants::*;");
@@ -145,6 +149,13 @@ pub fn write_struct(
     lifetimes: &HashSet<String>,
     derive_default: bool,
 ) {
+    if try_write_flag_struct(w, name, members) {
+        return;
+    }
+
+    let (members, bit_accessors) = merge_bitfields(name, members);
+    let members = &members[..];
+
     let next_chains = if let Some(ext) = extends {
         let next_chains = ext.split(",").collect::<Vec<_>>();
         let ext = next_chains
@@ -212,12 +223,287 @@ pub fn write_struct(
         write_default_impl(w, name, members, stypes, lifetime);
     }
 
+    if !bit_accessors.is_empty() {
+        write_bitfield_accessors(w, name, lifetime, &bit_accessors);
+    }
+
     for next_chain in next_chains {
         w.ln(&format!(
             "impl Extends{} for {name}<'_> {{}}",
             rust_name(next_chain)
         ));
     }
+}
+
+/// Structs made up entirely of 1-bit C bitfields (the StdVideo `*Flags` structs)
+/// become vk-style bitflag newtypes with one constant per bit instead of a
+/// struct with an accessor pair per bit. Structs with wider bitfields (e.g.
+/// `StdVideoH265HrdFlags`) fall through to `merge_bitfields`.
+fn try_write_flag_struct(w: &mut Writer, name: &str, members: &[Member]) -> bool {
+    let is_flag_run = !members.is_empty()
+        && members.iter().all(|m| m.bits.is_some())
+        && members.iter().map(|m| m.bits.unwrap()).sum::<u32>() <= 32
+        && members
+            .iter()
+            .all(|m| m.name.starts_with("reserved") || m.bits == Some(1))
+        && members.iter().any(|m| !m.name.starts_with("reserved"));
+
+    if !is_flag_run {
+        return false;
+    }
+
+    let mut flags = Vec::new();
+    let mut offset = 0;
+    for m in members {
+        if !m.name.starts_with("reserved") {
+            flags.push((m.name.to_upper_camel_case(), offset, m.comment.clone()));
+        }
+        offset += m.bits.unwrap();
+    }
+
+    w.ln("#[repr(transparent)]");
+    w.ln("#[derive(Clone, Copy, Hash, PartialEq, Eq)]");
+    w.ln(&format!("pub struct {name}(pub(crate) u32);"));
+    w.ln(&format!("crate::vk_bitflags_wrapped!({name}, u32);"));
+
+    w.ln(&format!("impl {name} {{"));
+    for (flag, offset, comment) in &flags {
+        if !comment.is_empty() {
+            w.ln(&format!("/// {comment}"));
+        }
+        w.ln(&format!("pub const {flag}: Self = Self(1 << {offset});"));
+    }
+    w.ln("}");
+
+    let bits = flags
+        .iter()
+        .map(|(flag, _, _)| format!("({name}::{flag}, \"{flag}\")"))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    w.ln(&format!(
+        "impl core::fmt::Display for {name} {{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {{
+        const BITS: &[({name}, &str)] = &[{bits}];
+
+        let mut first = true;
+        for &(flag, name) in BITS {{
+            if self.contains(flag) {{
+                if !first {{
+                    f.write_str(\" | \")?;
+                }}
+                f.write_str(name)?;
+                first = false;
+            }}
+        }}
+        if first {{
+            f.write_str(\"0\")?;
+        }}
+        Ok(())
+    }}
+}}
+impl core::fmt::Debug for {name} {{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {{
+        core::fmt::Display::fmt(self, f)
+    }}
+}}"
+    ));
+
+    true
+}
+
+/// A bitfield packed into a generated `u32` storage member, exposed through
+/// getter/setter methods instead of a field.
+struct PackedBitfield {
+    storage: String,
+    name: String,
+    offset: u32,
+    width: u32,
+}
+
+/// Bitfield ordering in C is implementation-defined, so the registry structs using
+/// bitfields (`:24`/`:1` etc.) define a normative packed layout instead (LSB first).
+/// Merge each run of bitfield members occupying one u32 into a single member:
+/// layouts listed in `PACKED_TYPES` become a hand-written packed type
+/// (`pyronyx/src/vk/packed.rs`), everything else becomes a plain `u32` storage
+/// member with generated bit accessors.
+fn merge_bitfields(struct_name: &str, members: &[Member]) -> (Vec<Member>, Vec<PackedBitfield>) {
+    if members.iter().all(|m| m.bits.is_none()) {
+        return (members.to_vec(), Vec::new());
+    }
+
+    let mut out = Vec::with_capacity(members.len());
+    let mut accessors = Vec::new();
+    let mut unit: Vec<&Member> = Vec::new();
+    let mut used = 0;
+    let mut unit_count = 0;
+
+    let mut close_unit = |unit: &mut Vec<&Member>,
+                          used: &mut u32,
+                          out: &mut Vec<Member>,
+                          accessors: &mut Vec<PackedBitfield>| {
+        out.push(merge_unit(struct_name, unit, unit_count, accessors));
+        unit_count += 1;
+        unit.clear();
+        *used = 0;
+    };
+
+    for m in members {
+        if let Some(bits) = m.bits {
+            // C starts a new storage unit when the next bitfield does not fit.
+            if used + bits > 32 {
+                close_unit(&mut unit, &mut used, &mut out, &mut accessors);
+            }
+            unit.push(m);
+            used += bits;
+            if used == 32 {
+                close_unit(&mut unit, &mut used, &mut out, &mut accessors);
+            }
+        } else {
+            if !unit.is_empty() {
+                close_unit(&mut unit, &mut used, &mut out, &mut accessors);
+            }
+            out.push(m.clone());
+        }
+    }
+    if !unit.is_empty() {
+        close_unit(&mut unit, &mut used, &mut out, &mut accessors);
+    }
+
+    (out, accessors)
+}
+
+fn merge_unit(
+    struct_name: &str,
+    unit: &[&Member],
+    unit_index: u32,
+    accessors: &mut Vec<PackedBitfield>,
+) -> Member {
+    let widths: Vec<u32> = unit.iter().map(|m| m.bits.unwrap()).collect();
+
+    let (name, ty, comment) = if let Some(&(_, packed_ty)) =
+        PACKED_TYPES.iter().find(|(w, _)| *w == widths.as_slice())
+    {
+        // `reserved` members stay out of the name unless dropping them leaves fewer than two.
+        let mut names: Vec<String> = unit
+            .iter()
+            .filter(|m| m.name != "reserved")
+            .map(|m| m.name.to_snake_case())
+            .collect();
+        if names.len() < 2 {
+            names = unit.iter().map(|m| m.name.to_snake_case()).collect();
+        }
+
+        let mut name = names.join("_and_");
+        if let Some(&(_, replacement)) = PACKED_FIELD_NAMES.iter().find(|&&(k, _)| k == name) {
+            name = replacement.to_string();
+        }
+
+        let layout = unit
+            .iter()
+            .map(|m| format!("`{}`: {}", m.name.to_snake_case(), m.bits.unwrap()))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        (
+            name,
+            packed_ty.to_string(),
+            format!("Bitfields (LSB to MSB) {layout} - construct with [`{packed_ty}::new`]"),
+        )
+    } else {
+        if widths.iter().sum::<u32>() == 32 && !unit.iter().any(|m| m.name.starts_with("reserved"))
+        {
+            println!(
+                "[codegen] bitfield layout {widths:?} in {struct_name} fills a u32 - \
+                 consider adding a packed type to PACKED_TYPES and pyronyx/src/vk/packed.rs"
+            );
+        }
+
+        let name = if unit_index == 0 {
+            "bitfields".to_string()
+        } else {
+            format!("bitfields{unit_index}")
+        };
+
+        let mut offset = 0;
+        for m in unit {
+            if !m.name.starts_with("reserved") {
+                accessors.push(PackedBitfield {
+                    storage: name.clone(),
+                    name: m.name.to_snake_case(),
+                    offset,
+                    width: m.bits.unwrap(),
+                });
+            }
+            offset += m.bits.unwrap();
+        }
+
+        (
+            name,
+            "u32".to_string(),
+            "Packed bitfields - use the generated getter/setter methods".to_string(),
+        )
+    };
+
+    Member {
+        comment,
+        full_ty: ty.clone(),
+        ty,
+        name,
+        optional: false,
+        len: None,
+        is_const: false,
+        pointer_depth: 0,
+        array_dims: Vec::new(),
+        bits: None,
+    }
+}
+
+fn write_bitfield_accessors(
+    w: &mut Writer,
+    name: &str,
+    lifetime: bool,
+    accessors: &[PackedBitfield],
+) {
+    w.ln(&format!("impl {name}{} {{", u_lifetime(lifetime)));
+
+    for a in accessors {
+        let PackedBitfield {
+            storage,
+            name,
+            offset,
+            width,
+        } = a;
+
+        if *width == 1 {
+            w.ln(&format!(
+                "#[inline]
+pub const fn {name}(&self) -> bool {{
+    self.{storage} & (1 << {offset}) != 0
+}}
+#[inline]
+pub const fn set_{name}(&mut self, value: bool) {{
+    self.{storage} = (self.{storage} & !(1 << {offset})) | ((value as u32) << {offset});
+}}"
+            ));
+        } else {
+            let mask = (1u32 << width) - 1;
+            w.ln(&format!(
+                "/// Only the low {width} bits are used.
+#[inline]
+pub const fn {name}(&self) -> u32 {{
+    (self.{storage} >> {offset}) & {mask:#x}
+}}
+/// Only the low {width} bits are used.
+#[inline]
+pub const fn set_{name}(&mut self, value: u32) {{
+    self.{storage} = (self.{storage} & !({mask:#x} << {offset})) | ((value & {mask:#x}) << {offset});
+}}"
+            ));
+        }
+    }
+
+    w.ln("}");
 }
 
 fn write_default_impl(
@@ -460,9 +746,9 @@ fn next_chain(w: &mut Writer, name: &str, _mutable: bool) {
 
     w.ln(&format!("impl<'a> {name}<'a> {{"));
 
-    w.ln("/// Prepends the given extension struct between the root and the first pointer.");
-    w.ln("/// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,");
-    w.ln("/// then the chain will look like `A -> D -> B -> C`.");
+    w.ln("/// Inserts the given extension struct between the root and the first pointer.");
+    w.ln("/// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,");
+    w.ln("/// then the chain will look like `a -> d -> b -> c`.");
     w.ln(&format!(
         "#[inline]
 pub fn next<T: {trait_name}>(mut self, next: &'a mut T) -> Self {{
