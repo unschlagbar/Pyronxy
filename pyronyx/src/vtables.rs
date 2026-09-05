@@ -1579,6 +1579,7 @@ pub struct DeviceFn {
     pub v1_4: DeviceFnv1_4,
     pub amd_anti_lag: Option<DeviceFnAmdAntiLag>,
     pub amd_display_native_hdr: Option<DeviceFnAmdDisplayNativeHdr>,
+    pub amd_gpa_interface: Option<DeviceFnAmdGpaInterface>,
     pub amd_shader_info: Option<DeviceFnAmdShaderInfo>,
     pub amdx_shader_enqueue: Option<DeviceFnAmdxShaderEnqueue>,
     pub android_external_memory_android_hardware_buffer:
@@ -1647,6 +1648,7 @@ pub struct DeviceFn {
     pub nv_external_memory_win32: Option<DeviceFnNvExternalMemoryWin32>,
     pub nv_external_sci_sync: Option<DeviceFnNvExternalSciSync>,
     pub nv_external_sci_sync2: Option<DeviceFnNvExternalSciSync2>,
+    pub nv_low_latency: Option<DeviceFnNvLowLatency>,
     pub nv_low_latency2: Option<DeviceFnNvLowLatency2>,
     pub nv_optical_flow: Option<DeviceFnNvOpticalFlow>,
     pub nv_partitioned_acceleration_structure: Option<DeviceFnNvPartitionedAccelerationStructure>,
@@ -1689,6 +1691,7 @@ impl DeviceFn {
             },
             amd_anti_lag: None,
             amd_display_native_hdr: None,
+            amd_gpa_interface: None,
             amd_shader_info: None,
             amdx_shader_enqueue: None,
             android_external_memory_android_hardware_buffer: None,
@@ -1756,6 +1759,7 @@ impl DeviceFn {
             nv_external_memory_win32: None,
             nv_external_sci_sync: None,
             nv_external_sci_sync2: None,
+            nv_low_latency: None,
             nv_low_latency2: None,
             nv_optical_flow: None,
             nv_partitioned_acceleration_structure: None,
@@ -1776,6 +1780,9 @@ impl DeviceFn {
                 b"VK_AMD_display_native_hdr" => {
                     out.amd_display_native_hdr =
                         Some(DeviceFnAmdDisplayNativeHdr::load(&mut loader))
+                }
+                b"VK_AMD_gpa_interface" => {
+                    out.amd_gpa_interface = Some(DeviceFnAmdGpaInterface::load(&mut loader))
                 }
                 b"VK_AMD_shader_info" => {
                     out.amd_shader_info = Some(DeviceFnAmdShaderInfo::load(&mut loader))
@@ -2012,6 +2019,9 @@ impl DeviceFn {
                 }
                 b"VK_NV_external_sci_sync2" => {
                     out.nv_external_sci_sync2 = Some(DeviceFnNvExternalSciSync2::load(&mut loader))
+                }
+                b"VK_NV_low_latency" => {
+                    out.nv_low_latency = Some(DeviceFnNvLowLatency::load(&mut loader))
                 }
                 b"VK_NV_low_latency2" => {
                     out.nv_low_latency2 = Some(DeviceFnNvLowLatency2::load(&mut loader))
@@ -2498,6 +2508,31 @@ impl DeviceFnAmdDisplayNativeHdr {
     pub fn load<F: FnMut(&CStr) -> *const c_void>(mut loader: F) -> Self {
         Self {
             set_local_dimming_amd: to_panic(loader(c"vkSetLocalDimmingAMD")),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct DeviceFnAmdGpaInterface {
+    pub create_gpa_session_amd: vkCreateGpaSessionAMD,
+    pub destroy_gpa_session_amd: vkDestroyGpaSessionAMD,
+    pub set_gpa_device_clock_mode_amd: vkSetGpaDeviceClockModeAMD,
+    pub get_gpa_device_clock_info_amd: vkGetGpaDeviceClockInfoAMD,
+    pub get_gpa_session_status_amd: vkGetGpaSessionStatusAMD,
+    pub get_gpa_session_results_amd: vkGetGpaSessionResultsAMD,
+    pub reset_gpa_session_amd: vkResetGpaSessionAMD,
+}
+
+impl DeviceFnAmdGpaInterface {
+    pub fn load<F: FnMut(&CStr) -> *const c_void>(mut loader: F) -> Self {
+        Self {
+            create_gpa_session_amd: to_panic(loader(c"vkCreateGpaSessionAMD")),
+            destroy_gpa_session_amd: to_panic(loader(c"vkDestroyGpaSessionAMD")),
+            set_gpa_device_clock_mode_amd: to_panic(loader(c"vkSetGpaDeviceClockModeAMD")),
+            get_gpa_device_clock_info_amd: to_panic(loader(c"vkGetGpaDeviceClockInfoAMD")),
+            get_gpa_session_status_amd: to_panic(loader(c"vkGetGpaSessionStatusAMD")),
+            get_gpa_session_results_amd: to_panic(loader(c"vkGetGpaSessionResultsAMD")),
+            reset_gpa_session_amd: to_panic(loader(c"vkResetGpaSessionAMD")),
         }
     }
 }
@@ -3839,6 +3874,29 @@ impl DeviceFnNvExternalSciSync2 {
 }
 
 #[derive(Clone)]
+pub struct DeviceFnNvLowLatency {
+    pub set_latency_sleep_mode_legacy_nv: vkSetLatencySleepModeLegacyNV,
+    pub latency_sleep_legacy_nv: vkLatencySleepLegacyNV,
+    pub set_latency_marker_legacy_nv: vkSetLatencyMarkerLegacyNV,
+    pub get_latency_timings_legacy_nv: vkGetLatencyTimingsLegacyNV,
+    pub get_sleep_status_legacy_nv: vkGetSleepStatusLegacyNV,
+    pub shutdown_latency_device_legacy_nv: vkShutdownLatencyDeviceLegacyNV,
+}
+
+impl DeviceFnNvLowLatency {
+    pub fn load<F: FnMut(&CStr) -> *const c_void>(mut loader: F) -> Self {
+        Self {
+            set_latency_sleep_mode_legacy_nv: to_panic(loader(c"vkSetLatencySleepModeLegacyNV")),
+            latency_sleep_legacy_nv: to_panic(loader(c"vkLatencySleepLegacyNV")),
+            set_latency_marker_legacy_nv: to_panic(loader(c"vkSetLatencyMarkerLegacyNV")),
+            get_latency_timings_legacy_nv: to_panic(loader(c"vkGetLatencyTimingsLegacyNV")),
+            get_sleep_status_legacy_nv: to_panic(loader(c"vkGetSleepStatusLegacyNV")),
+            shutdown_latency_device_legacy_nv: to_panic(loader(c"vkShutdownLatencyDeviceLegacyNV")),
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct DeviceFnNvLowLatency2 {
     pub set_latency_sleep_mode_nv: vkSetLatencySleepModeNV,
     pub latency_sleep_nv: vkLatencySleepNV,
@@ -4041,6 +4099,7 @@ pub struct QueueFn {
     pub intel_performance_query: Option<QueueFnIntelPerformanceQuery>,
     pub khr_swapchain: Option<QueueFnKhrSwapchain>,
     pub nv_device_diagnostic_checkpoints: Option<QueueFnNvDeviceDiagnosticCheckpoints>,
+    pub nv_low_latency: Option<QueueFnNvLowLatency>,
     pub nv_low_latency2: Option<QueueFnNvLowLatency2>,
     pub qcom_queue_perf_hint: Option<QueueFnQcomQueuePerfHint>,
 }
@@ -4062,6 +4121,7 @@ impl QueueFn {
             intel_performance_query: None,
             khr_swapchain: None,
             nv_device_diagnostic_checkpoints: None,
+            nv_low_latency: None,
             nv_low_latency2: None,
             qcom_queue_perf_hint: None,
         };
@@ -4081,6 +4141,9 @@ impl QueueFn {
                 b"VK_NV_device_diagnostic_checkpoints" => {
                     out.nv_device_diagnostic_checkpoints =
                         Some(QueueFnNvDeviceDiagnosticCheckpoints::load(&mut loader))
+                }
+                b"VK_NV_low_latency" => {
+                    out.nv_low_latency = Some(QueueFnNvLowLatency::load(&mut loader))
                 }
                 b"VK_NV_low_latency2" => {
                     out.nv_low_latency2 = Some(QueueFnNvLowLatency2::load(&mut loader))
@@ -4190,6 +4253,19 @@ impl QueueFnNvDeviceDiagnosticCheckpoints {
 }
 
 #[derive(Clone)]
+pub struct QueueFnNvLowLatency {
+    pub queue_notify_out_of_band_legacy_nv: vkQueueNotifyOutOfBandLegacyNV,
+}
+
+impl QueueFnNvLowLatency {
+    pub fn load<F: FnMut(&CStr) -> *const c_void>(mut loader: F) -> Self {
+        Self {
+            queue_notify_out_of_band_legacy_nv: to_panic(loader(c"vkQueueNotifyOutOfBandLegacyNV")),
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct QueueFnNvLowLatency2 {
     pub queue_notify_out_of_band_nv: vkQueueNotifyOutOfBandNV,
 }
@@ -4223,6 +4299,7 @@ pub struct CommandBufferFn {
     pub v1_3: CommandBufferFnv1_3,
     pub v1_4: CommandBufferFnv1_4,
     pub amd_buffer_marker: Option<CommandBufferFnAmdBufferMarker>,
+    pub amd_gpa_interface: Option<CommandBufferFnAmdGpaInterface>,
     pub amdx_shader_enqueue: Option<CommandBufferFnAmdxShaderEnqueue>,
     pub arm_data_graph: Option<CommandBufferFnArmDataGraph>,
     pub arm_scheduling_controls: Option<CommandBufferFnArmSchedulingControls>,
@@ -4318,6 +4395,7 @@ impl CommandBufferFn {
                 CommandBufferFnv1_4::default()
             },
             amd_buffer_marker: None,
+            amd_gpa_interface: None,
             amdx_shader_enqueue: None,
             arm_data_graph: None,
             arm_scheduling_controls: None,
@@ -4385,6 +4463,9 @@ impl CommandBufferFn {
             match ext {
                 b"VK_AMD_buffer_marker" => {
                     out.amd_buffer_marker = Some(CommandBufferFnAmdBufferMarker::load(&mut loader))
+                }
+                b"VK_AMD_gpa_interface" => {
+                    out.amd_gpa_interface = Some(CommandBufferFnAmdGpaInterface::load(&mut loader))
                 }
                 b"VK_AMDX_shader_enqueue" => {
                     out.amdx_shader_enqueue =
@@ -4996,6 +5077,27 @@ impl CommandBufferFnAmdBufferMarker {
         Self {
             write_buffer_marker_amd: to_panic(loader(c"vkCmdWriteBufferMarkerAMD")),
             write_buffer_marker2_amd: to_panic(loader(c"vkCmdWriteBufferMarker2AMD")),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct CommandBufferFnAmdGpaInterface {
+    pub begin_gpa_session_amd: vkCmdBeginGpaSessionAMD,
+    pub end_gpa_session_amd: vkCmdEndGpaSessionAMD,
+    pub begin_gpa_sample_amd: vkCmdBeginGpaSampleAMD,
+    pub end_gpa_sample_amd: vkCmdEndGpaSampleAMD,
+    pub copy_gpa_session_results_amd: vkCmdCopyGpaSessionResultsAMD,
+}
+
+impl CommandBufferFnAmdGpaInterface {
+    pub fn load<F: FnMut(&CStr) -> *const c_void>(mut loader: F) -> Self {
+        Self {
+            begin_gpa_session_amd: to_panic(loader(c"vkCmdBeginGpaSessionAMD")),
+            end_gpa_session_amd: to_panic(loader(c"vkCmdEndGpaSessionAMD")),
+            begin_gpa_sample_amd: to_panic(loader(c"vkCmdBeginGpaSampleAMD")),
+            end_gpa_sample_amd: to_panic(loader(c"vkCmdEndGpaSampleAMD")),
+            copy_gpa_session_results_amd: to_panic(loader(c"vkCmdCopyGpaSessionResultsAMD")),
         }
     }
 }

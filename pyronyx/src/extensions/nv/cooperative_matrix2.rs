@@ -5,6 +5,8 @@
 
 use crate::vk::*;
 use core::ffi::CStr;
+use core::mem::MaybeUninit;
+use core::ptr;
 
 /// Type: `Device`
 pub const NAME: &CStr = c"VK_NV_cooperative_matrix2";
@@ -15,15 +17,19 @@ pub trait CooperativeMatrix2PhysicalDevice {
         &self,
         properties: &mut [CooperativeMatrixFlexibleDimensionsPropertiesNV],
     ) -> Result<()>;
+    fn get_cooperative_matrix_flexible_dimensions_properties_len(&self) -> Result<usize>;
 }
 
 impl CooperativeMatrix2PhysicalDevice for PhysicalDevice {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV.html>
+    ///
+    /// Call [`get_cooperative_matrix_flexible_dimensions_properties_len()`][`Self::get_cooperative_matrix_flexible_dimensions_properties_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_cooperative_matrix_flexible_dimensions_properties(
         &self,
         properties: &mut [CooperativeMatrixFlexibleDimensionsPropertiesNV],
     ) -> Result<()> {
+        let mut property_count = properties.len() as u32;
         let call = self
             .fns()
             .nv_cooperative_matrix2
@@ -31,13 +37,26 @@ impl CooperativeMatrix2PhysicalDevice for PhysicalDevice {
             .expect(Self::EXT_LOAD_ERROR)
             .get_physical_device_cooperative_matrix_flexible_dimensions_properties_nv;
 
+        unsafe { (call)(self.handle, &mut property_count, properties.as_mut_ptr()) }.result()
+    }
+
+    /// Returns the required slice length for Call [`get_cooperative_matrix_flexible_dimensions_properties`][`Self::get_cooperative_matrix_flexible_dimensions_properties`].
+    #[inline]
+    fn get_cooperative_matrix_flexible_dimensions_properties_len(&self) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
-            (call)(
+            (self
+                .fns()
+                .nv_cooperative_matrix2
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_physical_device_cooperative_matrix_flexible_dimensions_properties_nv)(
                 self.handle,
-                properties.len() as *mut u32,
-                properties.as_mut_ptr(),
+                out.as_mut_ptr(),
+                ptr::null_mut(),
             )
         }
-        .result()
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 }

@@ -5,6 +5,8 @@
 
 use crate::vk::*;
 use core::ffi::CStr;
+use core::mem::MaybeUninit;
+use core::ptr;
 
 /// Type: `Device`
 pub const NAME: &CStr = c"VK_KHR_object_refresh";
@@ -39,15 +41,19 @@ pub trait ObjectRefreshPhysicalDevice {
         &self,
         refreshable_object_types: &mut [ObjectType],
     ) -> Result<()>;
+    fn get_refreshable_object_types_len(&self) -> Result<usize>;
 }
 
 impl ObjectRefreshPhysicalDevice for PhysicalDevice {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceRefreshableObjectTypesKHR.html>
+    ///
+    /// Call [`get_refreshable_object_types_len()`][`Self::get_refreshable_object_types_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_refreshable_object_types(
         &self,
         refreshable_object_types: &mut [ObjectType],
     ) -> Result<()> {
+        let mut refreshable_object_type_count = refreshable_object_types.len() as u32;
         let call = self
             .fns()
             .khr_object_refresh
@@ -58,10 +64,30 @@ impl ObjectRefreshPhysicalDevice for PhysicalDevice {
         unsafe {
             (call)(
                 self.handle,
-                refreshable_object_types.len() as *mut u32,
+                &mut refreshable_object_type_count,
                 refreshable_object_types.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_refreshable_object_types`][`Self::get_refreshable_object_types`].
+    #[inline]
+    fn get_refreshable_object_types_len(&self) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .khr_object_refresh
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_physical_device_refreshable_object_types_khr)(
+                self.handle,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 }

@@ -1249,11 +1249,11 @@ impl Default for H265HrdFlags {
 impl H265HrdFlags {
     #[inline]
     pub const fn nal_hrd_parameters_present_flag(&self) -> bool {
-        self.bitfields & (1 << 0) != 0
+        self.bitfields & 1 != 0
     }
     #[inline]
     pub const fn set_nal_hrd_parameters_present_flag(&mut self, value: bool) {
-        self.bitfields = (self.bitfields & !(1 << 0)) | ((value as u32) << 0);
+        self.bitfields = (self.bitfields & !1) | value as u32;
     }
     #[inline]
     pub const fn vcl_hrd_parameters_present_flag(&self) -> bool {

@@ -1188,6 +1188,30 @@ impl fmt::Pointer for ShaderInstrumentationARM {
 
 #[repr(transparent)]
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Default)]
+pub struct GpaSessionAMD(pub u64);
+impl GpaSessionAMD {
+    #[inline]
+    pub const fn null() -> Self {
+        Self(0)
+    }
+    #[inline]
+    pub const fn is_null(self) -> bool {
+        self.0 == 0
+    }
+}
+impl fmt::Debug for GpaSessionAMD {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "GpaSessionAMD(0x{:x})", self.0)
+    }
+}
+impl fmt::Pointer for GpaSessionAMD {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fmt::Debug::fmt(&self, f)
+    }
+}
+
+#[repr(transparent)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Default)]
 pub struct DisplayKHR(pub u64);
 impl DisplayKHR {
     #[inline]
@@ -1417,6 +1441,8 @@ pub type LineRasterizationModeKHR = LineRasterizationMode;
 pub type LineRasterizationModeEXT = LineRasterizationMode;
 pub type PipelineRobustnessBufferBehaviorEXT = PipelineRobustnessBufferBehavior;
 pub type PipelineRobustnessImageBehaviorEXT = PipelineRobustnessImageBehavior;
+pub type OpacityMicromapFormatEXT = OpacityMicromapFormatKHR;
+pub type OpacityMicromapSpecialIndexEXT = OpacityMicromapSpecialIndexKHR;
 pub type DeviceFaultVendorBinaryHeaderVersionEXT = DeviceFaultVendorBinaryHeaderVersionKHR;
 pub type ScopeNV = ScopeKHR;
 pub type ComponentTypeNV = ComponentTypeKHR;
@@ -1783,9 +1809,9 @@ impl Default for ApplicationInfo<'_> {
 
 pub trait ExtendsApplicationInfo {}
 impl<'a> ApplicationInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsApplicationInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -1859,9 +1885,9 @@ impl Default for DeviceQueueCreateInfo<'_> {
 
 pub trait ExtendsDeviceQueueCreateInfo {}
 impl<'a> DeviceQueueCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDeviceQueueCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -1921,9 +1947,9 @@ impl Default for DeviceCreateInfo<'_> {
 
 pub trait ExtendsDeviceCreateInfo {}
 impl<'a> DeviceCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDeviceCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -1979,9 +2005,9 @@ impl Default for InstanceCreateInfo<'_> {
 
 pub trait ExtendsInstanceCreateInfo {}
 impl<'a> InstanceCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsInstanceCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2070,9 +2096,9 @@ impl Default for MemoryAllocateInfo<'_> {
 
 pub trait ExtendsMemoryAllocateInfo {}
 impl<'a> MemoryAllocateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsMemoryAllocateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2353,9 +2379,9 @@ impl Default for WriteDescriptorSet<'_> {
 
 pub trait ExtendsWriteDescriptorSet {}
 impl<'a> WriteDescriptorSet<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsWriteDescriptorSet>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2476,9 +2502,9 @@ impl Default for BufferCreateInfo<'_> {
 
 pub trait ExtendsBufferCreateInfo {}
 impl<'a> BufferCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBufferCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2530,9 +2556,9 @@ impl Default for BufferViewCreateInfo<'_> {
 
 pub trait ExtendsBufferViewCreateInfo {}
 impl<'a> BufferViewCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBufferViewCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2673,9 +2699,9 @@ impl Default for BufferMemoryBarrier<'_> {
 
 pub trait ExtendsBufferMemoryBarrier {}
 impl<'a> BufferMemoryBarrier<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBufferMemoryBarrier>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2738,9 +2764,9 @@ impl Default for ImageMemoryBarrier<'_> {
 
 pub trait ExtendsImageMemoryBarrier {}
 impl<'a> ImageMemoryBarrier<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageMemoryBarrier>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2812,9 +2838,9 @@ impl Default for ImageCreateInfo<'_> {
 
 pub trait ExtendsImageCreateInfo {}
 impl<'a> ImageCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -2832,6 +2858,62 @@ impl<'a> ImageCreateInfo<'a> {
         self
     }
 }
+
+/// Extends: `ImageCreateInfo`, `PhysicalDeviceImageFormatInfo2`, `FramebufferAttachmentImageInfo`, `VideoFormatPropertiesKHR`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct ImageCreateFlags2CreateInfoKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub flags: ImageCreateFlags2KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for ImageCreateFlags2CreateInfoKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::ImageCreateFlags2CreateInfoKHR,
+            next: ptr::null_mut(),
+            flags: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsImageCreateInfo for ImageCreateFlags2CreateInfoKHR<'_> {}
+impl ExtendsPhysicalDeviceImageFormatInfo2 for ImageCreateFlags2CreateInfoKHR<'_> {}
+impl ExtendsFramebufferAttachmentImageInfo for ImageCreateFlags2CreateInfoKHR<'_> {}
+impl ExtendsVideoFormatPropertiesKHR for ImageCreateFlags2CreateInfoKHR<'_> {}
+
+/// Extends: `FramebufferAttachmentImageInfo`, `ImageCreateInfo`, `PhysicalDeviceImageFormatInfo2`, `PhysicalDeviceSparseImageFormatInfo2`, `PhysicalDeviceVideoFormatInfoKHR`, `SurfaceCapabilities2KHR`, `SwapchainCreateInfoKHR`, `VideoFormatPropertiesKHR`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct ImageUsageFlags2CreateInfoKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub usage: ImageUsageFlags2KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for ImageUsageFlags2CreateInfoKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::ImageUsageFlags2CreateInfoKHR,
+            next: ptr::null_mut(),
+            usage: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsFramebufferAttachmentImageInfo for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsImageCreateInfo for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsPhysicalDeviceImageFormatInfo2 for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsPhysicalDeviceSparseImageFormatInfo2 for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsPhysicalDeviceVideoFormatInfoKHR for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsSurfaceCapabilities2KHR for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsSwapchainCreateInfoKHR for ImageUsageFlags2CreateInfoKHR<'_> {}
+impl ExtendsVideoFormatPropertiesKHR for ImageUsageFlags2CreateInfoKHR<'_> {}
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -2891,9 +2973,9 @@ impl Default for ImageViewCreateInfo<'_> {
 
 pub trait ExtendsImageViewCreateInfo {}
 impl<'a> ImageViewCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageViewCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3085,9 +3167,9 @@ impl Default for BindSparseInfo<'_> {
 
 pub trait ExtendsBindSparseInfo {}
 impl<'a> BindSparseInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBindSparseInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3348,9 +3430,9 @@ impl ExtendsPipelineShaderStageCreateInfo for ShaderModuleCreateInfo<'_> {}
 impl ExtendsDataGraphPipelineCreateInfoARM for ShaderModuleCreateInfo<'_> {}
 pub trait ExtendsShaderModuleCreateInfo {}
 impl<'a> ShaderModuleCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsShaderModuleCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3428,9 +3510,9 @@ impl Default for DescriptorSetLayoutCreateInfo<'_> {
 
 pub trait ExtendsDescriptorSetLayoutCreateInfo {}
 impl<'a> DescriptorSetLayoutCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorSetLayoutCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3493,9 +3575,9 @@ impl Default for DescriptorPoolCreateInfo<'_> {
 
 pub trait ExtendsDescriptorPoolCreateInfo {}
 impl<'a> DescriptorPoolCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorPoolCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3541,9 +3623,9 @@ impl Default for DescriptorSetAllocateInfo<'_> {
 
 pub trait ExtendsDescriptorSetAllocateInfo {}
 impl<'a> DescriptorSetAllocateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorSetAllocateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3644,9 +3726,9 @@ impl Default for PipelineShaderStageCreateInfo<'_> {
 
 pub trait ExtendsPipelineShaderStageCreateInfo {}
 impl<'a> PipelineShaderStageCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineShaderStageCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3699,9 +3781,9 @@ impl Default for ComputePipelineCreateInfo<'_> {
 
 pub trait ExtendsComputePipelineCreateInfo {}
 impl<'a> ComputePipelineCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsComputePipelineCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3851,9 +3933,9 @@ impl Default for PipelineVertexInputStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineVertexInputStateCreateInfo {}
 impl<'a> PipelineVertexInputStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineVertexInputStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3920,9 +4002,9 @@ impl Default for PipelineTessellationStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineTessellationStateCreateInfo {}
 impl<'a> PipelineTessellationStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineTessellationStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -3975,9 +4057,9 @@ impl Default for PipelineViewportStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineViewportStateCreateInfo {}
 impl<'a> PipelineViewportStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineViewportStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4039,9 +4121,9 @@ impl Default for PipelineRasterizationStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineRasterizationStateCreateInfo {}
 impl<'a> PipelineRasterizationStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineRasterizationStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4100,9 +4182,9 @@ impl Default for PipelineMultisampleStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineMultisampleStateCreateInfo {}
 impl<'a> PipelineMultisampleStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineMultisampleStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4183,9 +4265,9 @@ impl Default for PipelineColorBlendStateCreateInfo<'_> {
 
 pub trait ExtendsPipelineColorBlendStateCreateInfo {}
 impl<'a> PipelineColorBlendStateCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPipelineColorBlendStateCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4363,9 +4445,9 @@ impl Default for GraphicsPipelineCreateInfo<'_> {
 
 pub trait ExtendsGraphicsPipelineCreateInfo {}
 impl<'a> GraphicsPipelineCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsGraphicsPipelineCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4832,9 +4914,9 @@ impl Default for SamplerCreateInfo<'_> {
 
 pub trait ExtendsSamplerCreateInfo {}
 impl<'a> SamplerCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSamplerCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4878,9 +4960,9 @@ impl Default for CommandPoolCreateInfo<'_> {
 
 pub trait ExtendsCommandPoolCreateInfo {}
 impl<'a> CommandPoolCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCommandPoolCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -4960,9 +5042,9 @@ impl Default for CommandBufferInheritanceInfo<'_> {
 
 pub trait ExtendsCommandBufferInheritanceInfo {}
 impl<'a> CommandBufferInheritanceInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCommandBufferInheritanceInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5008,9 +5090,9 @@ impl Default for CommandBufferBeginInfo<'_> {
 
 pub trait ExtendsCommandBufferBeginInfo {}
 impl<'a> CommandBufferBeginInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCommandBufferBeginInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5060,9 +5142,9 @@ impl Default for RenderPassBeginInfo<'_> {
 
 pub trait ExtendsRenderPassBeginInfo {}
 impl<'a> RenderPassBeginInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderPassBeginInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5302,9 +5384,9 @@ impl Default for RenderPassCreateInfo<'_> {
 
 pub trait ExtendsRenderPassCreateInfo {}
 impl<'a> RenderPassCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderPassCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5346,9 +5428,9 @@ impl Default for EventCreateInfo<'_> {
 
 pub trait ExtendsEventCreateInfo {}
 impl<'a> EventCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsEventCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5390,9 +5472,9 @@ impl Default for FenceCreateInfo<'_> {
 
 pub trait ExtendsFenceCreateInfo {}
 impl<'a> FenceCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsFenceCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -5967,9 +6049,9 @@ impl Default for SemaphoreCreateInfo<'_> {
 
 pub trait ExtendsSemaphoreCreateInfo {}
 impl<'a> SemaphoreCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSemaphoreCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6017,9 +6099,9 @@ impl Default for QueryPoolCreateInfo<'_> {
 
 pub trait ExtendsQueryPoolCreateInfo {}
 impl<'a> QueryPoolCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsQueryPoolCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6073,9 +6155,9 @@ impl Default for FramebufferCreateInfo<'_> {
 
 pub trait ExtendsFramebufferCreateInfo {}
 impl<'a> FramebufferCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsFramebufferCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6218,9 +6300,9 @@ impl Default for SubmitInfo<'_> {
 
 pub trait ExtendsSubmitInfo {}
 impl<'a> SubmitInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubmitInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6426,9 +6508,9 @@ impl Default for DisplaySurfaceCreateInfoKHR<'_> {
 
 pub trait ExtendsDisplaySurfaceCreateInfoKHR {}
 impl<'a> DisplaySurfaceCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDisplaySurfaceCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6885,9 +6967,9 @@ impl Default for SwapchainCreateInfoKHR<'_> {
 
 pub trait ExtendsSwapchainCreateInfoKHR {}
 impl<'a> SwapchainCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSwapchainCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -6949,9 +7031,9 @@ impl Default for PresentInfoKHR<'_> {
 
 pub trait ExtendsPresentInfoKHR {}
 impl<'a> PresentInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPresentInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -7030,7 +7112,7 @@ impl Default for ValidationFlagsEXT<'_> {
 
 impl ExtendsInstanceCreateInfo for ValidationFlagsEXT<'_> {}
 
-/// Extends: `InstanceCreateInfo`, `ShaderModuleCreateInfo`, `ShaderCreateInfoEXT`
+/// Extends: `InstanceCreateInfo`, `ShaderModuleCreateInfo`, `ShaderCreateInfoEXT`, `PipelineShaderStageCreateInfo`, `GraphicsPipelineCreateInfo`, `ComputePipelineCreateInfo`, `RayTracingPipelineCreateInfoKHR`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct ValidationFeaturesEXT<'a> {
@@ -7067,6 +7149,10 @@ impl Default for ValidationFeaturesEXT<'_> {
 impl ExtendsInstanceCreateInfo for ValidationFeaturesEXT<'_> {}
 impl ExtendsShaderModuleCreateInfo for ValidationFeaturesEXT<'_> {}
 impl ExtendsShaderCreateInfoEXT for ValidationFeaturesEXT<'_> {}
+impl ExtendsPipelineShaderStageCreateInfo for ValidationFeaturesEXT<'_> {}
+impl ExtendsGraphicsPipelineCreateInfo for ValidationFeaturesEXT<'_> {}
+impl ExtendsComputePipelineCreateInfo for ValidationFeaturesEXT<'_> {}
+impl ExtendsRayTracingPipelineCreateInfoKHR for ValidationFeaturesEXT<'_> {}
 
 /// Extends: `InstanceCreateInfo`
 #[repr(C)]
@@ -8492,9 +8578,9 @@ impl Default for IndirectCommandsLayoutTokenNV<'_> {
 
 pub trait ExtendsIndirectCommandsLayoutTokenNV {}
 impl<'a> IndirectCommandsLayoutTokenNV<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsIndirectCommandsLayoutTokenNV>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8675,9 +8761,9 @@ impl Default for PhysicalDeviceFeatures2<'_> {
 impl ExtendsDeviceCreateInfo for PhysicalDeviceFeatures2<'_> {}
 pub trait ExtendsPhysicalDeviceFeatures2 {}
 impl<'a> PhysicalDeviceFeatures2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceFeatures2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8720,9 +8806,9 @@ impl Default for PhysicalDeviceProperties2<'_> {
 
 pub trait ExtendsPhysicalDeviceProperties2 {}
 impl<'a> PhysicalDeviceProperties2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceProperties2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8765,9 +8851,9 @@ impl Default for FormatProperties2<'_> {
 
 pub trait ExtendsFormatProperties2 {}
 impl<'a> FormatProperties2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsFormatProperties2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8810,9 +8896,9 @@ impl Default for ImageFormatProperties2<'_> {
 
 pub trait ExtendsImageFormatProperties2 {}
 impl<'a> ImageFormatProperties2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageFormatProperties2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8862,9 +8948,9 @@ impl Default for PhysicalDeviceImageFormatInfo2<'_> {
 
 pub trait ExtendsPhysicalDeviceImageFormatInfo2 {}
 impl<'a> PhysicalDeviceImageFormatInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceImageFormatInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8907,9 +8993,9 @@ impl Default for QueueFamilyProperties2<'_> {
 
 pub trait ExtendsQueueFamilyProperties2 {}
 impl<'a> QueueFamilyProperties2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsQueueFamilyProperties2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -8952,9 +9038,9 @@ impl Default for PhysicalDeviceMemoryProperties2<'_> {
 
 pub trait ExtendsPhysicalDeviceMemoryProperties2 {}
 impl<'a> PhysicalDeviceMemoryProperties2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceMemoryProperties2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -9021,6 +9107,29 @@ impl Default for PhysicalDeviceSparseImageFormatInfo2<'_> {
             tiling: Default::default(),
             _marker: PhantomData,
         }
+    }
+}
+
+pub trait ExtendsPhysicalDeviceSparseImageFormatInfo2 {}
+impl<'a> PhysicalDeviceSparseImageFormatInfo2<'a> {
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
+    #[inline]
+    pub fn next<T: ExtendsPhysicalDeviceSparseImageFormatInfo2>(mut self, next: &'a mut T) -> Self {
+        unsafe {
+            let next_base: *mut BaseOutStructure = ptr::from_mut(next).cast();
+
+            debug_assert!(
+                (*next_base).next.is_null(),
+                "next of inserted struct must be null (already in a chain?)"
+            );
+
+            (*next_base).next = self.next as _;
+            self.next = ptr::from_mut(next).cast();
+        }
+
+        self
     }
 }
 
@@ -9296,9 +9405,9 @@ impl Default for PhysicalDeviceExternalBufferInfo<'_> {
 
 pub trait ExtendsPhysicalDeviceExternalBufferInfo {}
 impl<'a> PhysicalDeviceExternalBufferInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceExternalBufferInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -9811,9 +9920,9 @@ impl Default for PhysicalDeviceExternalSemaphoreInfo<'_> {
 
 pub trait ExtendsPhysicalDeviceExternalSemaphoreInfo {}
 impl<'a> PhysicalDeviceExternalSemaphoreInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceExternalSemaphoreInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -10886,9 +10995,9 @@ impl Default for BindBufferMemoryInfo<'_> {
 
 pub trait ExtendsBindBufferMemoryInfo {}
 impl<'a> BindBufferMemoryInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBindBufferMemoryInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -10961,9 +11070,9 @@ impl Default for BindImageMemoryInfo<'_> {
 
 pub trait ExtendsBindImageMemoryInfo {}
 impl<'a> BindImageMemoryInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBindImageMemoryInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -11929,9 +12038,9 @@ impl Default for HdrMetadataEXT<'_> {
 
 pub trait ExtendsHdrMetadataEXT {}
 impl<'a> HdrMetadataEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsHdrMetadataEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12420,9 +12529,9 @@ impl Default for PhysicalDeviceSurfaceInfo2KHR<'_> {
 
 pub trait ExtendsPhysicalDeviceSurfaceInfo2KHR {}
 impl<'a> PhysicalDeviceSurfaceInfo2KHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceSurfaceInfo2KHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12464,9 +12573,9 @@ impl Default for SurfaceCapabilities2KHR<'_> {
 
 pub trait ExtendsSurfaceCapabilities2KHR {}
 impl<'a> SurfaceCapabilities2KHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSurfaceCapabilities2KHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12508,9 +12617,9 @@ impl Default for SurfaceFormat2KHR<'_> {
 
 pub trait ExtendsSurfaceFormat2KHR {}
 impl<'a> SurfaceFormat2KHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSurfaceFormat2KHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12594,9 +12703,9 @@ impl Default for DisplayModeProperties2KHR<'_> {
 
 pub trait ExtendsDisplayModeProperties2KHR {}
 impl<'a> DisplayModeProperties2KHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDisplayModeProperties2KHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12707,6 +12816,55 @@ impl Default for SharedPresentSurfaceCapabilitiesKHR<'_> {
 }
 
 impl ExtendsSurfaceCapabilities2KHR for SharedPresentSurfaceCapabilitiesKHR<'_> {}
+
+/// Extends: `SurfaceCapabilities2KHR`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct SwapchainFlagsSurfaceCapabilitiesEXT<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    /// Supported swapchain create flags for this surface and, if provided, a specific present mode in VkSurfacePresentModeKHR
+    pub swapchain_supported_flags: SwapchainCreateFlagsKHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for SwapchainFlagsSurfaceCapabilitiesEXT<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::SwapchainFlagsSurfaceCapabilitiesEXT,
+            next: ptr::null_mut(),
+            swapchain_supported_flags: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsSurfaceCapabilities2KHR for SwapchainFlagsSurfaceCapabilitiesEXT<'_> {}
+
+/// Extends: `SurfaceCapabilities2KHR`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct SharedPresentSurfaceCapabilities2KHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub shared_present_supported_usage_flags: ImageUsageFlags2KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for SharedPresentSurfaceCapabilities2KHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::SharedPresentSurfaceCapabilities2KHR,
+            next: ptr::null_mut(),
+            shared_present_supported_usage_flags: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsSurfaceCapabilities2KHR for SharedPresentSurfaceCapabilities2KHR<'_> {}
 
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
@@ -12868,9 +13026,9 @@ impl Default for ImageMemoryRequirementsInfo2<'_> {
 
 pub trait ExtendsImageMemoryRequirementsInfo2 {}
 impl<'a> ImageMemoryRequirementsInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageMemoryRequirementsInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -12957,9 +13115,9 @@ impl Default for MemoryRequirements2<'_> {
 
 pub trait ExtendsMemoryRequirements2 {}
 impl<'a> MemoryRequirements2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsMemoryRequirements2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -13107,6 +13265,29 @@ impl ExtendsImageViewCreateInfo for ImageViewUsageCreateInfo<'_> {}
 /// Extends: `ImageViewCreateInfo`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct ImageViewUsage2CreateInfoKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub usage: ImageUsageFlags2KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for ImageViewUsage2CreateInfoKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::ImageViewUsage2CreateInfoKHR,
+            next: ptr::null_mut(),
+            usage: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsImageViewCreateInfo for ImageViewUsage2CreateInfoKHR<'_> {}
+
+/// Extends: `ImageViewCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct ImageViewSlicedCreateInfoEXT<'a> {
     pub s_type: StructureType,
     /// Nullable
@@ -13219,9 +13400,9 @@ impl Default for SamplerYcbcrConversionCreateInfo<'_> {
 
 pub trait ExtendsSamplerYcbcrConversionCreateInfo {}
 impl<'a> SamplerYcbcrConversionCreateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSamplerYcbcrConversionCreateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -14395,9 +14576,9 @@ impl Default for PhysicalDeviceLayeredApiPropertiesKHR<'_> {
 
 pub trait ExtendsPhysicalDeviceLayeredApiPropertiesKHR {}
 impl<'a> PhysicalDeviceLayeredApiPropertiesKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceLayeredApiPropertiesKHR>(
         mut self,
@@ -14697,9 +14878,9 @@ impl Default for DescriptorSetLayoutSupport<'_> {
 
 pub trait ExtendsDescriptorSetLayoutSupport {}
 impl<'a> DescriptorSetLayoutSupport<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorSetLayoutSupport>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -14920,6 +15101,30 @@ impl Default for ShaderStatisticsInfoAMD {
         }
     }
 }
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceElapsedTimerQueryFeaturesQCOM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub elapsed_timer_query: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceElapsedTimerQueryFeaturesQCOM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceElapsedTimerQueryFeaturesQCOM,
+            next: ptr::null_mut(),
+            elapsed_timer_query: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceElapsedTimerQueryFeaturesQCOM<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceElapsedTimerQueryFeaturesQCOM<'_> {}
 
 /// Extends: `DeviceQueueCreateInfo`
 #[repr(C)]
@@ -15165,9 +15370,9 @@ impl Default for DebugUtilsMessengerCallbackDataEXT<'_> {
 
 pub trait ExtendsDebugUtilsMessengerCallbackDataEXT {}
 impl<'a> DebugUtilsMessengerCallbackDataEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDebugUtilsMessengerCallbackDataEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -15412,9 +15617,9 @@ impl Default for CalibratedTimestampInfoKHR<'_> {
 
 pub trait ExtendsCalibratedTimestampInfoKHR {}
 impl<'a> CalibratedTimestampInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCalibratedTimestampInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -15819,9 +16024,9 @@ impl Default for AttachmentDescription2<'_> {
 
 pub trait ExtendsAttachmentDescription2 {}
 impl<'a> AttachmentDescription2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAttachmentDescription2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -15867,9 +16072,9 @@ impl Default for AttachmentReference2<'_> {
 
 pub trait ExtendsAttachmentReference2 {}
 impl<'a> AttachmentReference2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAttachmentReference2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -15937,9 +16142,9 @@ impl Default for SubpassDescription2<'_> {
 
 pub trait ExtendsSubpassDescription2 {}
 impl<'a> SubpassDescription2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubpassDescription2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -15995,9 +16200,9 @@ impl Default for SubpassDependency2<'_> {
 
 pub trait ExtendsSubpassDependency2 {}
 impl<'a> SubpassDependency2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubpassDependency2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -16059,9 +16264,9 @@ impl Default for RenderPassCreateInfo2<'_> {
 
 pub trait ExtendsRenderPassCreateInfo2 {}
 impl<'a> RenderPassCreateInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderPassCreateInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -16122,9 +16327,9 @@ impl Default for SubpassEndInfo<'_> {
 
 pub trait ExtendsSubpassEndInfo {}
 impl<'a> SubpassEndInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubpassEndInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -16513,9 +16718,9 @@ impl Default for AndroidHardwareBufferPropertiesANDROID<'_> {
 
 pub trait ExtendsAndroidHardwareBufferPropertiesANDROID {}
 impl<'a> AndroidHardwareBufferPropertiesANDROID<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAndroidHardwareBufferPropertiesANDROID>(
         mut self,
@@ -18025,9 +18230,9 @@ impl Default for RayTracingPipelineCreateInfoNV<'_> {
 
 pub trait ExtendsRayTracingPipelineCreateInfoNV {}
 impl<'a> RayTracingPipelineCreateInfoNV<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRayTracingPipelineCreateInfoNV>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -18100,9 +18305,9 @@ impl Default for RayTracingPipelineCreateInfoKHR<'_> {
 
 pub trait ExtendsRayTracingPipelineCreateInfoKHR {}
 impl<'a> RayTracingPipelineCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRayTracingPipelineCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -18284,9 +18489,9 @@ impl Default for AccelerationStructureCreateInfoNV<'_> {
 
 pub trait ExtendsAccelerationStructureCreateInfoNV {}
 impl<'a> AccelerationStructureCreateInfoNV<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureCreateInfoNV>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -18887,6 +19092,30 @@ impl ExtendsImageCreateInfo for ImageStencilUsageCreateInfo<'_> {}
 impl ExtendsPhysicalDeviceImageFormatInfo2 for ImageStencilUsageCreateInfo<'_> {}
 
 pub type ImageStencilUsageCreateInfoEXT<'a> = ImageStencilUsageCreateInfo<'a>;
+/// Extends: `ImageCreateInfo`, `PhysicalDeviceImageFormatInfo2`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct ImageStencilUsage2CreateInfoKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub stencil_usage: ImageUsageFlags2KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for ImageStencilUsage2CreateInfoKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::ImageStencilUsage2CreateInfoKHR,
+            next: ptr::null_mut(),
+            stencil_usage: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsImageCreateInfo for ImageStencilUsage2CreateInfoKHR<'_> {}
+impl ExtendsPhysicalDeviceImageFormatInfo2 for ImageStencilUsage2CreateInfoKHR<'_> {}
+
 /// Extends: `DeviceCreateInfo`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -19617,6 +19846,29 @@ impl Default for FramebufferAttachmentImageInfo<'_> {
             view_formats: ptr::null_mut(),
             _marker: PhantomData,
         }
+    }
+}
+
+pub trait ExtendsFramebufferAttachmentImageInfo {}
+impl<'a> FramebufferAttachmentImageInfo<'a> {
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
+    #[inline]
+    pub fn next<T: ExtendsFramebufferAttachmentImageInfo>(mut self, next: &'a mut T) -> Self {
+        unsafe {
+            let next_base: *mut BaseOutStructure = ptr::from_mut(next).cast();
+
+            debug_assert!(
+                (*next_base).next.is_null(),
+                "next of inserted struct must be null (already in a chain?)"
+            );
+
+            (*next_base).next = self.next as _;
+            self.next = ptr::from_mut(next).cast();
+        }
+
+        self
     }
 }
 
@@ -22144,6 +22396,252 @@ impl Default for PhysicalDeviceCoherentMemoryFeaturesAMD<'_> {
 impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceCoherentMemoryFeaturesAMD<'_> {}
 impl ExtendsDeviceCreateInfo for PhysicalDeviceCoherentMemoryFeaturesAMD<'_> {}
 
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaPerfBlockPropertiesAMD {
+    pub block_type: GpaPerfBlockAMD,
+    pub flags: GpaPerfBlockPropertiesFlagsAMD,
+    pub instance_count: u32,
+    pub max_event_id: u32,
+    pub max_global_only_counters: u32,
+    pub max_global_shared_counters: u32,
+    pub max_streaming_counters: u32,
+}
+impl Default for GpaPerfBlockPropertiesAMD {
+    fn default() -> Self {
+        Self {
+            block_type: Default::default(),
+            flags: Default::default(),
+            instance_count: 0,
+            max_event_id: 0,
+            max_global_only_counters: 0,
+            max_global_shared_counters: 0,
+            max_streaming_counters: 0,
+        }
+    }
+}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceGpaFeaturesAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub perf_counters: Bool32,
+    pub streaming_perf_counters: Bool32,
+    pub sq_thread_tracing: Bool32,
+    pub clock_modes: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceGpaFeaturesAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceGpaFeaturesAMD,
+            next: ptr::null_mut(),
+            perf_counters: FALSE,
+            streaming_perf_counters: FALSE,
+            sq_thread_tracing: FALSE,
+            clock_modes: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceGpaFeaturesAMD<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceGpaFeaturesAMD<'_> {}
+
+/// Extends: `PhysicalDeviceProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceGpaPropertiesAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub flags: PhysicalDeviceGpaPropertiesFlagsAMD,
+    pub max_sqtt_se_buffer_size: DeviceSize,
+    pub shader_engine_count: u32,
+    pub perf_block_count: u32,
+    /// Len: `perf_block_count`
+    pub perf_blocks: *mut GpaPerfBlockPropertiesAMD,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceGpaPropertiesAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceGpaPropertiesAMD,
+            next: ptr::null_mut(),
+            flags: Default::default(),
+            max_sqtt_se_buffer_size: Default::default(),
+            shader_engine_count: 0,
+            perf_block_count: 0,
+            perf_blocks: ptr::null_mut(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceGpaPropertiesAMD<'_> {}
+
+/// Extends: `PhysicalDeviceProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceGpaProperties2AMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub revision_id: u32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceGpaProperties2AMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceGpaProperties2AMD,
+            next: ptr::null_mut(),
+            revision_id: 0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceGpaProperties2AMD<'_> {}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaPerfCounterAMD {
+    pub block_type: GpaPerfBlockAMD,
+    pub block_instance: u32,
+    pub event_id: u32,
+}
+impl Default for GpaPerfCounterAMD {
+    fn default() -> Self {
+        Self {
+            block_type: Default::default(),
+            block_instance: 0,
+            event_id: 0,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaSampleBeginInfoAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub sample_type: GpaSampleTypeAMD,
+    pub sample_internal_operations: Bool32,
+    pub cache_flush_on_counter_collection: Bool32,
+    pub sq_shader_mask_enable: Bool32,
+    pub sq_shader_mask: GpaSqShaderStageFlagsAMD,
+    pub perf_counter_count: u32,
+    /// Len: `perf_counter_count`
+    pub perf_counters: *const GpaPerfCounterAMD,
+    pub streaming_perf_trace_sample_interval: u32,
+    pub perf_counter_device_memory_limit: DeviceSize,
+    pub sq_thread_trace_enable: Bool32,
+    pub sq_thread_trace_suppress_instruction_tokens: Bool32,
+    pub sq_thread_trace_device_memory_limit: DeviceSize,
+    pub timing_pre_sample: PipelineStageFlags,
+    pub timing_post_sample: PipelineStageFlags,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for GpaSampleBeginInfoAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::GpaSampleBeginInfoAMD,
+            next: ptr::null_mut(),
+            sample_type: Default::default(),
+            sample_internal_operations: FALSE,
+            cache_flush_on_counter_collection: FALSE,
+            sq_shader_mask_enable: FALSE,
+            sq_shader_mask: Default::default(),
+            perf_counter_count: 0,
+            perf_counters: ptr::null_mut(),
+            streaming_perf_trace_sample_interval: 0,
+            perf_counter_device_memory_limit: Default::default(),
+            sq_thread_trace_enable: FALSE,
+            sq_thread_trace_suppress_instruction_tokens: FALSE,
+            sq_thread_trace_device_memory_limit: Default::default(),
+            timing_pre_sample: Default::default(),
+            timing_post_sample: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaDeviceClockModeInfoAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub clock_mode: GpaDeviceClockModeAMD,
+    pub memory_clock_ratio_to_peak: f32,
+    pub engine_clock_ratio_to_peak: f32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for GpaDeviceClockModeInfoAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::GpaDeviceClockModeInfoAMD,
+            next: ptr::null_mut(),
+            clock_mode: Default::default(),
+            memory_clock_ratio_to_peak: 0.0,
+            engine_clock_ratio_to_peak: 0.0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaDeviceGetClockInfoAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub memory_clock_ratio_to_peak: f32,
+    pub engine_clock_ratio_to_peak: f32,
+    pub memory_clock_frequency: u32,
+    pub engine_clock_frequency: u32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for GpaDeviceGetClockInfoAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::GpaDeviceGetClockInfoAMD,
+            next: ptr::null_mut(),
+            memory_clock_ratio_to_peak: 0.0,
+            engine_clock_ratio_to_peak: 0.0,
+            memory_clock_frequency: 0,
+            engine_clock_frequency: 0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct GpaSessionCreateInfoAMD<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub secondary_copy_source: GpaSessionAMD,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for GpaSessionCreateInfoAMD<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::GpaSessionCreateInfoAMD,
+            next: ptr::null_mut(),
+            secondary_copy_source: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
 /// returned_only
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -22444,9 +22942,9 @@ impl Default for AccelerationStructureGeometryTrianglesDataKHR<'_> {
 
 pub trait ExtendsAccelerationStructureGeometryTrianglesDataKHR {}
 impl<'a> AccelerationStructureGeometryTrianglesDataKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureGeometryTrianglesDataKHR>(
         mut self,
@@ -22643,9 +23141,9 @@ impl Default for AccelerationStructureGeometryKHR<'_> {
 
 pub trait ExtendsAccelerationStructureGeometryKHR {}
 impl<'a> AccelerationStructureGeometryKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureGeometryKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -22756,9 +23254,9 @@ impl Default for AccelerationStructureCreateInfoKHR<'_> {
 
 pub trait ExtendsAccelerationStructureCreateInfoKHR {}
 impl<'a> AccelerationStructureCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -23198,6 +23696,30 @@ impl Default for PhysicalDeviceExtendedDynamicState3PropertiesEXT<'_> {
 
 impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceExtendedDynamicState3PropertiesEXT<'_> {}
 
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceExtendedFlagsFeaturesKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub extended_flags: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceExtendedFlagsFeaturesKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceExtendedFlagsFeaturesKHR,
+            next: ptr::null_mut(),
+            extended_flags: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceExtendedFlagsFeaturesKHR<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceExtendedFlagsFeaturesKHR<'_> {}
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct ColorBlendEquationEXT {
@@ -23535,9 +24057,9 @@ impl Default for PartitionedAccelerationStructureInstancesInputNV<'_> {
 
 pub trait ExtendsPartitionedAccelerationStructureInstancesInputNV {}
 impl<'a> PartitionedAccelerationStructureInstancesInputNV<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPartitionedAccelerationStructureInstancesInputNV>(
         mut self,
@@ -23983,9 +24505,9 @@ impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceClusterCullingShaderFeatur
 impl ExtendsDeviceCreateInfo for PhysicalDeviceClusterCullingShaderFeaturesHUAWEI<'_> {}
 pub trait ExtendsPhysicalDeviceClusterCullingShaderFeaturesHUAWEI {}
 impl<'a> PhysicalDeviceClusterCullingShaderFeaturesHUAWEI<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceClusterCullingShaderFeaturesHUAWEI>(
         mut self,
@@ -24123,9 +24645,9 @@ impl Default for ImageBlit2<'_> {
 
 pub trait ExtendsImageBlit2 {}
 impl<'a> ImageBlit2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageBlit2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -24181,9 +24703,9 @@ impl Default for BufferImageCopy2<'_> {
 
 pub trait ExtendsBufferImageCopy2 {}
 impl<'a> BufferImageCopy2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBufferImageCopy2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -24327,9 +24849,9 @@ impl Default for BlitImageInfo2<'_> {
 
 pub trait ExtendsBlitImageInfo2 {}
 impl<'a> BlitImageInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBlitImageInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -24442,9 +24964,9 @@ impl Default for ResolveImageInfo2<'_> {
 
 pub trait ExtendsResolveImageInfo2 {}
 impl<'a> ResolveImageInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsResolveImageInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -25251,9 +25773,9 @@ impl Default for GeneratedCommandsMemoryRequirementsInfoEXT<'_> {
 
 pub trait ExtendsGeneratedCommandsMemoryRequirementsInfoEXT {}
 impl<'a> GeneratedCommandsMemoryRequirementsInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsGeneratedCommandsMemoryRequirementsInfoEXT>(
         mut self,
@@ -25435,9 +25957,9 @@ impl Default for GeneratedCommandsInfoEXT<'_> {
 
 pub trait ExtendsGeneratedCommandsInfoEXT {}
 impl<'a> GeneratedCommandsInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsGeneratedCommandsInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -25533,9 +26055,9 @@ impl Default for IndirectCommandsLayoutCreateInfoEXT<'_> {
 
 pub trait ExtendsIndirectCommandsLayoutCreateInfoEXT {}
 impl<'a> IndirectCommandsLayoutCreateInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsIndirectCommandsLayoutCreateInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -25580,9 +26102,9 @@ impl Default for IndirectCommandsLayoutTokenEXT<'_> {
 
 pub trait ExtendsIndirectCommandsLayoutTokenEXT {}
 impl<'a> IndirectCommandsLayoutTokenEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsIndirectCommandsLayoutTokenEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -26051,9 +26573,9 @@ impl Default for ImageMemoryBarrier2<'_> {
 
 pub trait ExtendsImageMemoryBarrier2 {}
 impl<'a> ImageMemoryBarrier2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsImageMemoryBarrier2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -26111,9 +26633,9 @@ impl Default for BufferMemoryBarrier2<'_> {
 
 pub trait ExtendsBufferMemoryBarrier2 {}
 impl<'a> BufferMemoryBarrier2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBufferMemoryBarrier2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -26198,9 +26720,9 @@ impl Default for DependencyInfo<'_> {
 
 pub trait ExtendsDependencyInfo {}
 impl<'a> DependencyInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDependencyInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -26271,9 +26793,9 @@ impl Default for CommandBufferSubmitInfo<'_> {
 
 pub trait ExtendsCommandBufferSubmitInfo {}
 impl<'a> CommandBufferSubmitInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCommandBufferSubmitInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -26330,9 +26852,9 @@ impl Default for SubmitInfo2<'_> {
 
 pub trait ExtendsSubmitInfo2 {}
 impl<'a> SubmitInfo2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubmitInfo2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27190,6 +27712,30 @@ impl ExtendsRenderingInfo for MultisampledRenderToSingleSampledInfoEXT<'_> {}
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub multisampled_render_to_swapchain: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT,
+            next: ptr::null_mut(),
+            multisampled_render_to_swapchain: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct PhysicalDevicePipelineProtectedAccessFeatures<'a> {
     pub s_type: StructureType,
     /// Nullable
@@ -27312,9 +27858,9 @@ impl Default for PhysicalDeviceVideoFormatInfoKHR<'_> {
 
 pub trait ExtendsPhysicalDeviceVideoFormatInfoKHR {}
 impl<'a> PhysicalDeviceVideoFormatInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPhysicalDeviceVideoFormatInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27366,9 +27912,9 @@ impl Default for VideoFormatPropertiesKHR<'_> {
 
 pub trait ExtendsVideoFormatPropertiesKHR {}
 impl<'a> VideoFormatPropertiesKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoFormatPropertiesKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27591,9 +28137,9 @@ impl Default for VideoProfileInfoKHR<'_> {
 impl ExtendsQueryPoolCreateInfo for VideoProfileInfoKHR<'_> {}
 pub trait ExtendsVideoProfileInfoKHR {}
 impl<'a> VideoProfileInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoProfileInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27651,9 +28197,9 @@ impl Default for VideoCapabilitiesKHR<'_> {
 
 pub trait ExtendsVideoCapabilitiesKHR {}
 impl<'a> VideoCapabilitiesKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoCapabilitiesKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27778,9 +28324,9 @@ impl Default for VideoReferenceSlotInfoKHR<'_> {
 
 pub trait ExtendsVideoReferenceSlotInfoKHR {}
 impl<'a> VideoReferenceSlotInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoReferenceSlotInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -27885,9 +28431,9 @@ impl Default for VideoDecodeInfoKHR<'_> {
 
 pub trait ExtendsVideoDecodeInfoKHR {}
 impl<'a> VideoDecodeInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoDecodeInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -28673,9 +29219,9 @@ impl Default for VideoSessionCreateInfoKHR<'_> {
 
 pub trait ExtendsVideoSessionCreateInfoKHR {}
 impl<'a> VideoSessionCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoSessionCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -28720,9 +29266,9 @@ impl Default for VideoSessionParametersCreateInfoKHR<'_> {
 
 pub trait ExtendsVideoSessionParametersCreateInfoKHR {}
 impl<'a> VideoSessionParametersCreateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoSessionParametersCreateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -28763,9 +29309,9 @@ impl Default for VideoSessionParametersUpdateInfoKHR<'_> {
 
 pub trait ExtendsVideoSessionParametersUpdateInfoKHR {}
 impl<'a> VideoSessionParametersUpdateInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoSessionParametersUpdateInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -28806,9 +29352,9 @@ impl Default for VideoEncodeSessionParametersGetInfoKHR<'_> {
 
 pub trait ExtendsVideoEncodeSessionParametersGetInfoKHR {}
 impl<'a> VideoEncodeSessionParametersGetInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoEncodeSessionParametersGetInfoKHR>(
         mut self,
@@ -28853,9 +29399,9 @@ impl Default for VideoEncodeSessionParametersFeedbackInfoKHR<'_> {
 
 pub trait ExtendsVideoEncodeSessionParametersFeedbackInfoKHR {}
 impl<'a> VideoEncodeSessionParametersFeedbackInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoEncodeSessionParametersFeedbackInfoKHR>(
         mut self,
@@ -28908,9 +29454,9 @@ impl Default for VideoBeginCodingInfoKHR<'_> {
 
 pub trait ExtendsVideoBeginCodingInfoKHR {}
 impl<'a> VideoBeginCodingInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoBeginCodingInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -28971,9 +29517,9 @@ impl Default for VideoCodingControlInfoKHR<'_> {
 
 pub trait ExtendsVideoCodingControlInfoKHR {}
 impl<'a> VideoCodingControlInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoCodingControlInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -29060,9 +29606,9 @@ impl Default for VideoEncodeInfoKHR<'_> {
 
 pub trait ExtendsVideoEncodeInfoKHR {}
 impl<'a> VideoEncodeInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoEncodeInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -29250,9 +29796,9 @@ impl Default for VideoEncodeQualityLevelPropertiesKHR<'_> {
 
 pub trait ExtendsVideoEncodeQualityLevelPropertiesKHR {}
 impl<'a> VideoEncodeQualityLevelPropertiesKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoEncodeQualityLevelPropertiesKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -29334,9 +29880,9 @@ impl Default for VideoEncodeRateControlLayerInfoKHR<'_> {
 
 pub trait ExtendsVideoEncodeRateControlLayerInfoKHR {}
 impl<'a> VideoEncodeRateControlLayerInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsVideoEncodeRateControlLayerInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -29390,6 +29936,80 @@ impl Default for VideoEncodeCapabilitiesKHR<'_> {
 }
 
 impl ExtendsVideoCapabilitiesKHR for VideoEncodeCapabilitiesKHR<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub video_encode_feedback2: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceVideoEncodeFeedback2FeaturesKHR,
+            next: ptr::null_mut(),
+            video_encode_feedback2: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceVideoEncodeFeedback2FeaturesKHR<'_> {}
+
+/// Extends: `VideoCapabilitiesKHR`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct VideoEncodeFeedback2CapabilitiesKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub max_per_partition_feedback_entries: u32,
+    pub supported_per_partition_encode_feedback_flags: VideoEncodePerPartitionFeedbackFlagsKHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for VideoEncodeFeedback2CapabilitiesKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::VideoEncodeFeedback2CapabilitiesKHR,
+            next: ptr::null_mut(),
+            max_per_partition_feedback_entries: 0,
+            supported_per_partition_encode_feedback_flags: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsVideoCapabilitiesKHR for VideoEncodeFeedback2CapabilitiesKHR<'_> {}
+
+/// Extends: `QueryPoolCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct QueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub max_per_partition_feedback_entries: u32,
+    pub per_partition_encode_feedback_flags: VideoEncodePerPartitionFeedbackFlagsKHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for QueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::QueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR,
+            next: ptr::null_mut(),
+            max_per_partition_feedback_entries: 0,
+            per_partition_encode_feedback_flags: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsQueryPoolCreateInfo for QueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR<'_> {}
 
 /// Extends: `VideoCapabilitiesKHR`
 /// returned_only
@@ -31060,9 +31680,9 @@ impl Default for CuModuleCreateInfoNVX<'_> {
 
 pub trait ExtendsCuModuleCreateInfoNVX {}
 impl<'a> CuModuleCreateInfoNVX<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsCuModuleCreateInfoNVX>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -31364,9 +31984,9 @@ impl Default for DescriptorBufferBindingInfoEXT<'_> {
 
 pub trait ExtendsDescriptorBufferBindingInfoEXT {}
 impl<'a> DescriptorBufferBindingInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorBufferBindingInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -31467,9 +32087,9 @@ impl Default for DescriptorGetInfoEXT<'_> {
 
 pub trait ExtendsDescriptorGetInfoEXT {}
 impl<'a> DescriptorGetInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorGetInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -32579,6 +33199,34 @@ pub type FormatProperties3KHR<'a> = FormatProperties3<'a>;
 /// returned_only
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct FormatProperties4KHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub linear_tiling_features: FormatFeatureFlags4KHR,
+    pub optimal_tiling_features: FormatFeatureFlags4KHR,
+    pub buffer_features: FormatFeatureFlags4KHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for FormatProperties4KHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::FormatProperties4KHR,
+            next: ptr::null_mut(),
+            linear_tiling_features: Default::default(),
+            optimal_tiling_features: Default::default(),
+            buffer_features: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsFormatProperties2 for FormatProperties4KHR<'_> {}
+
+/// Extends: `FormatProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct DrmFormatModifierPropertiesList2EXT<'a> {
     pub s_type: StructureType,
     /// Nullable
@@ -32734,9 +33382,9 @@ impl Default for RenderingInfo<'_> {
 
 pub trait ExtendsRenderingInfo {}
 impl<'a> RenderingInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderingInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -32776,9 +33424,9 @@ impl Default for RenderingEndInfoKHR<'_> {
 
 pub trait ExtendsRenderingEndInfoKHR {}
 impl<'a> RenderingEndInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderingEndInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -32834,9 +33482,9 @@ impl Default for RenderingAttachmentInfo<'_> {
 
 pub trait ExtendsRenderingAttachmentInfo {}
 impl<'a> RenderingAttachmentInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsRenderingAttachmentInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -33359,6 +34007,61 @@ impl ExtendsDataGraphPipelineSessionCreateInfoARM
 {
 }
 
+/// Extends: `FormatProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct TensorExplicitTilingFormatPropertiesARM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub brick16_tiling_tensor_features: FormatFeatureFlags2,
+    pub brick8_tiling_tensor_features: FormatFeatureFlags2,
+    pub brick4_tiling_tensor_features: FormatFeatureFlags2,
+    pub block_u_tiling_tensor_features: FormatFeatureFlags2,
+    pub block_u64k_tiling_tensor_features: FormatFeatureFlags2,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for TensorExplicitTilingFormatPropertiesARM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::TensorExplicitTilingFormatPropertiesARM,
+            next: ptr::null_mut(),
+            brick16_tiling_tensor_features: Default::default(),
+            brick8_tiling_tensor_features: Default::default(),
+            brick4_tiling_tensor_features: Default::default(),
+            block_u_tiling_tensor_features: Default::default(),
+            block_u64k_tiling_tensor_features: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsFormatProperties2 for TensorExplicitTilingFormatPropertiesARM<'_> {}
+
+/// Extends: `TensorCreateInfoARM`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct TensorRollingBackingCreateInfoARM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub wraps: [u32; MAX_TENSOR_CREATE_INFO_ROLLING_BACKING_WRAP_COUNT_ARM as usize],
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for TensorRollingBackingCreateInfoARM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::TensorRollingBackingCreateInfoARM,
+            next: ptr::null_mut(),
+            wraps: unsafe { mem::zeroed() },
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsTensorCreateInfoARM for TensorRollingBackingCreateInfoARM<'_> {}
+
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
@@ -33731,9 +34434,9 @@ impl Default for SubresourceLayout2<'_> {
 
 pub trait ExtendsSubresourceLayout2 {}
 impl<'a> SubresourceLayout2<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSubresourceLayout2>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -33925,6 +34628,43 @@ impl Default for MicromapBuildInfoEXT<'_> {
     }
 }
 
+/// Extends: `AccelerationStructureGeometryKHR`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct AccelerationStructureGeometryMicromapDataKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *const c_void,
+    pub usage_counts_count: u32,
+    /// Nullable
+    /// Len: `usage_counts_count`
+    pub usage_counts: *const MicromapUsageKHR,
+    /// Nullable
+    /// Len: `usage_counts_count`, `1`
+    pub pp_usage_counts: *const *const MicromapUsageKHR,
+    pub data: DeviceAddress,
+    pub triangle_array: DeviceAddress,
+    pub triangle_array_stride: DeviceSize,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for AccelerationStructureGeometryMicromapDataKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::AccelerationStructureGeometryMicromapDataKHR,
+            next: ptr::null_mut(),
+            usage_counts_count: 0,
+            usage_counts: ptr::null_mut(),
+            pp_usage_counts: ptr::null_mut(),
+            data: Default::default(),
+            triangle_array: Default::default(),
+            triangle_array_stride: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsAccelerationStructureGeometryKHR for AccelerationStructureGeometryMicromapDataKHR<'_> {}
+
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
 pub struct MicromapCreateInfoEXT<'a> {
@@ -34075,6 +34815,23 @@ impl Default for MicromapBuildSizesInfoEXT<'_> {
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct MicromapUsageKHR {
+    pub count: u32,
+    pub subdivision_level: u32,
+    pub format: OpacityMicromapFormatKHR,
+}
+impl Default for MicromapUsageKHR {
+    fn default() -> Self {
+        Self {
+            count: 0,
+            subdivision_level: 0,
+            format: Default::default(),
+        }
+    }
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct MicromapUsageEXT {
     pub count: u32,
     pub subdivision_level: u32,
@@ -34093,13 +34850,13 @@ impl Default for MicromapUsageEXT {
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
-pub struct MicromapTriangleEXT {
+pub struct MicromapTriangleKHR {
     /// Specified in bytes
     pub data_offset: u32,
     pub subdivision_level: u16,
     pub format: u16,
 }
-impl Default for MicromapTriangleEXT {
+impl Default for MicromapTriangleKHR {
     fn default() -> Self {
         Self {
             data_offset: 0,
@@ -34108,6 +34865,31 @@ impl Default for MicromapTriangleEXT {
         }
     }
 }
+
+pub type MicromapTriangleEXT = MicromapTriangleKHR;
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceOpacityMicromapFeaturesKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub micromap: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceOpacityMicromapFeaturesKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceOpacityMicromapFeaturesKHR,
+            next: ptr::null_mut(),
+            micromap: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceOpacityMicromapFeaturesKHR<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceOpacityMicromapFeaturesKHR<'_> {}
 
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
@@ -34141,6 +34923,36 @@ impl ExtendsDeviceCreateInfo for PhysicalDeviceOpacityMicromapFeaturesEXT<'_> {}
 /// returned_only
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceOpacityMicromapPropertiesKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub max_opacity2_state_subdivision_level: u32,
+    pub max_opacity4_state_subdivision_level: u32,
+    pub max_opacity_lossy4_state_subdivision_level: u32,
+    pub max_micromap_triangles: u64,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceOpacityMicromapPropertiesKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceOpacityMicromapPropertiesKHR,
+            next: ptr::null_mut(),
+            max_opacity2_state_subdivision_level: 0,
+            max_opacity4_state_subdivision_level: 0,
+            max_opacity_lossy4_state_subdivision_level: 0,
+            max_micromap_triangles: 0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceOpacityMicromapPropertiesKHR<'_> {}
+
+/// Extends: `PhysicalDeviceProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct PhysicalDeviceOpacityMicromapPropertiesEXT<'a> {
     pub s_type: StructureType,
     /// Nullable
@@ -34162,6 +34974,44 @@ impl Default for PhysicalDeviceOpacityMicromapPropertiesEXT<'_> {
 }
 
 impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceOpacityMicromapPropertiesEXT<'_> {}
+
+/// Extends: `AccelerationStructureGeometryTrianglesDataKHR`, `AccelerationStructureDenseGeometryFormatTrianglesDataAMDX`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct AccelerationStructureTrianglesOpacityMicromapKHR<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub index_type: IndexType,
+    pub index_buffer: DeviceAddress,
+    pub index_stride: DeviceSize,
+    pub base_triangle: u32,
+    pub micromap: AccelerationStructureKHR,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for AccelerationStructureTrianglesOpacityMicromapKHR<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::AccelerationStructureTrianglesOpacityMicromapKHR,
+            next: ptr::null_mut(),
+            index_type: Default::default(),
+            index_buffer: Default::default(),
+            index_stride: Default::default(),
+            base_triangle: 0,
+            micromap: Default::default(),
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsAccelerationStructureGeometryTrianglesDataKHR
+    for AccelerationStructureTrianglesOpacityMicromapKHR<'_>
+{
+}
+impl ExtendsAccelerationStructureDenseGeometryFormatTrianglesDataAMDX
+    for AccelerationStructureTrianglesOpacityMicromapKHR<'_>
+{
+}
 
 /// Extends: `AccelerationStructureGeometryTrianglesDataKHR`, `AccelerationStructureDenseGeometryFormatTrianglesDataAMDX`
 #[repr(C)]
@@ -34466,9 +35316,9 @@ impl Default for ExportMetalObjectsInfoEXT<'_> {
 
 pub trait ExtendsExportMetalObjectsInfoEXT {}
 impl<'a> ExportMetalObjectsInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsExportMetalObjectsInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -34879,6 +35729,54 @@ impl Default for ImageViewSampleWeightCreateInfoQCOM<'_> {
 }
 
 impl ExtendsImageViewCreateInfo for ImageViewSampleWeightCreateInfoQCOM<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub shader_multiple_wait_queues: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM,
+            next: ptr::null_mut(),
+            shader_multiple_wait_queues: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM<'_> {}
+
+/// Extends: `PhysicalDeviceProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub max_shader_wait_queues: u32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM,
+            next: ptr::null_mut(),
+            max_shader_wait_queues: 0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM<'_> {}
 
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
@@ -35361,9 +36259,9 @@ impl Default for OpticalFlowSessionCreateInfoNV<'_> {
 
 pub trait ExtendsOpticalFlowSessionCreateInfoNV {}
 impl<'a> OpticalFlowSessionCreateInfoNV<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsOpticalFlowSessionCreateInfoNV>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -35560,9 +36458,9 @@ impl Default for DeviceFaultDebugInfoKHR<'_> {
 
 pub trait ExtendsDeviceFaultDebugInfoKHR {}
 impl<'a> DeviceFaultDebugInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDeviceFaultDebugInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -35776,9 +36674,9 @@ impl Default for DepthBiasInfoEXT<'_> {
 
 pub trait ExtendsDepthBiasInfoEXT {}
 impl<'a> DepthBiasInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDepthBiasInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -36763,9 +37661,9 @@ impl Default for MemoryMapInfo<'_> {
 
 pub trait ExtendsMemoryMapInfo {}
 impl<'a> MemoryMapInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsMemoryMapInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -36910,9 +37808,9 @@ impl Default for ShaderCreateInfoEXT<'_> {
 
 pub trait ExtendsShaderCreateInfoEXT {}
 impl<'a> ShaderCreateInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsShaderCreateInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37035,9 +37933,9 @@ impl Default for ScreenBufferPropertiesQNX<'_> {
 
 pub trait ExtendsScreenBufferPropertiesQNX {}
 impl<'a> ScreenBufferPropertiesQNX<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsScreenBufferPropertiesQNX>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37355,9 +38253,9 @@ impl Default for ExecutionGraphPipelineCreateInfoAMDX<'_> {
 
 pub trait ExtendsExecutionGraphPipelineCreateInfoAMDX {}
 impl<'a> ExecutionGraphPipelineCreateInfoAMDX<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsExecutionGraphPipelineCreateInfoAMDX>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37695,9 +38593,9 @@ impl Default for BindDescriptorSetsInfo<'_> {
 
 pub trait ExtendsBindDescriptorSetsInfo {}
 impl<'a> BindDescriptorSetsInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBindDescriptorSetsInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37748,9 +38646,9 @@ impl Default for PushConstantsInfo<'_> {
 
 pub trait ExtendsPushConstantsInfo {}
 impl<'a> PushConstantsInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPushConstantsInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37801,9 +38699,9 @@ impl Default for PushDescriptorSetInfo<'_> {
 
 pub trait ExtendsPushDescriptorSetInfo {}
 impl<'a> PushDescriptorSetInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPushDescriptorSetInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37851,9 +38749,9 @@ impl Default for PushDescriptorSetWithTemplateInfo<'_> {
 
 pub trait ExtendsPushDescriptorSetWithTemplateInfo {}
 impl<'a> PushDescriptorSetWithTemplateInfo<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPushDescriptorSetWithTemplateInfo>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37907,9 +38805,9 @@ impl Default for SetDescriptorBufferOffsetsInfoEXT<'_> {
 
 pub trait ExtendsSetDescriptorBufferOffsetsInfoEXT {}
 impl<'a> SetDescriptorBufferOffsetsInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsSetDescriptorBufferOffsetsInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -37954,9 +38852,9 @@ impl Default for BindDescriptorBufferEmbeddedSamplersInfoEXT<'_> {
 
 pub trait ExtendsBindDescriptorBufferEmbeddedSamplersInfoEXT {}
 impl<'a> BindDescriptorBufferEmbeddedSamplersInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsBindDescriptorBufferEmbeddedSamplersInfoEXT>(
         mut self,
@@ -38196,6 +39094,34 @@ impl Default for SamplerBlockMatchWindowCreateInfoQCOM<'_> {
 }
 
 impl ExtendsSamplerCreateInfo for SamplerBlockMatchWindowCreateInfoQCOM<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceImageProcessing3FeaturesQCOM<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub image_gather_linear: Bool32,
+    pub image_gather_extended_modes: Bool32,
+    pub block_match_extended_clamp_to_edge: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceImageProcessing3FeaturesQCOM<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceImageProcessing3FeaturesQCOM,
+            next: ptr::null_mut(),
+            image_gather_linear: FALSE,
+            image_gather_extended_modes: FALSE,
+            block_match_extended_clamp_to_edge: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceImageProcessing3FeaturesQCOM<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceImageProcessing3FeaturesQCOM<'_> {}
 
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
@@ -39565,6 +40491,30 @@ impl Default for CooperativeMatrixFlexibleDimensionsPropertiesNV<'_> {
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
 #[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub cooperative_matrix_decode_vector: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV,
+            next: ptr::null_mut(),
+            cooperative_matrix_decode_vector: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
 pub struct PhysicalDeviceHdrVividFeaturesHUAWEI<'a> {
     pub s_type: StructureType,
     /// Nullable
@@ -39673,9 +40623,9 @@ impl ExtendsAccelerationStructureGeometryKHR
 }
 pub trait ExtendsAccelerationStructureDenseGeometryFormatTrianglesDataAMDX {}
 impl<'a> AccelerationStructureDenseGeometryFormatTrianglesDataAMDX<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureDenseGeometryFormatTrianglesDataAMDX>(
         mut self,
@@ -40466,9 +41416,9 @@ impl Default for TensorCreateInfoARM<'_> {
 
 pub trait ExtendsTensorCreateInfoARM {}
 impl<'a> TensorCreateInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsTensorCreateInfoARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -40513,9 +41463,9 @@ impl Default for TensorViewCreateInfoARM<'_> {
 
 pub trait ExtendsTensorViewCreateInfoARM {}
 impl<'a> TensorViewCreateInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsTensorViewCreateInfoARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -41221,9 +42171,9 @@ impl Default for DataGraphPipelineConstantARM<'_> {
 
 pub trait ExtendsDataGraphPipelineConstantARM {}
 impl<'a> DataGraphPipelineConstantARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDataGraphPipelineConstantARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -41268,9 +42218,9 @@ impl Default for DataGraphPipelineResourceInfoARM<'_> {
 
 pub trait ExtendsDataGraphPipelineResourceInfoARM {}
 impl<'a> DataGraphPipelineResourceInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDataGraphPipelineResourceInfoARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -41365,9 +42315,9 @@ impl Default for DataGraphPipelineCreateInfoARM<'_> {
 
 pub trait ExtendsDataGraphPipelineCreateInfoARM {}
 impl<'a> DataGraphPipelineCreateInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDataGraphPipelineCreateInfoARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -41445,9 +42395,9 @@ impl Default for DataGraphPipelineSessionCreateInfoARM<'_> {
 
 pub trait ExtendsDataGraphPipelineSessionCreateInfoARM {}
 impl<'a> DataGraphPipelineSessionCreateInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDataGraphPipelineSessionCreateInfoARM>(
         mut self,
@@ -41662,9 +42612,9 @@ impl Default for DataGraphPipelineDispatchInfoARM<'_> {
 
 pub trait ExtendsDataGraphPipelineDispatchInfoARM {}
 impl<'a> DataGraphPipelineDispatchInfoARM<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDataGraphPipelineDispatchInfoARM>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -42086,9 +43036,9 @@ impl Default for NativeBufferPropertiesOHOS<'_> {
 
 pub trait ExtendsNativeBufferPropertiesOHOS {}
 impl<'a> NativeBufferPropertiesOHOS<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsNativeBufferPropertiesOHOS>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -42695,9 +43645,9 @@ impl Default for ResourceDescriptorInfoEXT<'_> {
 
 pub trait ExtendsResourceDescriptorInfoEXT {}
 impl<'a> ResourceDescriptorInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsResourceDescriptorInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -42764,9 +43714,9 @@ impl Default for PushDataInfoEXT<'_> {
 
 pub trait ExtendsPushDataInfoEXT {}
 impl<'a> PushDataInfoEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsPushDataInfoEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -43038,9 +43988,9 @@ impl Default for DescriptorSetAndBindingMappingEXT<'_> {
 
 pub trait ExtendsDescriptorSetAndBindingMappingEXT {}
 impl<'a> DescriptorSetAndBindingMappingEXT<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDescriptorSetAndBindingMappingEXT>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -43181,6 +44131,54 @@ impl Default for SubsampledImageFormatPropertiesEXT<'_> {
 }
 
 impl ExtendsImageFormatProperties2 for SubsampledImageFormatPropertiesEXT<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceShaderSplitBarrierFeaturesEXT<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub shader_split_barrier: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceShaderSplitBarrierFeaturesEXT<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceShaderSplitBarrierFeaturesEXT,
+            next: ptr::null_mut(),
+            shader_split_barrier: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceShaderSplitBarrierFeaturesEXT<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceShaderSplitBarrierFeaturesEXT<'_> {}
+
+/// Extends: `PhysicalDeviceProperties2`
+/// returned_only
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceShaderSplitBarrierPropertiesEXT<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub split_barrier_reserved_shared_memory: u32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceShaderSplitBarrierPropertiesEXT<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceShaderSplitBarrierPropertiesEXT,
+            next: ptr::null_mut(),
+            split_barrier_reserved_shared_memory: 0,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceProperties2 for PhysicalDeviceShaderSplitBarrierPropertiesEXT<'_> {}
 
 /// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
 #[repr(C)]
@@ -43535,9 +44533,9 @@ impl Default for DeviceMemoryImageCopyKHR<'_> {
 
 pub trait ExtendsDeviceMemoryImageCopyKHR {}
 impl<'a> DeviceMemoryImageCopyKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsDeviceMemoryImageCopyKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -43608,9 +44606,9 @@ impl Default for MemoryRangeBarriersInfoKHR<'_> {
 impl ExtendsDependencyInfo for MemoryRangeBarriersInfoKHR<'_> {}
 pub trait ExtendsMemoryRangeBarriersInfoKHR {}
 impl<'a> MemoryRangeBarriersInfoKHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsMemoryRangeBarriersInfoKHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -43739,9 +44737,9 @@ impl Default for AccelerationStructureCreateInfo2KHR<'_> {
 
 pub trait ExtendsAccelerationStructureCreateInfo2KHR {}
 impl<'a> AccelerationStructureCreateInfo2KHR<'a> {
-    /// Prepends the given extension struct between the root and the first pointer.
-    /// If the chain looks like `A -> B -> C`, and you call `x.next(&mut D)`,
-    /// then the chain will look like `A -> D -> B -> C`.
+    /// Inserts the given extension struct between the root and the first pointer.
+    /// If the chain looks like `a -> b -> c`, and you call `a.next(&mut d)`,
+    /// then the chain will look like `a -> d -> b -> c`.
     #[inline]
     pub fn next<T: ExtendsAccelerationStructureCreateInfo2KHR>(mut self, next: &'a mut T) -> Self {
         unsafe {
@@ -44296,3 +45294,33 @@ impl Default for DataGraphPipelineOpticalFlowDispatchInfoARM<'_> {
 }
 
 impl ExtendsDataGraphPipelineDispatchInfoARM for DataGraphPipelineOpticalFlowDispatchInfoARM<'_> {}
+
+/// Extends: `PhysicalDeviceFeatures2`, `DeviceCreateInfo`
+#[repr(C)]
+#[derive(Copy, Clone, Debug)]
+pub struct PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'a> {
+    pub s_type: StructureType,
+    /// Nullable
+    pub next: *mut c_void,
+    pub shader_float4: Bool32,
+    pub shader_float6: Bool32,
+    pub shader_float8_unsigned_e8m0: Bool32,
+    pub shader_mx_int8: Bool32,
+    pub _marker: PhantomData<&'a ()>,
+}
+impl Default for PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'_> {
+    fn default() -> Self {
+        Self {
+            s_type: StructureType::PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT,
+            next: ptr::null_mut(),
+            shader_float4: FALSE,
+            shader_float6: FALSE,
+            shader_float8_unsigned_e8m0: FALSE,
+            shader_mx_int8: FALSE,
+            _marker: PhantomData,
+        }
+    }
+}
+
+impl ExtendsPhysicalDeviceFeatures2 for PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'_> {}
+impl ExtendsDeviceCreateInfo for PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT<'_> {}

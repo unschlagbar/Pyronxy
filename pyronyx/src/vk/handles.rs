@@ -134,7 +134,7 @@ impl Instance {
     /// // The debug callback is only compiled in debug builds.
     /// // It prints the severity, type and message of each validation message.
     /// #[cfg(debug_assertions)]
-    /// unsafe extern "system" fn debug_callback(
+    /// extern "system" fn debug_callback(
     ///     message_severity: vk::DebugUtilsMessageSeverityFlagsEXT,
     ///     message_type: vk::DebugUtilsMessageTypeFlagsEXT,
     ///     callback_data: *const vk::DebugUtilsMessengerCallbackDataEXT,

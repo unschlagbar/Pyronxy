@@ -23,6 +23,7 @@ impl CalibratedTimestampsPhysicalDevice for PhysicalDevice {
     /// Call [`get_calibrateable_time_domains_len()`][`Self::get_calibrateable_time_domains_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_calibrateable_time_domains(&self, time_domains: &mut [TimeDomainKHR]) -> Result<()> {
+        let mut time_domain_count = time_domains.len() as u32;
         let call = self
             .fns()
             .khr_calibrated_timestamps
@@ -33,7 +34,7 @@ impl CalibratedTimestampsPhysicalDevice for PhysicalDevice {
         unsafe {
             (call)(
                 self.handle,
-                time_domains.len() as *mut u32,
+                &mut time_domain_count,
                 time_domains.as_mut_ptr(),
             )
         }
@@ -43,7 +44,7 @@ impl CalibratedTimestampsPhysicalDevice for PhysicalDevice {
     /// Returns the required slice length for Call [`get_calibrateable_time_domains`][`Self::get_calibrateable_time_domains`].
     #[inline]
     fn get_calibrateable_time_domains_len(&self) -> Result<usize> {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -52,11 +53,12 @@ impl CalibratedTimestampsPhysicalDevice for PhysicalDevice {
                 .expect(Self::EXT_LOAD_ERROR)
                 .get_physical_device_calibrateable_time_domains_khr)(
                 self.handle,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             )
         }
         .init_on_success(out)
+        .map(|v| v as usize)
     }
 }
 

@@ -475,29 +475,54 @@ fn write_bitfield_accessors(
             width,
         } = a;
 
+        // A field at offset 0 needs no shift at all; emitting `<< 0` trips
+        // clippy::identity_op, and parenthesising the lone operand trips unused_parens.
+        let at_start = *offset == 0;
+
         if *width == 1 {
+            let (mask, shifted_value) = if at_start {
+                ("1".to_string(), "value as u32".to_string())
+            } else {
+                (
+                    format!("(1 << {offset})"),
+                    format!("((value as u32) << {offset})"),
+                )
+            };
             w.ln(&format!(
                 "#[inline]
 pub const fn {name}(&self) -> bool {{
-    self.{storage} & (1 << {offset}) != 0
+    self.{storage} & {mask} != 0
 }}
 #[inline]
 pub const fn set_{name}(&mut self, value: bool) {{
-    self.{storage} = (self.{storage} & !(1 << {offset})) | ((value as u32) << {offset});
+    self.{storage} = (self.{storage} & !{mask}) | {shifted_value};
 }}"
             ));
         } else {
-            let mask = (1u32 << width) - 1;
+            let bits = (1u32 << width) - 1;
+            let (read, mask, shifted_value) = if at_start {
+                (
+                    format!("self.{storage} & {bits:#x}"),
+                    format!("{bits:#x}"),
+                    format!("(value & {bits:#x})"),
+                )
+            } else {
+                (
+                    format!("(self.{storage} >> {offset}) & {bits:#x}"),
+                    format!("({bits:#x} << {offset})"),
+                    format!("((value & {bits:#x}) << {offset})"),
+                )
+            };
             w.ln(&format!(
                 "/// Only the low {width} bits are used.
 #[inline]
 pub const fn {name}(&self) -> u32 {{
-    (self.{storage} >> {offset}) & {mask:#x}
+    {read}
 }}
 /// Only the low {width} bits are used.
 #[inline]
 pub const fn set_{name}(&mut self, value: u32) {{
-    self.{storage} = (self.{storage} & !({mask:#x} << {offset})) | ((value & {mask:#x}) << {offset});
+    self.{storage} = (self.{storage} & !{mask}) | {shifted_value};
 }}"
             ));
         }

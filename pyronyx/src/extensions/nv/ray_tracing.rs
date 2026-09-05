@@ -170,7 +170,7 @@ impl RayTracingDevice for Device {
             (call)(
                 self.handle,
                 acceleration_structure,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
             )
         }

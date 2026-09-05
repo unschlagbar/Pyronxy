@@ -6,7 +6,6 @@
 #![deprecated = "This extension is deprecated. Use `VK_EXT_descriptor_heap` instead."]
 use crate::vk::*;
 use core::ffi::CStr;
-use core::ffi::c_void;
 use core::mem::MaybeUninit;
 
 /// Type: `Device`
@@ -27,27 +26,32 @@ pub trait DescriptorBufferDevice {
     fn get_buffer_opaque_capture_descriptor_data(
         &self,
         info: &BufferCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 
     fn get_image_opaque_capture_descriptor_data(
         &self,
         info: &ImageCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 
     fn get_image_view_opaque_capture_descriptor_data(
         &self,
         info: &ImageViewCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 
     fn get_sampler_opaque_capture_descriptor_data(
         &self,
         info: &SamplerCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 
     fn get_acceleration_structure_opaque_capture_descriptor_data(
         &self,
         info: &AccelerationStructureCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 }
 
 impl DescriptorBufferDevice for Device {
@@ -103,7 +107,7 @@ impl DescriptorBufferDevice for Device {
             (call)(
                 self.handle,
                 descriptor_info,
-                descriptor.len() as usize,
+                descriptor.len(),
                 descriptor.as_mut_ptr().cast(),
             )
         };
@@ -114,8 +118,8 @@ impl DescriptorBufferDevice for Device {
     fn get_buffer_opaque_capture_descriptor_data(
         &self,
         info: &BufferCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .ext_descriptor_buffer
@@ -123,7 +127,7 @@ impl DescriptorBufferDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_buffer_opaque_capture_descriptor_data_ext;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageOpaqueCaptureDescriptorDataEXT.html>
@@ -131,8 +135,8 @@ impl DescriptorBufferDevice for Device {
     fn get_image_opaque_capture_descriptor_data(
         &self,
         info: &ImageCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .ext_descriptor_buffer
@@ -140,7 +144,7 @@ impl DescriptorBufferDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_image_opaque_capture_descriptor_data_ext;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageViewOpaqueCaptureDescriptorDataEXT.html>
@@ -148,8 +152,8 @@ impl DescriptorBufferDevice for Device {
     fn get_image_view_opaque_capture_descriptor_data(
         &self,
         info: &ImageViewCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .ext_descriptor_buffer
@@ -157,7 +161,7 @@ impl DescriptorBufferDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_image_view_opaque_capture_descriptor_data_ext;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSamplerOpaqueCaptureDescriptorDataEXT.html>
@@ -165,8 +169,8 @@ impl DescriptorBufferDevice for Device {
     fn get_sampler_opaque_capture_descriptor_data(
         &self,
         info: &SamplerCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .ext_descriptor_buffer
@@ -174,7 +178,7 @@ impl DescriptorBufferDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_sampler_opaque_capture_descriptor_data_ext;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT.html>
@@ -182,8 +186,8 @@ impl DescriptorBufferDevice for Device {
     fn get_acceleration_structure_opaque_capture_descriptor_data(
         &self,
         info: &AccelerationStructureCaptureDescriptorDataInfoEXT,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .ext_descriptor_buffer
@@ -191,7 +195,7 @@ impl DescriptorBufferDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_acceleration_structure_opaque_capture_descriptor_data_ext;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 }
 

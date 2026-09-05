@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0]
+
+### Updated to Vulkan 1.4.357.1
+
+### Changes
+
+Added some missing  `_len()` companion fns
+
 ## [0.3.2]
 
 ### Fix

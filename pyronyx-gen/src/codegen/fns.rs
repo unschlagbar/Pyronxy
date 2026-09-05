@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 use indexmap::IndexSet;
 
 use crate::{
-    codegen::{find_assert_fn, rust_member, simple_rust_member},
+    codegen::{find_assert_fn, is_byte_slice_fn, rust_member, simple_rust_member},
     parse::registry::VkCommand,
 };
 
@@ -141,7 +141,26 @@ pub fn analyze_params(
 
         let is_output = param.pointer_depth > 0 && !param.is_const;
 
-        if is_last && is_output && (cmd.return_type == "vkResult" || cmd.return_type == "c_void") {
+        // An untyped `void*` out-param is an opaque caller-provided buffer, not a
+        // value we can `MaybeUninit`-initialise. BYTE_SLICE_FNS says which of them are
+        // byte buffers (`&mut [u8]`); the rest pass the raw pointer through.
+        let is_opaque_output = extract_pointer(&param.ty) == "c_void";
+
+        if is_opaque_output && is_output && is_byte_slice_fn(&cmd.name) {
+            result.push(CleanParam::Slice {
+                slice_name: rust_member(&param.name, &mut ps),
+                elem_ty: "u8".to_string(),
+                count_name: String::new(),
+                mutable: true,
+            });
+            continue;
+        }
+
+        if is_last
+            && is_output
+            && !is_opaque_output
+            && (cmd.return_type == "vkResult" || cmd.return_type == "c_void")
+        {
             let (ty, convert) = rust_like(extract_pointer(&param.ty), imports);
             result.push(CleanParam::Output {
                 ty: result_ty(ty, lifetimes),

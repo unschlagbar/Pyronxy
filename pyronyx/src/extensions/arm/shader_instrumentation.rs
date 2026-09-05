@@ -5,8 +5,8 @@
 
 use crate::vk::*;
 use core::ffi::CStr;
-use core::ffi::c_void;
 use core::mem::MaybeUninit;
+use core::ptr;
 use core::ptr::{from_ref, null};
 
 /// Type: `Device`
@@ -18,15 +18,19 @@ pub trait ShaderInstrumentationPhysicalDevice {
         &self,
         descriptions: &mut [ShaderInstrumentationMetricDescriptionARM],
     ) -> Result<()>;
+    fn enumerate_shader_instrumentation_metrics_len(&self) -> Result<usize>;
 }
 
 impl ShaderInstrumentationPhysicalDevice for PhysicalDevice {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM.html>
+    ///
+    /// Call [`enumerate_shader_instrumentation_metrics_len()`][`Self::enumerate_shader_instrumentation_metrics_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn enumerate_shader_instrumentation_metrics(
         &self,
         descriptions: &mut [ShaderInstrumentationMetricDescriptionARM],
     ) -> Result<()> {
+        let mut description_count = descriptions.len() as u32;
         let call = self
             .fns()
             .arm_shader_instrumentation
@@ -37,11 +41,31 @@ impl ShaderInstrumentationPhysicalDevice for PhysicalDevice {
         unsafe {
             (call)(
                 self.handle,
-                descriptions.len() as *mut u32,
+                &mut description_count,
                 descriptions.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`enumerate_shader_instrumentation_metrics`][`Self::enumerate_shader_instrumentation_metrics`].
+    #[inline]
+    fn enumerate_shader_instrumentation_metrics_len(&self) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .arm_shader_instrumentation
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .enumerate_physical_device_shader_instrumentation_metrics_arm)(
+                self.handle,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 }
 
@@ -62,7 +86,7 @@ pub trait ShaderInstrumentationDevice {
         &self,
         instrumentation: ShaderInstrumentationARM,
         metric_block_count: *mut u32,
-        metric_values: *mut c_void,
+        metric_values: &mut [u8],
         flags: ShaderInstrumentationValuesFlagsARM,
     ) -> Result<()>;
 
@@ -125,7 +149,7 @@ impl ShaderInstrumentationDevice for Device {
         &self,
         instrumentation: ShaderInstrumentationARM,
         metric_block_count: *mut u32,
-        metric_values: *mut c_void,
+        metric_values: &mut [u8],
         flags: ShaderInstrumentationValuesFlagsARM,
     ) -> Result<()> {
         let call = self
@@ -140,7 +164,7 @@ impl ShaderInstrumentationDevice for Device {
                 self.handle,
                 instrumentation,
                 metric_block_count,
-                metric_values,
+                metric_values.as_mut_ptr().cast(),
                 flags,
             )
         }

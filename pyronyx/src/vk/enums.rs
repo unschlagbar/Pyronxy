@@ -172,6 +172,7 @@ pub enum QueryType {
     AccelerationStructureCompactedSizeKHR = 1000150000,
     AccelerationStructureSerializationSizeKHR = 1000150001,
     AccelerationStructureCompactedSizeNV = 1000165000,
+    TimeElapsedQCOM = 1000173000,
     PerformanceQueryINTEL = 1000210000,
     VideoEncodeFeedbackKHR = 1000299000,
     MeshPrimitivesGeneratedEXT = 1000328000,
@@ -1249,6 +1250,13 @@ pub enum StructureType {
     MemoryGetAndroidHardwareBufferInfoANDROID = 1000129004,
     ExternalFormatANDROID = 1000129005,
     AndroidHardwareBufferFormatProperties2ANDROID = 1000129006,
+    PhysicalDeviceGpaFeaturesAMD = 1000133000,
+    PhysicalDeviceGpaPropertiesAMD = 1000133001,
+    GpaSampleBeginInfoAMD = 1000133002,
+    GpaSessionCreateInfoAMD = 1000133003,
+    GpaDeviceClockModeInfoAMD = 1000133004,
+    PhysicalDeviceGpaProperties2AMD = 1000133005,
+    GpaDeviceGetClockInfoAMD = 1000133006,
     PhysicalDeviceShaderEnqueueFeaturesAMDX = 1000134000,
     PhysicalDeviceShaderEnqueuePropertiesAMDX = 1000134001,
     ExecutionGraphPipelineScratchSizeAMDX = 1000134002,
@@ -1334,6 +1342,7 @@ pub enum StructureType {
     PhysicalDeviceImageViewImageFormatInfoEXT = 1000170000,
     FilterCubicImageViewImageFormatPropertiesEXT = 1000170001,
     PhysicalDeviceCooperativeMatrixConversionFeaturesQCOM = 1000172000,
+    PhysicalDeviceElapsedTimerQueryFeaturesQCOM = 1000173000,
     ImportMemoryHostPointerInfoEXT = 1000178000,
     MemoryHostPointerPropertiesEXT = 1000178001,
     PhysicalDeviceExternalMemoryHostPropertiesEXT = 1000178002,
@@ -1481,6 +1490,11 @@ pub enum StructureType {
     PerfHintInfoQCOM = 1000302000,
     PhysicalDeviceQueuePerfHintFeaturesQCOM = 1000302001,
     PhysicalDeviceQueuePerfHintPropertiesQCOM = 1000302002,
+    PhysicalDeviceImageProcessing3FeaturesQCOM = 1000303000,
+    PhysicalDeviceShaderMultipleWaitQueuesFeaturesQCOM = 1000304000,
+    PhysicalDeviceShaderMultipleWaitQueuesPropertiesQCOM = 1000304001,
+    PhysicalDeviceShaderSplitBarrierFeaturesEXT = 1000305000,
+    PhysicalDeviceShaderSplitBarrierPropertiesEXT = 1000305001,
     CudaModuleCreateInfoNV = 1000307000,
     CudaFunctionCreateInfoNV = 1000307001,
     CudaLaunchInfoNV = 1000307002,
@@ -1927,6 +1941,8 @@ pub enum StructureType {
     PhysicalDeviceLayeredApiVulkanPropertiesKHR = 1000562004,
     PhysicalDeviceShaderAtomicFloat16VectorFeaturesNV = 1000563000,
     PhysicalDeviceShaderReplicatedCompositesFeaturesEXT = 1000564000,
+    TensorExplicitTilingFormatPropertiesARM = 1000565000,
+    TensorRollingBackingCreateInfoARM = 1000565001,
     PhysicalDeviceShaderFloat8FeaturesEXT = 1000567000,
     PhysicalDeviceRayTracingValidationFeaturesNV = 1000568000,
     PhysicalDeviceClusterAccelerationStructureFeaturesNV = 1000569000,
@@ -1988,6 +2004,9 @@ pub enum StructureType {
     CooperativeMatrixFlexibleDimensionsPropertiesNV = 1000593001,
     PhysicalDeviceCooperativeMatrix2PropertiesNV = 1000593002,
     PhysicalDevicePipelineOpacityMicromapFeaturesARM = 1000596000,
+    PhysicalDeviceVideoEncodeFeedback2FeaturesKHR = 1000598000,
+    VideoEncodeFeedback2CapabilitiesKHR = 1000598001,
+    QueryPoolVideoEncodePerPartitionFeedbackCreateInfoKHR = 1000598002,
     ImportMemoryMetalHandleInfoEXT = 1000602000,
     MemoryMetalHandlePropertiesEXT = 1000602001,
     MemoryGetMetalHandleInfoEXT = 1000602002,
@@ -2010,11 +2029,17 @@ pub enum StructureType {
     PhysicalDeviceRobustness2PropertiesKHR = 1000286001,
     SetPresentConfigNV = 1000613000,
     PhysicalDevicePresentMeteringFeaturesNV = 1000613001,
+    PhysicalDeviceMultisampledRenderToSwapchainFeaturesEXT = 1000616000,
+    SwapchainFlagsSurfaceCapabilitiesEXT = 1000616001,
     PhysicalDeviceFragmentDensityMapOffsetFeaturesEXT = 1000425000,
     PhysicalDeviceFragmentDensityMapOffsetPropertiesEXT = 1000425001,
     RenderPassFragmentDensityMapOffsetEndInfoEXT = 1000425002,
     PhysicalDeviceZeroInitializeDeviceMemoryFeaturesEXT = 1000620000,
     PhysicalDevicePresentModeFifoLatestReadyFeaturesKHR = 1000361000,
+    PhysicalDeviceOpacityMicromapFeaturesKHR = 1000623000,
+    PhysicalDeviceOpacityMicromapPropertiesKHR = 1000623001,
+    AccelerationStructureGeometryMicromapDataKHR = 1000623002,
+    AccelerationStructureTrianglesOpacityMicromapKHR = 1000623003,
     PhysicalDeviceShader64BitIndexingFeaturesEXT = 1000627000,
     PhysicalDeviceCustomResolveFeaturesEXT = 1000628000,
     BeginCustomResolveInfoEXT = 1000628001,
@@ -2045,6 +2070,14 @@ pub enum StructureType {
     QueueFamilyOptimalImageTransferGranularityPropertiesKHR = 1000657001,
     PhysicalDeviceShaderSubgroupPartitionedFeaturesEXT = 1000662000,
     UbmSurfaceCreateInfoSEC = 1000664000,
+    FormatProperties4KHR = 1000668000,
+    ImageCreateFlags2CreateInfoKHR = 1000668001,
+    ImageUsageFlags2CreateInfoKHR = 1000668002,
+    ImageViewUsage2CreateInfoKHR = 1000668003,
+    PhysicalDeviceExtendedFlagsFeaturesKHR = 1000668004,
+    ImageStencilUsage2CreateInfoKHR = 1000668005,
+    SharedPresentSurfaceCapabilities2KHR = 1000668006,
+    PhysicalDeviceShaderOCPMicroscalingTypesFeaturesEXT = 1000672000,
     PhysicalDeviceShaderMixedFloatDotProductFeaturesVALVE = 1000673000,
     PhysicalDeviceThrottleHintFeaturesSEC = 1000674000,
     ThrottleHintSubmitInfoSEC = 1000674001,
@@ -2052,6 +2085,7 @@ pub enum StructureType {
     DataGraphPipelineSessionNeuralStatisticsCreateInfoARM = 1000676001,
     PhysicalDeviceDataGraphNeuralAcceleratorStatisticsFeaturesARM = 1000676002,
     PhysicalDevicePrimitiveRestartIndexFeaturesEXT = 1000678000,
+    PhysicalDeviceCooperativeMatrixDecodeVectorFeaturesNV = 1000689000,
 }
 
 impl StructureType {
@@ -2294,6 +2328,7 @@ pub enum ObjectType {
     CuModuleNVX = 1000029000,
     CuFunctionNVX = 1000029001,
     DebugUtilsMessengerEXT = 1000128000,
+    GpaSessionAMD = 1000133000,
     AccelerationStructureKHR = 1000150000,
     ValidationCacheEXT = 1000160000,
     AccelerationStructureNV = 1000165000,
@@ -2821,6 +2856,8 @@ pub enum VendorId {
     Pocl = 65542,
     /// Mobileye vendor ID
     Mobileye = 65543,
+    /// Ape vendor ID
+    Ape = 65544,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkDriverId.html>
@@ -2884,6 +2921,10 @@ pub enum DriverId {
     VulkanScEmulationOnVulkan = 27,
     /// Mesa open source project
     MESAKosmickrisp = 28,
+    /// Mesa open source project
+    MESAGfxstream = 29,
+    /// Ape open source project
+    ApeSoft = 30,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkShadingRatePaletteEntryNV.html>
@@ -2944,6 +2985,7 @@ pub enum AccelerationStructureTypeKHR {
     TopLevel = 0,
     BottomLevel = 1,
     Generic = 2,
+    OpacityMicromap = 1000623000,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGeometryTypeKHR.html>
@@ -2957,6 +2999,7 @@ pub enum GeometryTypeKHR {
     Spheres = 1000429004,
     LinearSweptSpheres = 1000429005,
     DenseGeometryFormatTriangles = 1000478000,
+    Micromap = 1000623000,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureMemoryRequirementsTypeNV.html>
@@ -3437,25 +3480,33 @@ pub enum BuildMicromapModeEXT {
     Build = 0,
 }
 
-/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkOpacityMicromapFormatEXT.html>
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkOpacityMicromapFormatKHR.html>
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
-pub enum OpacityMicromapFormatEXT {
+pub enum OpacityMicromapFormatKHR {
     #[default]
     Type2State = 1,
     Type4State = 2,
 }
 
-/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkOpacityMicromapSpecialIndexEXT.html>
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkOpacityMicromapSpecialIndexKHR.html>
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
-pub enum OpacityMicromapSpecialIndexEXT {
+pub enum OpacityMicromapSpecialIndexKHR {
     #[default]
     FullyTransparent = -1,
     FullyOpaque = -2,
     FullyUnknownTransparent = -3,
     FullyUnknownOpaque = -4,
     ClusterGeometryDisableOpacityMicromap = -5,
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkAccelerationStructureSerializedBlockTypeKHR.html>
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+pub enum AccelerationStructureSerializedBlockTypeKHR {
+    #[default]
+    OpacityMicromap = 0,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkDepthBiasRepresentationEXT.html>
@@ -3575,6 +3626,11 @@ pub enum ComponentTypeKHR {
     Uint8Packed = 1000491001,
     Float8E4M3 = 1000491002,
     Float8E5M2 = 1000491003,
+    Float6E2M3 = 1000672000,
+    Float6E3M2 = 1000672001,
+    Float4E2M1 = 1000672002,
+    Float8UnsignedE8M0 = 1000672003,
+    Mxint8 = 1000672004,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkCubicFilterWeightsQCOM.html>
@@ -3681,6 +3737,11 @@ pub enum TensorTilingARM {
     #[default]
     Optimal = 0,
     Linear = 1,
+    Brick16Wide = 1000565000,
+    Brick8Wide = 1000565001,
+    Brick4Wide = 1000565002,
+    BlockUInterleaved = 1000565003,
+    BlockUInterleaved64K = 1000565004,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkDefaultVertexAttributeValueKHR.html>
@@ -3787,6 +3848,93 @@ pub enum DescriptorMappingSourceEXT {
     HeapWithShaderRecordIndex = 8,
     ShaderRecordData = 9,
     ShaderRecordAddress = 10,
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGpaPerfBlockAMD.html>
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+pub enum GpaPerfBlockAMD {
+    #[default]
+    Cpf = 0,
+    Ia = 1,
+    Vgt = 2,
+    Pa = 3,
+    Sc = 4,
+    Spi = 5,
+    Sq = 6,
+    Sx = 7,
+    Ta = 8,
+    Td = 9,
+    Tcp = 10,
+    Tcc = 11,
+    Tca = 12,
+    Db = 13,
+    Cb = 14,
+    Gds = 15,
+    Srbm = 16,
+    Grbm = 17,
+    GrbmSe = 18,
+    Rlc = 19,
+    Dma = 20,
+    Mc = 21,
+    Cpg = 22,
+    Cpc = 23,
+    Wd = 24,
+    Tcs = 25,
+    Atc = 26,
+    AtcL2 = 27,
+    McVmL2 = 28,
+    Ea = 29,
+    Rpb = 30,
+    Rmi = 31,
+    Umcch = 32,
+    Ge = 33,
+    Gl1A = 34,
+    Gl1C = 35,
+    Gl1Cg = 36,
+    Gl2A = 37,
+    Gl2C = 38,
+    Cha = 39,
+    Chc = 40,
+    Chcg = 41,
+    Gus = 42,
+    Gcr = 43,
+    Ph = 44,
+    Utcl1 = 45,
+    GeDist = 46,
+    GeSe = 47,
+    DfMall = 48,
+    SqWgp = 49,
+    Pc = 50,
+    Gl1Xa = 51,
+    Gl1Xc = 52,
+    Wgs = 53,
+    Eacpwd = 54,
+    Ease = 55,
+    Rlcuser = 56,
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGpaSampleTypeAMD.html>
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+pub enum GpaSampleTypeAMD {
+    #[default]
+    Cumulative = 0,
+    Trace = 1,
+    Timing = 2,
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGpaDeviceClockModeAMD.html>
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq)]
+pub enum GpaDeviceClockModeAMD {
+    #[default]
+    Default = 0,
+    Query = 1,
+    Profiling = 2,
+    MinMemory = 3,
+    MinEngine = 4,
+    Peak = 5,
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkDataGraphTOSALevelARM.html>

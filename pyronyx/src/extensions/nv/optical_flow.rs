@@ -35,6 +35,7 @@ impl OpticalFlowPhysicalDevice for PhysicalDevice {
         optical_flow_image_format_info: &OpticalFlowImageFormatInfoNV,
         image_format_properties: &mut [OpticalFlowImageFormatPropertiesNV],
     ) -> Result<()> {
+        let mut format_count = image_format_properties.len() as u32;
         let call = self
             .fns()
             .nv_optical_flow
@@ -46,7 +47,7 @@ impl OpticalFlowPhysicalDevice for PhysicalDevice {
             (call)(
                 self.handle,
                 optical_flow_image_format_info,
-                image_format_properties.len() as *mut u32,
+                &mut format_count,
                 image_format_properties.as_mut_ptr(),
             )
         }
@@ -59,7 +60,7 @@ impl OpticalFlowPhysicalDevice for PhysicalDevice {
         &self,
         optical_flow_image_format_info: &OpticalFlowImageFormatInfoNV,
     ) -> Result<usize> {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -69,11 +70,12 @@ impl OpticalFlowPhysicalDevice for PhysicalDevice {
                 .get_physical_device_optical_flow_image_formats_nv)(
                 self.handle,
                 optical_flow_image_format_info,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             )
         }
         .init_on_success(out)
+        .map(|v| v as usize)
     }
 }
 

@@ -8,8 +8,8 @@ use super::{Writer, file_header};
 use crate::codegen::bitflags::value_to_const_name;
 use crate::codegen::commands::{fn_field, fn_sig};
 use crate::codegen::{
-    HAND_WRITTEN_FNS, RETURNS_SUBOPTIMAL, VEC_FNS, find_assert_fn, find_len_fn, rust_name,
-    simple_rust_member,
+    HAND_WRITTEN_FNS, RETURNS_SUBOPTIMAL, VEC_FNS, find_assert_fn, find_len_fn, is_byte_slice_fn,
+    rust_name, simple_rust_member,
 };
 use crate::parse::commands::Param;
 use crate::parse::registry::{Depends, Registry, RenderPass, VkCommand};
@@ -287,6 +287,9 @@ pub fn write_command_wrapper(
     let has_uncategorised_mut_slice = !vec
         && find_assert_fn(&cmd.name).is_none()
         && find_len_fn(&cmd.name).is_none()
+        // BYTE_SLICE_FNS have no size param at all — the caller sizes the buffer from
+        // the spec, so there is nothing to assert against.
+        && !is_byte_slice_fn(&cmd.name)
         && params.iter().any(|p| match p {
             // Only flag slices whose _count_name is empty — meaning no CountForSlice
             // partner exists and by_count won't emit an assert for them.
@@ -398,6 +401,10 @@ fn write_mut_slice_len_companion(
         })
         .collect();
 
+    // The count is whatever width the C signature says (`uint32_t*` or `size_t*`);
+    // `out` must match it exactly or `assume_init` reads bytes the driver never wrote.
+    let mut count_ty = "usize".to_string();
+
     let call_args: Vec<String> = params
         .iter()
         .flat_map(|p| match p {
@@ -439,7 +446,8 @@ fn write_mut_slice_len_companion(
                 ..
             } => {
                 if *mutable {
-                    Some(format!("out.as_mut_ptr() as {ty}"))
+                    count_ty = ty.strip_prefix("*mut ").unwrap_or("usize").to_string();
+                    Some("out.as_mut_ptr()".to_string())
                 } else {
                     Some(format!("{slice_name}.len() as {ty}"))
                 }
@@ -448,16 +456,22 @@ fn write_mut_slice_len_companion(
         .collect();
 
     // Wrap the raw call according to return type and output shape.
+    let widen = if count_ty == "usize" { "" } else { " as usize" };
     let call = match cmd.return_type.as_str() {
         "vkResult" => {
+            let map = if widen.is_empty() {
+                String::new()
+            } else {
+                format!(".map(|v| v{widen})")
+            };
             format!(
-                "unsafe {{ ({vtable}.{field}{unwrap})({}) }}.init_on_success(out)",
+                "unsafe {{ ({vtable}.{field}{unwrap})({}) }}.init_on_success(out){map}",
                 call_args.join(", ")
             )
         }
         "c_void" => {
             format!(
-                "unsafe {{ ({vtable}.{field}{unwrap})({});\nout.assume_init() }}",
+                "unsafe {{ ({vtable}.{field}{unwrap})({});\nout.assume_init(){widen} }}",
                 call_args.join(", ")
             )
         }
@@ -479,7 +493,7 @@ fn write_mut_slice_len_companion(
         sig_params.join(", "),
     ));
     w.ln(&format!(
-        "let mut out: MaybeUninit<usize> = MaybeUninit::uninit();"
+        "let mut out: MaybeUninit<{count_ty}> = MaybeUninit::uninit();"
     ));
     w.ln(&call);
     w.ln("}");
@@ -623,9 +637,29 @@ fn write_fn_body(
                 "out.as_mut_ptr()".to_string()
             }
 
-            CleanParam::CountForSlice { ty, slice_name, .. } => {
+            CleanParam::CountForSlice {
+                name,
+                ty,
+                slice_name,
+                ..
+            } => {
                 if vec {
                     "count".to_string()
+                } else if let Some(pointee) = ty.strip_prefix("*mut ") {
+                    // Enumerate-style count: the driver reads the slice capacity through
+                    // this pointer and writes back how many elements it filled, so it needs
+                    // a real local. Casting `len` straight to a pointer would hand the
+                    // driver the length *as an address*.
+                    // `len()` is already a `usize`; only non-`usize` counts need the cast.
+                    let value = if pointee == "usize" {
+                        format!("{slice_name}.len()")
+                    } else {
+                        format!("{slice_name}.len() as {pointee}")
+                    };
+                    w.ln(&format!("let mut {name} = {value};"));
+                    format!("&mut {name}")
+                } else if ty == "usize" {
+                    format!("{slice_name}.len()")
                 } else {
                     format!("{slice_name}.len() as {ty}")
                 }
@@ -678,17 +712,22 @@ fn write_fn_body(
                 format!("unsafe {{ (call)({}) }}.result()", call_args.join(", "))
             }
         }
-        ("c_void", Some(_)) => {
+        ("c_void", Some(ty)) => {
             if vec {
                 format!(
                     "read_into_vec(|count, data| unsafe {{ (call)({}) }})",
                     call_args.join(", ")
                 )
             } else {
-                format!(
-                    "unsafe {{ (call)({});\nout.assume_init() }}",
-                    call_args.join(", ")
-                )
+                // `out` is a `MaybeUninit<Bool32>` here (its type is inferred from the
+                // raw function pointer), so it needs the same `!= 0` conversion the
+                // `vkResult` path gets via `bool_out`.
+                let init = if ty == "bool" {
+                    "out.assume_init() != 0"
+                } else {
+                    "out.assume_init()"
+                };
+                format!("unsafe {{ (call)({});\n{init} }}", call_args.join(", "))
             }
         }
         ("c_void", None) => format!("unsafe {{ (call)({}) }};", call_args.join(", ")),

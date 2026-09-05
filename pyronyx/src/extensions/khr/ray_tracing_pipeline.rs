@@ -184,7 +184,7 @@ impl RayTracingPipelineDevice for Device {
                 pipeline,
                 first_group,
                 group_count,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
             )
         }
@@ -213,7 +213,7 @@ impl RayTracingPipelineDevice for Device {
                 pipeline,
                 first_group,
                 group_count,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
             )
         }

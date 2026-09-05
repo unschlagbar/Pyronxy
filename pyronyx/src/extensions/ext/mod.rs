@@ -417,6 +417,13 @@ pub mod pipeline_creation_cache_control {
     pub const NAME: &CStr = c"VK_EXT_pipeline_creation_cache_control";
     pub const SPEC_VERSION: u32 = 3;
 }
+pub mod shader_split_barrier {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_EXT_shader_split_barrier";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod descriptor_buffer;
 pub mod metal_objects;
 pub mod graphics_pipeline_library {
@@ -749,6 +756,13 @@ pub mod vertex_attribute_robustness {
     pub const NAME: &CStr = c"VK_EXT_vertex_attribute_robustness";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod multisampled_render_to_swapchain {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_EXT_multisampled_render_to_swapchain";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod fragment_density_map_offset {
     use core::ffi::CStr;
 
@@ -790,6 +804,13 @@ pub mod shader_subgroup_partitioned {
 
     /// Type: `Device`
     pub const NAME: &CStr = c"VK_EXT_shader_subgroup_partitioned";
+    pub const SPEC_VERSION: u32 = 1;
+}
+pub mod shader_ocp_microscaling_types {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_EXT_shader_ocp_microscaling_types";
     pub const SPEC_VERSION: u32 = 1;
 }
 pub mod primitive_restart_index;

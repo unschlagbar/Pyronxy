@@ -17,12 +17,14 @@ pub trait ExternalSciSync2Device {
     fn get_fence_sci_sync_fence(
         &self,
         get_sci_sync_handle_info: &FenceGetSciSyncInfoNV,
-    ) -> Result<c_void>;
+        handle: *mut c_void,
+    ) -> Result<()>;
 
     fn get_fence_sci_sync_obj(
         &self,
         get_sci_sync_handle_info: &FenceGetSciSyncInfoNV,
-    ) -> Result<c_void>;
+        handle: *mut c_void,
+    ) -> Result<()>;
 
     fn import_fence_sci_sync_fence(
         &self,
@@ -53,8 +55,8 @@ impl ExternalSciSync2Device for Device {
     fn get_fence_sci_sync_fence(
         &self,
         get_sci_sync_handle_info: &FenceGetSciSyncInfoNV,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        handle: *mut c_void,
+    ) -> Result<()> {
         let call = self
             .fns()
             .nv_external_sci_sync2
@@ -62,8 +64,7 @@ impl ExternalSciSync2Device for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_fence_sci_sync_fence_nv;
 
-        unsafe { (call)(self.handle, get_sci_sync_handle_info, out.as_mut_ptr()) }
-            .init_on_success(out)
+        unsafe { (call)(self.handle, get_sci_sync_handle_info, handle) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFenceSciSyncObjNV.html>
@@ -71,8 +72,8 @@ impl ExternalSciSync2Device for Device {
     fn get_fence_sci_sync_obj(
         &self,
         get_sci_sync_handle_info: &FenceGetSciSyncInfoNV,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        handle: *mut c_void,
+    ) -> Result<()> {
         let call = self
             .fns()
             .nv_external_sci_sync2
@@ -80,8 +81,7 @@ impl ExternalSciSync2Device for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_fence_sci_sync_obj_nv;
 
-        unsafe { (call)(self.handle, get_sci_sync_handle_info, out.as_mut_ptr()) }
-            .init_on_success(out)
+        unsafe { (call)(self.handle, get_sci_sync_handle_info, handle) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkImportFenceSciSyncFenceNV.html>

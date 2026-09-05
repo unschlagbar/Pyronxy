@@ -5,6 +5,8 @@
 
 use crate::vk::*;
 use core::ffi::CStr;
+use core::mem::MaybeUninit;
+use core::ptr;
 
 /// Type: `Device`
 pub const NAME: &CStr = c"VK_KHR_cooperative_matrix";
@@ -15,15 +17,19 @@ pub trait CooperativeMatrixPhysicalDevice {
         &self,
         properties: &mut [CooperativeMatrixPropertiesKHR],
     ) -> Result<()>;
+    fn get_cooperative_matrix_properties_len(&self) -> Result<usize>;
 }
 
 impl CooperativeMatrixPhysicalDevice for PhysicalDevice {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR.html>
+    ///
+    /// Call [`get_cooperative_matrix_properties_len()`][`Self::get_cooperative_matrix_properties_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_cooperative_matrix_properties(
         &self,
         properties: &mut [CooperativeMatrixPropertiesKHR],
     ) -> Result<()> {
+        let mut property_count = properties.len() as u32;
         let call = self
             .fns()
             .khr_cooperative_matrix
@@ -31,13 +37,26 @@ impl CooperativeMatrixPhysicalDevice for PhysicalDevice {
             .expect(Self::EXT_LOAD_ERROR)
             .get_physical_device_cooperative_matrix_properties_khr;
 
+        unsafe { (call)(self.handle, &mut property_count, properties.as_mut_ptr()) }.result()
+    }
+
+    /// Returns the required slice length for Call [`get_cooperative_matrix_properties`][`Self::get_cooperative_matrix_properties`].
+    #[inline]
+    fn get_cooperative_matrix_properties_len(&self) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
-            (call)(
+            (self
+                .fns()
+                .khr_cooperative_matrix
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_physical_device_cooperative_matrix_properties_khr)(
                 self.handle,
-                properties.len() as *mut u32,
-                properties.as_mut_ptr(),
+                out.as_mut_ptr(),
+                ptr::null_mut(),
             )
         }
-        .result()
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 }

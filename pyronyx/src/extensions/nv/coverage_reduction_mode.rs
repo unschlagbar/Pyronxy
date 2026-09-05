@@ -29,6 +29,7 @@ impl CoverageReductionModePhysicalDevice for PhysicalDevice {
         &self,
         combinations: &mut [FramebufferMixedSamplesCombinationNV],
     ) -> Result<()> {
+        let mut combination_count = combinations.len() as u32;
         let call = self
             .fns()
             .nv_coverage_reduction_mode
@@ -39,7 +40,7 @@ impl CoverageReductionModePhysicalDevice for PhysicalDevice {
         unsafe {
             (call)(
                 self.handle,
-                combinations.len() as *mut u32,
+                &mut combination_count,
                 combinations.as_mut_ptr(),
             )
         }
@@ -49,7 +50,7 @@ impl CoverageReductionModePhysicalDevice for PhysicalDevice {
     /// Returns the required slice length for Call [`get_supported_framebuffer_mixed_samples_combinations`][`Self::get_supported_framebuffer_mixed_samples_combinations`].
     #[inline]
     fn get_supported_framebuffer_mixed_samples_combinations_len(&self) -> Result<usize> {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -58,10 +59,11 @@ impl CoverageReductionModePhysicalDevice for PhysicalDevice {
                 .expect(Self::EXT_LOAD_ERROR)
                 .get_physical_device_supported_framebuffer_mixed_samples_combinations_nv)(
                 self.handle,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             )
         }
         .init_on_success(out)
+        .map(|v| v as usize)
     }
 }

@@ -246,6 +246,7 @@ impl PhysicalDevice {
         &self,
         queue_family_properties: &mut [QueueFamilyProperties2],
     ) {
+        let mut queue_family_property_count = queue_family_properties.len() as u32;
         let call = self
             .fns()
             .v1_1
@@ -255,7 +256,7 @@ impl PhysicalDevice {
         unsafe {
             (call)(
                 self.handle,
-                queue_family_properties.len() as *mut u32,
+                &mut queue_family_property_count,
                 queue_family_properties.as_mut_ptr(),
             )
         };
@@ -264,18 +265,16 @@ impl PhysicalDevice {
     /// Returns the required slice length for Call [`get_queue_family_properties2`][`Self::get_queue_family_properties2`].
     #[inline]
     pub fn get_queue_family_properties2_len(&self) -> usize {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
                 .v1_1
                 .get_physical_device_queue_family_properties2
                 .expect(Self::CORE_LOAD_ERROR))(
-                self.handle,
-                out.as_mut_ptr() as *mut u32,
-                ptr::null_mut(),
+                self.handle, out.as_mut_ptr(), ptr::null_mut()
             );
-            out.assume_init()
+            out.assume_init() as usize
         }
     }
 
@@ -304,6 +303,7 @@ impl PhysicalDevice {
         format_info: &PhysicalDeviceSparseImageFormatInfo2,
         properties: &mut [SparseImageFormatProperties2],
     ) {
+        let mut property_count = properties.len() as u32;
         let call = self
             .fns()
             .v1_1
@@ -314,7 +314,7 @@ impl PhysicalDevice {
             (call)(
                 self.handle,
                 format_info,
-                properties.len() as *mut u32,
+                &mut property_count,
                 properties.as_mut_ptr(),
             )
         };
@@ -326,7 +326,7 @@ impl PhysicalDevice {
         &self,
         format_info: &PhysicalDeviceSparseImageFormatInfo2,
     ) -> usize {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -335,10 +335,10 @@ impl PhysicalDevice {
                 .expect(Self::CORE_LOAD_ERROR))(
                 self.handle,
                 format_info,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             );
-            out.assume_init()
+            out.assume_init() as usize
         }
     }
 
@@ -407,37 +407,30 @@ impl PhysicalDevice {
         &self,
         tool_properties: &mut [PhysicalDeviceToolProperties],
     ) -> Result<()> {
+        let mut tool_count = tool_properties.len() as u32;
         let call = self
             .fns()
             .v1_3
             .get_physical_device_tool_properties
             .expect(Self::CORE_LOAD_ERROR);
 
-        unsafe {
-            (call)(
-                self.handle,
-                tool_properties.len() as *mut u32,
-                tool_properties.as_mut_ptr(),
-            )
-        }
-        .result()
+        unsafe { (call)(self.handle, &mut tool_count, tool_properties.as_mut_ptr()) }.result()
     }
 
     /// Returns the required slice length for Call [`get_tool_properties`][`Self::get_tool_properties`].
     #[inline]
     pub fn get_tool_properties_len(&self) -> Result<usize> {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
                 .v1_3
                 .get_physical_device_tool_properties
                 .expect(Self::CORE_LOAD_ERROR))(
-                self.handle,
-                out.as_mut_ptr() as *mut u32,
-                ptr::null_mut(),
+                self.handle, out.as_mut_ptr(), ptr::null_mut()
             )
         }
         .init_on_success(out)
+        .map(|v| v as usize)
     }
 }

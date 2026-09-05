@@ -174,14 +174,8 @@ pub mod device_diagnostics_config {
     pub const SPEC_VERSION: u32 = 2;
 }
 pub mod cuda_kernel_launch;
-pub mod low_latency {
-    use core::ffi::CStr;
-
-    /// Type: `Device`
-    pub const NAME: &CStr = c"VK_NV_low_latency";
-    pub const SPEC_VERSION: u32 = 1;
-}
 pub mod fragment_shading_rate_enums;
+pub mod low_latency;
 pub mod ray_tracing_motion_blur {
     use core::ffi::CStr;
 
@@ -305,3 +299,10 @@ pub mod present_metering {
     pub const SPEC_VERSION: u32 = 1;
 }
 pub mod compute_occupancy_priority;
+pub mod cooperative_matrix_decode_vector {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_NV_cooperative_matrix_decode_vector";
+    pub const SPEC_VERSION: u32 = 1;
+}

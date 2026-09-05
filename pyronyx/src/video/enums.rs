@@ -26,6 +26,10 @@ pub enum H264ProfileIdc {
     Baseline = 66,
     Main = 77,
     High = 100,
+    /// Annex A.2.5 High 10 profile (profile_idc 100 or 110)
+    High10 = 110,
+    /// Annex A.2.6 High 4:2:2 profile (profile_idc 100, 110, or 122)
+    High422 = 122,
     High444Predictive = 244,
     Invalid = 2147483647,
 }

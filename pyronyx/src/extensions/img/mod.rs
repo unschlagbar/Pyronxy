@@ -20,3 +20,10 @@ pub mod relaxed_line_rasterization {
     pub const NAME: &CStr = c"VK_IMG_relaxed_line_rasterization";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod filter_linear_2d {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_IMG_filter_linear_2d";
+    pub const SPEC_VERSION: u32 = 1;
+}

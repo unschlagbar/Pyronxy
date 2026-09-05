@@ -6,6 +6,7 @@
 use crate::vk::*;
 use core::ffi::CStr;
 use core::mem::MaybeUninit;
+use core::ptr;
 use core::ptr::{from_ref, null};
 
 /// Type: `Device`
@@ -30,6 +31,7 @@ pub trait ValidationCacheDevice {
         validation_cache: ValidationCacheEXT,
         data: &mut [u8],
     ) -> Result<()>;
+    fn get_validation_cache_data_len(&self, validation_cache: ValidationCacheEXT) -> Result<usize>;
 
     fn merge_validation_caches(
         &self,
@@ -89,12 +91,15 @@ impl ValidationCacheDevice for Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetValidationCacheDataEXT.html>
+    ///
+    /// Call [`get_validation_cache_data_len()`][`Self::get_validation_cache_data_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_validation_cache_data(
         &self,
         validation_cache: ValidationCacheEXT,
         data: &mut [u8],
     ) -> Result<()> {
+        let mut data_size = data.len();
         let call = self
             .fns()
             .ext_validation_cache
@@ -106,11 +111,31 @@ impl ValidationCacheDevice for Device {
             (call)(
                 self.handle,
                 validation_cache,
-                data.len() as *mut usize,
+                &mut data_size,
                 data.as_mut_ptr().cast(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_validation_cache_data`][`Self::get_validation_cache_data`].
+    #[inline]
+    fn get_validation_cache_data_len(&self, validation_cache: ValidationCacheEXT) -> Result<usize> {
+        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .ext_validation_cache
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_validation_cache_data_ext)(
+                self.handle,
+                validation_cache,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkMergeValidationCachesEXT.html>

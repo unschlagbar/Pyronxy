@@ -7,7 +7,6 @@
 use crate::vk::*;
 use core::ffi::CStr;
 use core::ffi::c_void;
-use core::mem::MaybeUninit;
 
 /// Type: `Device`
 pub const NAME: &CStr = c"VK_NV_external_sci_sync";
@@ -17,7 +16,8 @@ pub trait ExternalSciSyncDevice {
     fn get_semaphore_sci_sync_obj(
         &self,
         get_sci_sync_info: &SemaphoreGetSciSyncInfoNV,
-    ) -> Result<c_void>;
+        handle: *mut c_void,
+    ) -> Result<()>;
 
     fn import_semaphore_sci_sync_obj(
         &self,
@@ -31,8 +31,8 @@ impl ExternalSciSyncDevice for Device {
     fn get_semaphore_sci_sync_obj(
         &self,
         get_sci_sync_info: &SemaphoreGetSciSyncInfoNV,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        handle: *mut c_void,
+    ) -> Result<()> {
         let call = self
             .fns()
             .nv_external_sci_sync
@@ -40,7 +40,7 @@ impl ExternalSciSyncDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_semaphore_sci_sync_obj_nv;
 
-        unsafe { (call)(self.handle, get_sci_sync_info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, get_sci_sync_info, handle) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkImportSemaphoreSciSyncObjNV.html>

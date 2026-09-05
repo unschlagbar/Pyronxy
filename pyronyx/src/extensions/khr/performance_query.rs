@@ -42,6 +42,7 @@ impl PerformanceQueryPhysicalDevice for PhysicalDevice {
         counter_descriptions: &mut [PerformanceCounterDescriptionKHR],
     ) -> Result<()> {
         assert_eq!(counters.len(), counter_descriptions.len());
+        let mut counter_count = counters.len() as u32;
         let call = self
             .fns()
             .khr_performance_query
@@ -53,7 +54,7 @@ impl PerformanceQueryPhysicalDevice for PhysicalDevice {
             (call)(
                 self.handle,
                 queue_family_index,
-                counters.len() as *mut u32,
+                &mut counter_count,
                 counters.as_mut_ptr(),
                 counter_descriptions.as_mut_ptr(),
             )
@@ -67,7 +68,7 @@ impl PerformanceQueryPhysicalDevice for PhysicalDevice {
         &self,
         queue_family_index: u32,
     ) -> Result<usize> {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -77,12 +78,13 @@ impl PerformanceQueryPhysicalDevice for PhysicalDevice {
                 .enumerate_physical_device_queue_family_performance_query_counters_khr)(
                 self.handle,
                 queue_family_index,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
                 ptr::null_mut(),
             )
         }
         .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR.html>

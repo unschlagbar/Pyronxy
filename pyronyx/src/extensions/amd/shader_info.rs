@@ -40,6 +40,7 @@ impl ShaderInfoDevice for Device {
         info_type: ShaderInfoTypeAMD,
         info: &mut [u8],
     ) -> Result<()> {
+        let mut info_size = info.len();
         let call = self
             .fns()
             .amd_shader_info
@@ -53,7 +54,7 @@ impl ShaderInfoDevice for Device {
                 pipeline,
                 shader_stage,
                 info_type,
-                info.len() as *mut usize,
+                &mut info_size,
                 info.as_mut_ptr().cast(),
             )
         }
@@ -80,7 +81,7 @@ impl ShaderInfoDevice for Device {
                 pipeline,
                 shader_stage,
                 info_type,
-                out.as_mut_ptr() as *mut usize,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             )
         }

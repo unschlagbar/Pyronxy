@@ -203,7 +203,7 @@ impl OpacityMicromapDevice for Device {
                 micromaps.len() as u32,
                 micromaps.as_ptr(),
                 query_type,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
                 stride,
             )

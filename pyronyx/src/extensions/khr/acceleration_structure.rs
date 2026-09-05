@@ -173,7 +173,7 @@ impl AccelerationStructureDevice for Device {
                 acceleration_structures.len() as u32,
                 acceleration_structures.as_ptr(),
                 query_type,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
                 stride,
             )

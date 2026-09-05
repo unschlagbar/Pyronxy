@@ -6,6 +6,7 @@
 use crate::vk::*;
 use core::ffi::CStr;
 use core::mem::MaybeUninit;
+use core::ptr;
 use core::ptr::{from_ref, null};
 
 /// Type: `Device`
@@ -23,6 +24,10 @@ pub trait VideoQueuePhysicalDevice {
         video_format_info: &PhysicalDeviceVideoFormatInfoKHR,
         video_format_properties: &mut [VideoFormatPropertiesKHR],
     ) -> Result<()>;
+    fn get_video_format_properties_len(
+        &self,
+        video_format_info: &PhysicalDeviceVideoFormatInfoKHR,
+    ) -> Result<usize>;
 }
 
 impl VideoQueuePhysicalDevice for PhysicalDevice {
@@ -44,12 +49,15 @@ impl VideoQueuePhysicalDevice for PhysicalDevice {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceVideoFormatPropertiesKHR.html>
+    ///
+    /// Call [`get_video_format_properties_len()`][`Self::get_video_format_properties_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_video_format_properties(
         &self,
         video_format_info: &PhysicalDeviceVideoFormatInfoKHR,
         video_format_properties: &mut [VideoFormatPropertiesKHR],
     ) -> Result<()> {
+        let mut video_format_property_count = video_format_properties.len() as u32;
         let call = self
             .fns()
             .khr_video_queue
@@ -61,11 +69,35 @@ impl VideoQueuePhysicalDevice for PhysicalDevice {
             (call)(
                 self.handle,
                 video_format_info,
-                video_format_properties.len() as *mut u32,
+                &mut video_format_property_count,
                 video_format_properties.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_video_format_properties`][`Self::get_video_format_properties`].
+    #[inline]
+    fn get_video_format_properties_len(
+        &self,
+        video_format_info: &PhysicalDeviceVideoFormatInfoKHR,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .khr_video_queue
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_physical_device_video_format_properties_khr)(
+                self.handle,
+                video_format_info,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 }
 
@@ -105,6 +137,10 @@ pub trait VideoQueueDevice {
         video_session: VideoSessionKHR,
         memory_requirements: &mut [VideoSessionMemoryRequirementsKHR],
     ) -> Result<()>;
+    fn get_video_session_memory_requirements_len(
+        &self,
+        video_session: VideoSessionKHR,
+    ) -> Result<usize>;
 
     fn bind_video_session_memory(
         &self,
@@ -230,12 +266,15 @@ impl VideoQueueDevice for Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetVideoSessionMemoryRequirementsKHR.html>
+    ///
+    /// Call [`get_video_session_memory_requirements_len()`][`Self::get_video_session_memory_requirements_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_video_session_memory_requirements(
         &self,
         video_session: VideoSessionKHR,
         memory_requirements: &mut [VideoSessionMemoryRequirementsKHR],
     ) -> Result<()> {
+        let mut memory_requirements_count = memory_requirements.len() as u32;
         let call = self
             .fns()
             .khr_video_queue
@@ -247,11 +286,35 @@ impl VideoQueueDevice for Device {
             (call)(
                 self.handle,
                 video_session,
-                memory_requirements.len() as *mut u32,
+                &mut memory_requirements_count,
                 memory_requirements.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_video_session_memory_requirements`][`Self::get_video_session_memory_requirements`].
+    #[inline]
+    fn get_video_session_memory_requirements_len(
+        &self,
+        video_session: VideoSessionKHR,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .khr_video_queue
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_video_session_memory_requirements_khr)(
+                self.handle,
+                video_session,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkBindVideoSessionMemoryKHR.html>

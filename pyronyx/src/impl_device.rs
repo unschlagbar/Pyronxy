@@ -455,7 +455,7 @@ impl Device {
                 query_pool,
                 first_query,
                 query_count,
-                data.len() as usize,
+                data.len(),
                 data.as_mut_ptr().cast(),
                 stride,
                 flags,
@@ -1472,12 +1472,15 @@ impl Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetImageSparseMemoryRequirements2.html>
+    ///
+    /// Call [`get_image_sparse_memory_requirements2_len()`][`Self::get_image_sparse_memory_requirements2_len()`] to query the number of elements to pass to `out`.
     #[inline]
     pub fn get_image_sparse_memory_requirements2(
         &self,
         info: &ImageSparseMemoryRequirementsInfo2,
         sparse_memory_requirements: &mut [SparseImageMemoryRequirements2],
     ) {
+        let mut sparse_memory_requirement_count = sparse_memory_requirements.len() as u32;
         let call = self
             .fns()
             .v1_1
@@ -1488,10 +1491,32 @@ impl Device {
             (call)(
                 self.handle,
                 info,
-                sparse_memory_requirements.len() as *mut u32,
+                &mut sparse_memory_requirement_count,
                 sparse_memory_requirements.as_mut_ptr(),
             )
         };
+    }
+
+    /// Returns the required slice length for Call [`get_image_sparse_memory_requirements2`][`Self::get_image_sparse_memory_requirements2`].
+    #[inline]
+    pub fn get_image_sparse_memory_requirements2_len(
+        &self,
+        info: &ImageSparseMemoryRequirementsInfo2,
+    ) -> usize {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .v1_1
+                .get_image_sparse_memory_requirements2
+                .expect(Self::CORE_LOAD_ERROR))(
+                self.handle,
+                info,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            );
+            out.assume_init() as usize
+        }
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDeviceBufferMemoryRequirements.html>
@@ -1541,6 +1566,7 @@ impl Device {
         info: &DeviceImageMemoryRequirements,
         sparse_memory_requirements: &mut [SparseImageMemoryRequirements2],
     ) {
+        let mut sparse_memory_requirement_count = sparse_memory_requirements.len() as u32;
         let call = self
             .fns()
             .v1_3
@@ -1551,7 +1577,7 @@ impl Device {
             (call)(
                 self.handle,
                 info,
-                sparse_memory_requirements.len() as *mut u32,
+                &mut sparse_memory_requirement_count,
                 sparse_memory_requirements.as_mut_ptr(),
             )
         };
@@ -1563,7 +1589,7 @@ impl Device {
         &self,
         info: &DeviceImageMemoryRequirements,
     ) -> usize {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -1572,10 +1598,10 @@ impl Device {
                 .expect(Self::CORE_LOAD_ERROR))(
                 self.handle,
                 info,
-                out.as_mut_ptr() as *mut u32,
+                out.as_mut_ptr(),
                 ptr::null_mut(),
             );
-            out.assume_init()
+            out.assume_init() as usize
         }
     }
 
@@ -1747,6 +1773,8 @@ impl Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFaultData.html>
+    ///
+    /// Call [`get_fault_data_len()`][`Self::get_fault_data_len()`] to query the number of elements to pass to `out`.
     #[inline]
     pub fn get_fault_data(
         &self,
@@ -1754,6 +1782,7 @@ impl Device {
         unrecorded_faults: *mut Bool32,
         faults: &mut [FaultData],
     ) -> Result<()> {
+        let mut fault_count = faults.len() as u32;
         let call = self.fns().v1_0.get_fault_data.expect(Self::CORE_LOAD_ERROR);
 
         unsafe {
@@ -1761,11 +1790,32 @@ impl Device {
                 self.handle,
                 fault_query_behavior,
                 unrecorded_faults,
-                faults.len() as *mut u32,
+                &mut fault_count,
                 faults.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_fault_data`][`Self::get_fault_data`].
+    #[inline]
+    pub fn get_fault_data_len(
+        &self,
+        fault_query_behavior: FaultQueryBehavior,
+        unrecorded_faults: *mut Bool32,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self.fns().v1_0.get_fault_data.expect(Self::CORE_LOAD_ERROR))(
+                self.handle,
+                fault_query_behavior,
+                unrecorded_faults,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkCreatePrivateDataSlot.html>

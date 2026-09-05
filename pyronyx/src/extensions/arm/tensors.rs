@@ -5,7 +5,6 @@
 
 use crate::vk::*;
 use core::ffi::CStr;
-use core::ffi::c_void;
 use core::mem::MaybeUninit;
 use core::ptr::{from_ref, null};
 
@@ -49,12 +48,14 @@ pub trait TensorsDevice {
     fn get_tensor_opaque_capture_descriptor_data(
         &self,
         info: &TensorCaptureDescriptorDataInfoARM,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 
     fn get_tensor_view_opaque_capture_descriptor_data(
         &self,
         info: &TensorViewCaptureDescriptorDataInfoARM,
-    ) -> Result<c_void>;
+        data: &mut [u8],
+    ) -> Result<()>;
 }
 
 impl TensorsDevice for Device {
@@ -198,8 +199,8 @@ impl TensorsDevice for Device {
     fn get_tensor_opaque_capture_descriptor_data(
         &self,
         info: &TensorCaptureDescriptorDataInfoARM,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .arm_tensors
@@ -207,7 +208,7 @@ impl TensorsDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_tensor_opaque_capture_descriptor_data_arm;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetTensorViewOpaqueCaptureDescriptorDataARM.html>
@@ -215,8 +216,8 @@ impl TensorsDevice for Device {
     fn get_tensor_view_opaque_capture_descriptor_data(
         &self,
         info: &TensorViewCaptureDescriptorDataInfoARM,
-    ) -> Result<c_void> {
-        let mut out = MaybeUninit::uninit();
+        data: &mut [u8],
+    ) -> Result<()> {
         let call = self
             .fns()
             .arm_tensors
@@ -224,7 +225,7 @@ impl TensorsDevice for Device {
             .expect(Self::EXT_LOAD_ERROR)
             .get_tensor_view_opaque_capture_descriptor_data_arm;
 
-        unsafe { (call)(self.handle, info, out.as_mut_ptr()) }.init_on_success(out)
+        unsafe { (call)(self.handle, info, data.as_mut_ptr().cast()) }.result()
     }
 }
 

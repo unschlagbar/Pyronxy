@@ -4517,6 +4517,65 @@ pub type vkCmdDispatchGraphIndirectCountAMDX = unsafe extern "system" fn(
     count_info: DeviceAddress,
 );
 
+pub type vkCreateGpaSessionAMD = unsafe extern "system" fn(
+    device: vkDevice,
+    create_info: *const GpaSessionCreateInfoAMD,
+    allocator: *const AllocationCallbacks,
+    gpa_session: *mut GpaSessionAMD,
+) -> vkResult;
+
+pub type vkDestroyGpaSessionAMD = unsafe extern "system" fn(
+    device: vkDevice,
+    gpa_session: GpaSessionAMD,
+    allocator: *const AllocationCallbacks,
+);
+
+pub type vkSetGpaDeviceClockModeAMD =
+    unsafe extern "system" fn(device: vkDevice, info: *mut GpaDeviceClockModeInfoAMD) -> vkResult;
+
+pub type vkGetGpaDeviceClockInfoAMD =
+    unsafe extern "system" fn(device: vkDevice, info: *mut GpaDeviceGetClockInfoAMD) -> vkResult;
+
+pub type vkCmdBeginGpaSessionAMD = unsafe extern "system" fn(
+    command_buffer: vkCommandBuffer,
+    gpa_session: GpaSessionAMD,
+) -> vkResult;
+
+pub type vkCmdEndGpaSessionAMD = unsafe extern "system" fn(
+    command_buffer: vkCommandBuffer,
+    gpa_session: GpaSessionAMD,
+) -> vkResult;
+
+pub type vkCmdBeginGpaSampleAMD = unsafe extern "system" fn(
+    command_buffer: vkCommandBuffer,
+    gpa_session: GpaSessionAMD,
+    gpa_sample_begin_info: *const GpaSampleBeginInfoAMD,
+    sample_id: *mut u32,
+) -> vkResult;
+
+pub type vkCmdEndGpaSampleAMD = unsafe extern "system" fn(
+    command_buffer: vkCommandBuffer,
+    gpa_session: GpaSessionAMD,
+    sample_id: u32,
+);
+
+pub type vkGetGpaSessionStatusAMD =
+    unsafe extern "system" fn(device: vkDevice, gpa_session: GpaSessionAMD) -> vkResult;
+
+pub type vkGetGpaSessionResultsAMD = unsafe extern "system" fn(
+    device: vkDevice,
+    gpa_session: GpaSessionAMD,
+    sample_id: u32,
+    size_in_bytes: *mut usize,
+    data: *mut c_void,
+) -> vkResult;
+
+pub type vkResetGpaSessionAMD =
+    unsafe extern "system" fn(device: vkDevice, gpa_session: GpaSessionAMD) -> vkResult;
+
+pub type vkCmdCopyGpaSessionResultsAMD =
+    unsafe extern "system" fn(command_buffer: vkCommandBuffer, gpa_session: GpaSessionAMD);
+
 pub type vkCmdBindDescriptorSets2 = unsafe extern "system" fn(
     command_buffer: vkCommandBuffer,
     bind_descriptor_sets_info: *const BindDescriptorSetsInfo,
@@ -4590,6 +4649,30 @@ pub type vkGetLatencyTimingsNV = unsafe extern "system" fn(
 
 pub type vkQueueNotifyOutOfBandNV =
     unsafe extern "system" fn(queue: vkQueue, queue_type_info: *const OutOfBandQueueTypeInfoNV);
+
+pub type vkSetLatencySleepModeLegacyNV = unsafe extern "system" fn(
+    device: vkDevice,
+    low_latency_mode: Bool32,
+    low_latency_boost: Bool32,
+    minimum_interval_us: u32,
+);
+
+pub type vkLatencySleepLegacyNV =
+    unsafe extern "system" fn(device: vkDevice, signal_semaphore: Semaphore, value: u64);
+
+pub type vkSetLatencyMarkerLegacyNV =
+    unsafe extern "system" fn(device: vkDevice, frame_id: u64, marker: u32);
+
+pub type vkGetLatencyTimingsLegacyNV =
+    unsafe extern "system" fn(device: vkDevice, timings: *mut c_void);
+
+pub type vkQueueNotifyOutOfBandLegacyNV =
+    unsafe extern "system" fn(queue: vkQueue, queue_type: u32);
+
+pub type vkGetSleepStatusLegacyNV =
+    unsafe extern "system" fn(device: vkDevice, low_latency_mode: *mut Bool32);
+
+pub type vkShutdownLatencyDeviceLegacyNV = unsafe extern "system" fn(device: vkDevice);
 
 pub type vkCmdSetRenderingAttachmentLocations = unsafe extern "system" fn(
     command_buffer: vkCommandBuffer,

@@ -6,6 +6,7 @@
 use crate::vk::*;
 use core::ffi::CStr;
 use core::mem::MaybeUninit;
+use core::ptr;
 use core::ptr::{from_ref, null};
 
 /// Type: `Device`
@@ -33,6 +34,10 @@ pub trait DataGraphDevice {
         info: &DataGraphPipelineSessionBindPointRequirementsInfoARM,
         bind_point_requirements: &mut [DataGraphPipelineSessionBindPointRequirementARM],
     ) -> Result<()>;
+    fn get_data_graph_pipeline_session_bind_point_requirements_len(
+        &self,
+        info: &DataGraphPipelineSessionBindPointRequirementsInfoARM,
+    ) -> Result<usize>;
 
     fn get_data_graph_pipeline_session_memory_requirements(
         &self,
@@ -55,6 +60,10 @@ pub trait DataGraphDevice {
         pipeline_info: &DataGraphPipelineInfoARM,
         properties: &mut [DataGraphPipelinePropertyARM],
     ) -> Result<()>;
+    fn get_data_graph_pipeline_available_properties_len(
+        &self,
+        pipeline_info: &DataGraphPipelineInfoARM,
+    ) -> Result<usize>;
 
     fn get_data_graph_pipeline_properties(
         &self,
@@ -123,12 +132,15 @@ impl DataGraphDevice for Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDataGraphPipelineSessionBindPointRequirementsARM.html>
+    ///
+    /// Call [`get_data_graph_pipeline_session_bind_point_requirements_len()`][`Self::get_data_graph_pipeline_session_bind_point_requirements_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_data_graph_pipeline_session_bind_point_requirements(
         &self,
         info: &DataGraphPipelineSessionBindPointRequirementsInfoARM,
         bind_point_requirements: &mut [DataGraphPipelineSessionBindPointRequirementARM],
     ) -> Result<()> {
+        let mut bind_point_requirement_count = bind_point_requirements.len() as u32;
         let call = self
             .fns()
             .arm_data_graph
@@ -140,11 +152,35 @@ impl DataGraphDevice for Device {
             (call)(
                 self.handle,
                 info,
-                bind_point_requirements.len() as *mut u32,
+                &mut bind_point_requirement_count,
                 bind_point_requirements.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_data_graph_pipeline_session_bind_point_requirements`][`Self::get_data_graph_pipeline_session_bind_point_requirements`].
+    #[inline]
+    fn get_data_graph_pipeline_session_bind_point_requirements_len(
+        &self,
+        info: &DataGraphPipelineSessionBindPointRequirementsInfoARM,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .arm_data_graph
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_data_graph_pipeline_session_bind_point_requirements_arm)(
+                self.handle,
+                info,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDataGraphPipelineSessionMemoryRequirementsARM.html>
@@ -201,12 +237,15 @@ impl DataGraphDevice for Device {
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDataGraphPipelineAvailablePropertiesARM.html>
+    ///
+    /// Call [`get_data_graph_pipeline_available_properties_len()`][`Self::get_data_graph_pipeline_available_properties_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_data_graph_pipeline_available_properties(
         &self,
         pipeline_info: &DataGraphPipelineInfoARM,
         properties: &mut [DataGraphPipelinePropertyARM],
     ) -> Result<()> {
+        let mut properties_count = properties.len() as u32;
         let call = self
             .fns()
             .arm_data_graph
@@ -218,11 +257,35 @@ impl DataGraphDevice for Device {
             (call)(
                 self.handle,
                 pipeline_info,
-                properties.len() as *mut u32,
+                &mut properties_count,
                 properties.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_data_graph_pipeline_available_properties`][`Self::get_data_graph_pipeline_available_properties`].
+    #[inline]
+    fn get_data_graph_pipeline_available_properties_len(
+        &self,
+        pipeline_info: &DataGraphPipelineInfoARM,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .arm_data_graph
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_data_graph_pipeline_available_properties_arm)(
+                self.handle,
+                pipeline_info,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDataGraphPipelinePropertiesARM.html>
@@ -290,6 +353,7 @@ pub trait DataGraphPhysicalDevice {
         queue_family_index: u32,
         queue_family_data_graph_properties: &mut [QueueFamilyDataGraphPropertiesARM],
     ) -> Result<()>;
+    fn get_queue_family_data_graph_properties_len(&self, queue_family_index: u32) -> Result<usize>;
 
     fn get_queue_family_data_graph_processing_engine_properties(
         &self,
@@ -299,12 +363,16 @@ pub trait DataGraphPhysicalDevice {
 
 impl DataGraphPhysicalDevice for PhysicalDevice {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM.html>
+    ///
+    /// Call [`get_queue_family_data_graph_properties_len()`][`Self::get_queue_family_data_graph_properties_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_queue_family_data_graph_properties(
         &self,
         queue_family_index: u32,
         queue_family_data_graph_properties: &mut [QueueFamilyDataGraphPropertiesARM],
     ) -> Result<()> {
+        let mut queue_family_data_graph_property_count =
+            queue_family_data_graph_properties.len() as u32;
         let call = self
             .fns()
             .arm_data_graph
@@ -316,11 +384,32 @@ impl DataGraphPhysicalDevice for PhysicalDevice {
             (call)(
                 self.handle,
                 queue_family_index,
-                queue_family_data_graph_properties.len() as *mut u32,
+                &mut queue_family_data_graph_property_count,
                 queue_family_data_graph_properties.as_mut_ptr(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_queue_family_data_graph_properties`][`Self::get_queue_family_data_graph_properties`].
+    #[inline]
+    fn get_queue_family_data_graph_properties_len(&self, queue_family_index: u32) -> Result<usize> {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .arm_data_graph
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_physical_device_queue_family_data_graph_properties_arm)(
+                self.handle,
+                queue_family_index,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
+        .map(|v| v as usize)
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM.html>

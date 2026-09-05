@@ -12,6 +12,13 @@ pub mod cooperative_matrix_conversion {
     pub const NAME: &CStr = c"VK_QCOM_cooperative_matrix_conversion";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod elapsed_timer_query {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_QCOM_elapsed_timer_query";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod render_pass_transform {
     use core::ffi::CStr;
 
@@ -27,6 +34,20 @@ pub mod render_pass_store_ops {
     pub const SPEC_VERSION: u32 = 2;
 }
 pub mod queue_perf_hint;
+pub mod image_processing3 {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_QCOM_image_processing3";
+    pub const SPEC_VERSION: u32 = 1;
+}
+pub mod shader_multiple_wait_queues {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_QCOM_shader_multiple_wait_queues";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod tile_shading;
 pub mod rotated_copy_commands {
     use core::ffi::CStr;

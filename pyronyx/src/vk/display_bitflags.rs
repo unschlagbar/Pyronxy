@@ -1057,12 +1057,12 @@ impl Display for PipelineCreateFlags {
                 "DepthStencilAttachmentFeedbackLoopEXT",
             ),
             (
-                PipelineCreateFlags::RayTracingOpacityMicromapEXT,
-                "RayTracingOpacityMicromapEXT",
-            ),
-            (
                 PipelineCreateFlags::RayTracingDisplacementMicromapNV,
                 "RayTracingDisplacementMicromapNV",
+            ),
+            (
+                PipelineCreateFlags::RayTracingOpacityMicromapKHR,
+                "RayTracingOpacityMicromapKHR",
             ),
         ];
 
@@ -2360,14 +2360,6 @@ impl Display for BuildAccelerationStructureFlagsKHR {
             (BuildAccelerationStructureFlagsKHR::LowMemory, "LowMemory"),
             (BuildAccelerationStructureFlagsKHR::Motion, "Motion"),
             (
-                BuildAccelerationStructureFlagsKHR::AllowOpacityMicromapUpdate,
-                "AllowOpacityMicromapUpdate",
-            ),
-            (
-                BuildAccelerationStructureFlagsKHR::AllowDisableOpacityMicromaps,
-                "AllowDisableOpacityMicromaps",
-            ),
-            (
                 BuildAccelerationStructureFlagsKHR::AllowOpacityMicromapDataUpdate,
                 "AllowOpacityMicromapDataUpdate",
             ),
@@ -2382,6 +2374,18 @@ impl Display for BuildAccelerationStructureFlagsKHR {
             (
                 BuildAccelerationStructureFlagsKHR::AllowClusterOpacityMicromaps,
                 "AllowClusterOpacityMicromaps",
+            ),
+            (
+                BuildAccelerationStructureFlagsKHR::AllowOpacityMicromapUpdate,
+                "AllowOpacityMicromapUpdate",
+            ),
+            (
+                BuildAccelerationStructureFlagsKHR::AllowDisableOpacityMicromaps,
+                "AllowDisableOpacityMicromaps",
+            ),
+            (
+                BuildAccelerationStructureFlagsKHR::MicromapLossy,
+                "MicromapLossy",
             ),
         ];
 
@@ -2945,6 +2949,7 @@ impl Display for FormatFeatureFlags2 {
             (FormatFeatureFlags2::FragmentShadingRateAttachmentKHR, "FragmentShadingRateAttachmentKHR"),
             (FormatFeatureFlags2::VideoEncodeInputKHR, "VideoEncodeInputKHR"),
             (FormatFeatureFlags2::VideoEncodeDpbKHR, "VideoEncodeDpbKHR"),
+            (FormatFeatureFlags2::BlockMatchingSxdQCOM, "BlockMatchingSxdQCOM"),
             (FormatFeatureFlags2::AccelerationStructureRadiusBufferNV, "AccelerationStructureRadiusBufferNV"),
             (FormatFeatureFlags2::LinearColorAttachmentNV, "LinearColorAttachmentNV"),
             (FormatFeatureFlags2::WeightImageQCOM, "WeightImageQCOM"),
@@ -2960,6 +2965,7 @@ impl Display for FormatFeatureFlags2 {
             (FormatFeatureFlags2::CopyImageIndirectDstKHR, "CopyImageIndirectDstKHR"),
             (FormatFeatureFlags2::VideoEncodeQuantizationDeltaMapKHR, "VideoEncodeQuantizationDeltaMapKHR"),
             (FormatFeatureFlags2::VideoEncodeEmphasisMapKHR, "VideoEncodeEmphasisMapKHR"),
+            (FormatFeatureFlags2::SampledImageFilterLinear2DIMG, "SampledImageFilterLinear2DIMG"),
             (FormatFeatureFlags2::DepthCopyOnComputeQueueKHR, "DepthCopyOnComputeQueueKHR"),
             (FormatFeatureFlags2::DepthCopyOnTransferQueueKHR, "DepthCopyOnTransferQueueKHR"),
             (FormatFeatureFlags2::StencilCopyOnComputeQueueKHR, "StencilCopyOnComputeQueueKHR"),
@@ -2987,6 +2993,18 @@ impl Display for FormatFeatureFlags2 {
 }
 
 impl Debug for FormatFeatureFlags2 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, f)
+    }
+}
+
+impl Display for FormatFeatureFlags4KHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        f.write_str("0")
+    }
+}
+
+impl Debug for FormatFeatureFlags4KHR {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(self, f)
     }
@@ -3345,10 +3363,6 @@ impl Display for PipelineCreateFlags2 {
                 "RenderingFragmentDensityMapAttachmentEXT",
             ),
             (
-                PipelineCreateFlags2::RayTracingOpacityMicromapEXT,
-                "RayTracingOpacityMicromapEXT",
-            ),
-            (
                 PipelineCreateFlags2::ColorAttachmentFeedbackLoopEXT,
                 "ColorAttachmentFeedbackLoopEXT",
             ),
@@ -3380,6 +3394,14 @@ impl Display for PipelineCreateFlags2 {
             (
                 PipelineCreateFlags2::PerLayerFragmentDensityVALVE,
                 "PerLayerFragmentDensityVALVE",
+            ),
+            (
+                PipelineCreateFlags2::RayTracingOpacityMicromapKHR,
+                "RayTracingOpacityMicromapKHR",
+            ),
+            (
+                PipelineCreateFlags2::OpacityMicromapDisallowMixedSpecialIndexKHR,
+                "OpacityMicromapDisallowMixedSpecialIndexKHR",
             ),
             (
                 PipelineCreateFlags2::Type64BitIndexingEXT,
@@ -3432,6 +3454,11 @@ impl Display for BufferUsageFlags2 {
             ),
             (BufferUsageFlags2::DescriptorHeapEXT, "DescriptorHeapEXT"),
             (
+                BufferUsageFlags2::MicromapBuildInputReadOnlyEXT,
+                "MicromapBuildInputReadOnlyEXT",
+            ),
+            (BufferUsageFlags2::MicromapStorageEXT, "MicromapStorageEXT"),
+            (
                 BufferUsageFlags2::ConditionalRenderingEXT,
                 "ConditionalRenderingEXT",
             ),
@@ -3472,11 +3499,6 @@ impl Display for BufferUsageFlags2 {
                 "PushDescriptorsDescriptorBufferEXT",
             ),
             (
-                BufferUsageFlags2::MicromapBuildInputReadOnlyEXT,
-                "MicromapBuildInputReadOnlyEXT",
-            ),
-            (BufferUsageFlags2::MicromapStorageEXT, "MicromapStorageEXT"),
-            (
                 BufferUsageFlags2::CompressedDataDgf1AMDX,
                 "CompressedDataDgf1AMDX",
             ),
@@ -3513,6 +3535,159 @@ impl Display for BufferUsageFlags2 {
 }
 
 impl Debug for BufferUsageFlags2 {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, f)
+    }
+}
+
+impl Display for ImageUsageFlags2KHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        const BITS: &[(ImageUsageFlags2KHR, &str)] = &[
+            (ImageUsageFlags2KHR::TransferSrc, "TransferSrc"),
+            (ImageUsageFlags2KHR::TransferDst, "TransferDst"),
+            (ImageUsageFlags2KHR::Sampled, "Sampled"),
+            (ImageUsageFlags2KHR::Storage, "Storage"),
+            (ImageUsageFlags2KHR::ColorAttachment, "ColorAttachment"),
+            (
+                ImageUsageFlags2KHR::DepthStencilAttachment,
+                "DepthStencilAttachment",
+            ),
+            (
+                ImageUsageFlags2KHR::TransientAttachment,
+                "TransientAttachment",
+            ),
+            (ImageUsageFlags2KHR::InputAttachment, "InputAttachment"),
+            (
+                ImageUsageFlags2KHR::FragmentShadingRateAttachment,
+                "FragmentShadingRateAttachment",
+            ),
+            (
+                ImageUsageFlags2KHR::FragmentDensityMap,
+                "FragmentDensityMap",
+            ),
+            (ImageUsageFlags2KHR::VideoDecodeDst, "VideoDecodeDst"),
+            (ImageUsageFlags2KHR::VideoDecodeSrc, "VideoDecodeSrc"),
+            (ImageUsageFlags2KHR::VideoDecodeDpb, "VideoDecodeDpb"),
+            (ImageUsageFlags2KHR::VideoEncodeDst, "VideoEncodeDst"),
+            (ImageUsageFlags2KHR::VideoEncodeSrc, "VideoEncodeSrc"),
+            (ImageUsageFlags2KHR::VideoEncodeDpb, "VideoEncodeDpb"),
+            (ImageUsageFlags2KHR::InvocationMask, "InvocationMask"),
+            (
+                ImageUsageFlags2KHR::AttachmentFeedbackLoop,
+                "AttachmentFeedbackLoop",
+            ),
+            (ImageUsageFlags2KHR::SampleWeight, "SampleWeight"),
+            (ImageUsageFlags2KHR::SampleBlockMatch, "SampleBlockMatch"),
+            (ImageUsageFlags2KHR::HostTransfer, "HostTransfer"),
+            (ImageUsageFlags2KHR::TensorAliasing, "TensorAliasing"),
+            (
+                ImageUsageFlags2KHR::VideoEncodeQuantizationDeltaMap,
+                "VideoEncodeQuantizationDeltaMap",
+            ),
+            (
+                ImageUsageFlags2KHR::VideoEncodeEmphasisMap,
+                "VideoEncodeEmphasisMap",
+            ),
+            (ImageUsageFlags2KHR::TileMemory, "TileMemory"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
+        }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+
+impl Debug for ImageUsageFlags2KHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, f)
+    }
+}
+
+impl Display for ImageCreateFlags2KHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        const BITS: &[(ImageCreateFlags2KHR, &str)] = &[
+            (ImageCreateFlags2KHR::SparseBinding, "SparseBinding"),
+            (ImageCreateFlags2KHR::SparseResidency, "SparseResidency"),
+            (ImageCreateFlags2KHR::SparseAliased, "SparseAliased"),
+            (ImageCreateFlags2KHR::MutableFormat, "MutableFormat"),
+            (ImageCreateFlags2KHR::CubeCompatible, "CubeCompatible"),
+            (
+                ImageCreateFlags2KHR::AliasSingleLayerDescriptor,
+                "AliasSingleLayerDescriptor",
+            ),
+            (
+                ImageCreateFlags2KHR::Type2DArrayCompatible,
+                "Type2DArrayCompatible",
+            ),
+            (
+                ImageCreateFlags2KHR::SplitInstanceBindRegions,
+                "SplitInstanceBindRegions",
+            ),
+            (
+                ImageCreateFlags2KHR::BlockTexelViewCompatible,
+                "BlockTexelViewCompatible",
+            ),
+            (ImageCreateFlags2KHR::ExtendedUsage, "ExtendedUsage"),
+            (ImageCreateFlags2KHR::Disjoint, "Disjoint"),
+            (ImageCreateFlags2KHR::Alias, "Alias"),
+            (ImageCreateFlags2KHR::Protected, "Protected"),
+            (
+                ImageCreateFlags2KHR::SampleLocationsCompatibleDepth,
+                "SampleLocationsCompatibleDepth",
+            ),
+            (ImageCreateFlags2KHR::CornerSampled, "CornerSampled"),
+            (ImageCreateFlags2KHR::Subsampled, "Subsampled"),
+            (
+                ImageCreateFlags2KHR::FragmentDensityMapOffset,
+                "FragmentDensityMapOffset",
+            ),
+            (
+                ImageCreateFlags2KHR::DescriptorBufferCaptureReplay,
+                "DescriptorBufferCaptureReplay",
+            ),
+            (
+                ImageCreateFlags2KHR::Type2DViewCompatible,
+                "Type2DViewCompatible",
+            ),
+            (
+                ImageCreateFlags2KHR::MultisampledRenderToSingleSampled,
+                "MultisampledRenderToSingleSampled",
+            ),
+            (
+                ImageCreateFlags2KHR::VideoProfileIndependent,
+                "VideoProfileIndependent",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
+        }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+
+impl Debug for ImageCreateFlags2KHR {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(self, f)
     }
@@ -3866,6 +4041,41 @@ impl Debug for SpirvResourceTypeFlagsEXT {
     }
 }
 
+impl Display for GpaSqShaderStageFlagsAMD {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        const BITS: &[(GpaSqShaderStageFlagsAMD, &str)] = &[
+            (GpaSqShaderStageFlagsAMD::Ps, "Ps"),
+            (GpaSqShaderStageFlagsAMD::Vs, "Vs"),
+            (GpaSqShaderStageFlagsAMD::Gs, "Gs"),
+            (GpaSqShaderStageFlagsAMD::Es, "Es"),
+            (GpaSqShaderStageFlagsAMD::Hs, "Hs"),
+            (GpaSqShaderStageFlagsAMD::Ls, "Ls"),
+            (GpaSqShaderStageFlagsAMD::Cs, "Cs"),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
+        }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+
+impl Debug for GpaSqShaderStageFlagsAMD {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, f)
+    }
+}
+
 impl Display for AddressCommandFlagsKHR {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         const BITS: &[(AddressCommandFlagsKHR, &str)] = &[
@@ -4043,6 +4253,10 @@ impl Display for SwapchainCreateFlagsKHR {
             (
                 SwapchainCreateFlagsKHR::DeferredMemoryAllocation,
                 "DeferredMemoryAllocation",
+            ),
+            (
+                SwapchainCreateFlagsKHR::MultisampledRenderToSingleSampled,
+                "MultisampledRenderToSingleSampled",
             ),
         ];
 
@@ -5551,6 +5765,10 @@ impl Display for ShaderCreateFlagsEXT {
                 "FragmentDensityMapAttachment",
             ),
             (ShaderCreateFlagsEXT::IndirectBindable, "IndirectBindable"),
+            (
+                ShaderCreateFlagsEXT::OpacityMicromapDisallowMixedSpecialIndex,
+                "OpacityMicromapDisallowMixedSpecialIndex",
+            ),
             (ShaderCreateFlagsEXT::Type64BitIndexing, "Type64BitIndexing"),
             (ShaderCreateFlagsEXT::IndependentSets, "IndependentSets"),
         ];
@@ -6388,6 +6606,25 @@ impl Display for VideoEncodeFeedbackFlagsKHR {
                 VideoEncodeFeedbackFlagsKHR::BitstreamHasOverrides,
                 "BitstreamHasOverrides",
             ),
+            (
+                VideoEncodeFeedbackFlagsKHR::AverageQuantization,
+                "AverageQuantization",
+            ),
+            (
+                VideoEncodeFeedbackFlagsKHR::MinQuantization,
+                "MinQuantization",
+            ),
+            (
+                VideoEncodeFeedbackFlagsKHR::MaxQuantization,
+                "MaxQuantization",
+            ),
+            (VideoEncodeFeedbackFlagsKHR::IntraPixels, "IntraPixels"),
+            (VideoEncodeFeedbackFlagsKHR::InterPixels, "InterPixels"),
+            (VideoEncodeFeedbackFlagsKHR::SkippedPixels, "SkippedPixels"),
+            (
+                VideoEncodeFeedbackFlagsKHR::PicturePartitionCount,
+                "PicturePartitionCount",
+            ),
         ];
 
         let mut first = true;
@@ -6408,6 +6645,43 @@ impl Display for VideoEncodeFeedbackFlagsKHR {
 }
 
 impl Debug for VideoEncodeFeedbackFlagsKHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        Display::fmt(self, f)
+    }
+}
+
+impl Display for VideoEncodePerPartitionFeedbackFlagsKHR {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        const BITS: &[(VideoEncodePerPartitionFeedbackFlagsKHR, &str)] = &[
+            (VideoEncodePerPartitionFeedbackFlagsKHR::Status, "Status"),
+            (
+                VideoEncodePerPartitionFeedbackFlagsKHR::BitstreamBufferOffset,
+                "BitstreamBufferOffset",
+            ),
+            (
+                VideoEncodePerPartitionFeedbackFlagsKHR::BitstreamBytesWritten,
+                "BitstreamBytesWritten",
+            ),
+        ];
+
+        let mut first = true;
+        for &(flag, name) in BITS {
+            if self.contains(flag) {
+                if !first {
+                    f.write_str(" | ")?;
+                }
+                f.write_str(name)?;
+                first = false;
+            }
+        }
+        if first {
+            f.write_str("0")?;
+        }
+        Ok(())
+    }
+}
+
+impl Debug for VideoEncodePerPartitionFeedbackFlagsKHR {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         Display::fmt(self, f)
     }

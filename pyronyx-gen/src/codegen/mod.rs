@@ -200,6 +200,30 @@ pub const ASSERT_FNS: &[(&str, &str)] = &[
     ("vkGetQueryPoolResults", ""),
 ];
 
+/// Commands whose untyped `void*` parameter is a caller-provided byte buffer rather
+/// than a pointer to a single opaque object.
+///
+/// The registry gives these no `len` attribute, so the shape cannot be derived from
+/// the XML: `vkGetSemaphoreSciSyncObjNV`'s `pHandle` has the identical C type but
+/// points at one object, and turning it into a slice would be a lie. Anything listed
+/// here becomes `&mut [u8]`; every other unsized `void*` stays a raw pointer.
+///
+/// This mirrors what ash does by hand for the same commands.
+pub const BYTE_SLICE_FNS: &[&str] = &[
+    "vkGetBufferOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageOpaqueCaptureDescriptorDataEXT",
+    "vkGetImageViewOpaqueCaptureDescriptorDataEXT",
+    "vkGetSamplerOpaqueCaptureDescriptorDataEXT",
+    "vkGetAccelerationStructureOpaqueCaptureDescriptorDataEXT",
+    "vkGetTensorOpaqueCaptureDescriptorDataARM",
+    "vkGetTensorViewOpaqueCaptureDescriptorDataARM",
+    "vkGetShaderInstrumentationValuesARM",
+];
+
+pub fn is_byte_slice_fn(cmd_name: &str) -> bool {
+    BYTE_SLICE_FNS.contains(&cmd_name)
+}
+
 fn find_assert_fn(cmd_name: &str) -> Option<&'static str> {
     ASSERT_FNS
         .iter()
@@ -229,6 +253,40 @@ pub const LEN_FNS: &[&str] = &[
     "vkGetQueueCheckpointDataNV",
     "vkGetPhysicalDeviceCalibrateableTimeDomainsKHR",
     "vkGetShaderInfoAMD",
+    "vkEnumeratePhysicalDeviceQueueFamilyPerformanceCountersByRegionARM",
+    "vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM",
+    "vkGetDataGraphPipelineAvailablePropertiesARM",
+    "vkGetDataGraphPipelineSessionBindPointRequirementsARM",
+    "vkGetDisplayModeProperties2KHR",
+    "vkGetDisplayModePropertiesKHR",
+    "vkGetDisplayPlaneSupportedDisplaysKHR",
+    "vkGetEncodedVideoSessionParametersKHR",
+    "vkGetFaultData",
+    "vkGetFramebufferTilePropertiesQCOM",
+    "vkGetGpaSessionResultsAMD",
+    "vkGetImageSparseMemoryRequirements2",
+    "vkGetPastPresentationTimingGOOGLE",
+    "vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV",
+    "vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR",
+    "vkGetPhysicalDeviceCooperativeMatrixPropertiesNV",
+    "vkGetPhysicalDeviceCooperativeVectorPropertiesNV",
+    "vkGetPhysicalDeviceDisplayPlaneProperties2KHR",
+    "vkGetPhysicalDeviceDisplayPlanePropertiesKHR",
+    "vkGetPhysicalDeviceDisplayProperties2KHR",
+    "vkGetPhysicalDeviceDisplayPropertiesKHR",
+    "vkGetPhysicalDeviceFragmentShadingRatesKHR",
+    "vkGetPhysicalDevicePresentRectanglesKHR",
+    "vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM",
+    "vkGetPhysicalDeviceRefreshableObjectTypesKHR",
+    "vkGetPhysicalDeviceSurfaceFormats2KHR",
+    "vkGetPhysicalDeviceVideoFormatPropertiesKHR",
+    "vkGetPipelineBinaryDataKHR",
+    "vkGetPipelineExecutableInternalRepresentationsKHR",
+    "vkGetPipelineExecutablePropertiesKHR",
+    "vkGetPipelineExecutableStatisticsKHR",
+    "vkGetQueueCheckpointData2NV",
+    "vkGetValidationCacheDataEXT",
+    "vkGetVideoSessionMemoryRequirementsKHR",
 ];
 
 pub fn find_len_fn(cmd_name: &str) -> Option<&'static str> {

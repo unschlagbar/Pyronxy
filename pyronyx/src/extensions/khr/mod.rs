@@ -752,6 +752,13 @@ pub mod video_maintenance2 {
     pub const NAME: &CStr = c"VK_KHR_video_maintenance2";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod video_encode_feedback2 {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_KHR_video_encode_feedback2";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod depth_clamp_zero_one {
     use core::ffi::CStr;
 
@@ -773,11 +780,25 @@ pub mod present_mode_fifo_latest_ready {
     pub const NAME: &CStr = c"VK_KHR_present_mode_fifo_latest_ready";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod opacity_micromap {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_KHR_opacity_micromap";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod maintenance10;
 pub mod maintenance11 {
     use core::ffi::CStr;
 
     /// Type: `Device`
     pub const NAME: &CStr = c"VK_KHR_maintenance11";
+    pub const SPEC_VERSION: u32 = 1;
+}
+pub mod extended_flags {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_KHR_extended_flags";
     pub const SPEC_VERSION: u32 = 1;
 }

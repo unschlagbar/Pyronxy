@@ -78,6 +78,7 @@ pub mod gpu_shader_int16 {
     pub const NAME: &CStr = c"VK_AMD_gpu_shader_int16";
     pub const SPEC_VERSION: u32 = 2;
 }
+pub mod gpa_interface;
 pub mod mixed_attachment_samples {
     use core::ffi::CStr;
 

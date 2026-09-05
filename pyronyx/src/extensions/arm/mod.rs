@@ -36,6 +36,13 @@ pub mod data_graph_instruction_set_tosa {
     pub const NAME: &CStr = c"VK_ARM_data_graph_instruction_set_tosa";
     pub const SPEC_VERSION: u32 = 1;
 }
+pub mod tensor_controls {
+    use core::ffi::CStr;
+
+    /// Type: `Device`
+    pub const NAME: &CStr = c"VK_ARM_tensor_controls";
+    pub const SPEC_VERSION: u32 = 1;
+}
 pub mod pipeline_opacity_micromap {
     use core::ffi::CStr;
 

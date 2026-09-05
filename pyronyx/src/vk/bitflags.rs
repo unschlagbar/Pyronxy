@@ -502,8 +502,8 @@ impl PipelineCreateFlags {
     pub const ColorAttachmentFeedbackLoopEXT: Self = Self(0b10_0000_0000_0000_0000_0000_0000);
     pub const DepthStencilAttachmentFeedbackLoopEXT: Self =
         Self(0b100_0000_0000_0000_0000_0000_0000);
-    pub const RayTracingOpacityMicromapEXT: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
     pub const RayTracingDisplacementMicromapNV: Self = Self(0b1_0000_0000_0000_0000_0000_0000_0000);
+    pub const RayTracingOpacityMicromapKHR: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkColorComponentFlagBits.html>
@@ -1090,12 +1090,13 @@ impl BuildAccelerationStructureFlagsKHR {
     pub const PreferFastBuild: Self = Self(0b1000);
     pub const LowMemory: Self = Self(0b1_0000);
     pub const Motion: Self = Self(0b10_0000);
-    pub const AllowOpacityMicromapUpdate: Self = Self(0b100_0000);
-    pub const AllowDisableOpacityMicromaps: Self = Self(0b1000_0000);
     pub const AllowOpacityMicromapDataUpdate: Self = Self(0b1_0000_0000);
     pub const AllowDisplacementMicromapUpdate: Self = Self(0b10_0000_0000);
     pub const AllowDataAccess: Self = Self(0b1000_0000_0000);
     pub const AllowClusterOpacityMicromaps: Self = Self(0b1_0000_0000_0000);
+    pub const AllowOpacityMicromapUpdate: Self = Self(0b100_0000);
+    pub const AllowDisableOpacityMicromaps: Self = Self(0b1000_0000);
+    pub const MicromapLossy: Self = Self(0b100_0000_0000);
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkPrivateDataSlotCreateFlags.html>
@@ -1357,6 +1358,7 @@ impl FormatFeatureFlags2 {
         Self(0b100_0000_0000_0000_0000_0000_0000_0000);
     pub const VideoEncodeInputKHR: Self = Self(0b1000_0000_0000_0000_0000_0000_0000);
     pub const VideoEncodeDpbKHR: Self = Self(0b1_0000_0000_0000_0000_0000_0000_0000);
+    pub const BlockMatchingSxdQCOM: Self = Self(0);
     pub const AccelerationStructureRadiusBufferNV: Self = Self(0);
     /// Format support linear image as render target, it cannot be mixed with non linear attachment
     pub const LinearColorAttachmentNV: Self = Self(0);
@@ -1373,6 +1375,7 @@ impl FormatFeatureFlags2 {
     pub const CopyImageIndirectDstKHR: Self = Self(0);
     pub const VideoEncodeQuantizationDeltaMapKHR: Self = Self(0);
     pub const VideoEncodeEmphasisMapKHR: Self = Self(0);
+    pub const SampledImageFilterLinear2DIMG: Self = Self(0);
     pub const DepthCopyOnComputeQueueKHR: Self = Self(0);
     pub const DepthCopyOnTransferQueueKHR: Self = Self(0);
     pub const StencilCopyOnComputeQueueKHR: Self = Self(0);
@@ -1381,6 +1384,12 @@ impl FormatFeatureFlags2 {
     pub const DataGraphOpticalFlowVectorARM: Self = Self(0);
     pub const DataGraphOpticalFlowCostARM: Self = Self(0);
 }
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkFormatFeatureFlagBits4KHR.html>
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct FormatFeatureFlags4KHR(pub(crate) Flags64);
+vk_bitflags_wrapped!(FormatFeatureFlags4KHR, Flags64);
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkRenderingFlagBits.html>
 #[repr(transparent)]
@@ -1510,7 +1519,6 @@ impl PipelineCreateFlags2 {
     pub const RayTracingAllowMotionNV: Self = Self(0b1_0000_0000_0000_0000_0000);
     pub const RenderingFragmentShadingRateAttachmentKHR: Self = Self(0b10_0000_0000_0000_0000_0000);
     pub const RenderingFragmentDensityMapAttachmentEXT: Self = Self(0b100_0000_0000_0000_0000_0000);
-    pub const RayTracingOpacityMicromapEXT: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
     pub const ColorAttachmentFeedbackLoopEXT: Self = Self(0b10_0000_0000_0000_0000_0000_0000);
     pub const DepthStencilAttachmentFeedbackLoopEXT: Self =
         Self(0b100_0000_0000_0000_0000_0000_0000);
@@ -1521,6 +1529,8 @@ impl PipelineCreateFlags2 {
     pub const CaptureDataKHR: Self = Self(0b1000_0000_0000_0000_0000_0000_0000_0000);
     pub const IndirectBindableEXT: Self = Self(0);
     pub const PerLayerFragmentDensityVALVE: Self = Self(0);
+    pub const RayTracingOpacityMicromapKHR: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
+    pub const OpacityMicromapDisallowMixedSpecialIndexKHR: Self = Self(0);
     pub const Type64BitIndexingEXT: Self = Self(0);
 }
 
@@ -1543,6 +1553,8 @@ impl BufferUsageFlags2 {
     pub const ShaderDeviceAddress: Self = Self(0b10_0000_0000_0000_0000);
     pub const ExecutionGraphScratchAMDX: Self = Self(0b10_0000_0000_0000_0000_0000_0000);
     pub const DescriptorHeapEXT: Self = Self(0b1_0000_0000_0000_0000_0000_0000_0000);
+    pub const MicromapBuildInputReadOnlyEXT: Self = Self(0b1000_0000_0000_0000_0000_0000);
+    pub const MicromapStorageEXT: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
     pub const ConditionalRenderingEXT: Self = Self(0b10_0000_0000);
     pub const ShaderBindingTableKHR: Self = Self(0b100_0000_0000);
     pub const TransformFeedbackBufferEXT: Self = Self(0b1000_0000_0000);
@@ -1556,13 +1568,75 @@ impl BufferUsageFlags2 {
     pub const SamplerDescriptorBufferEXT: Self = Self(0b10_0000_0000_0000_0000_0000);
     pub const ResourceDescriptorBufferEXT: Self = Self(0b100_0000_0000_0000_0000_0000);
     pub const PushDescriptorsDescriptorBufferEXT: Self = Self(0b100_0000_0000_0000_0000_0000_0000);
-    pub const MicromapBuildInputReadOnlyEXT: Self = Self(0b1000_0000_0000_0000_0000_0000);
-    pub const MicromapStorageEXT: Self = Self(0b1_0000_0000_0000_0000_0000_0000);
     pub const CompressedDataDgf1AMDX: Self = Self(0);
     pub const DataGraphForeignDescriptorARM: Self = Self(0b10_0000_0000_0000_0000_0000_0000_0000);
     pub const TileMemoryQCOM: Self = Self(0b1000_0000_0000_0000_0000_0000_0000);
     pub const MemoryDecompressionEXT: Self = Self(0);
     pub const PreprocessBufferEXT: Self = Self(0b1000_0000_0000_0000_0000_0000_0000_0000);
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkImageUsageFlagBits2KHR.html>
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct ImageUsageFlags2KHR(pub(crate) Flags64);
+vk_bitflags_wrapped!(ImageUsageFlags2KHR, Flags64);
+
+impl ImageUsageFlags2KHR {
+    pub const TransferSrc: Self = Self(0b1);
+    pub const TransferDst: Self = Self(0b10);
+    pub const Sampled: Self = Self(0b100);
+    pub const Storage: Self = Self(0b1000);
+    pub const ColorAttachment: Self = Self(0b1_0000);
+    pub const DepthStencilAttachment: Self = Self(0b10_0000);
+    pub const TransientAttachment: Self = Self(0b100_0000);
+    pub const InputAttachment: Self = Self(0b1000_0000);
+    pub const FragmentShadingRateAttachment: Self = Self(0b1_0000_0000);
+    pub const FragmentDensityMap: Self = Self(0b10_0000_0000);
+    pub const VideoDecodeDst: Self = Self(0b100_0000_0000);
+    pub const VideoDecodeSrc: Self = Self(0b1000_0000_0000);
+    pub const VideoDecodeDpb: Self = Self(0b1_0000_0000_0000);
+    pub const VideoEncodeDst: Self = Self(0b10_0000_0000_0000);
+    pub const VideoEncodeSrc: Self = Self(0b100_0000_0000_0000);
+    pub const VideoEncodeDpb: Self = Self(0b1000_0000_0000_0000);
+    pub const InvocationMask: Self = Self(0b100_0000_0000_0000_0000);
+    pub const AttachmentFeedbackLoop: Self = Self(0b1000_0000_0000_0000_0000);
+    pub const SampleWeight: Self = Self(0b1_0000_0000_0000_0000_0000);
+    pub const SampleBlockMatch: Self = Self(0b10_0000_0000_0000_0000_0000);
+    pub const HostTransfer: Self = Self(0b100_0000_0000_0000_0000_0000);
+    pub const TensorAliasing: Self = Self(0b1000_0000_0000_0000_0000_0000);
+    pub const VideoEncodeQuantizationDeltaMap: Self = Self(0b10_0000_0000_0000_0000_0000_0000);
+    pub const VideoEncodeEmphasisMap: Self = Self(0b100_0000_0000_0000_0000_0000_0000);
+    pub const TileMemory: Self = Self(0b1000_0000_0000_0000_0000_0000_0000);
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkImageCreateFlagBits2KHR.html>
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct ImageCreateFlags2KHR(pub(crate) Flags64);
+vk_bitflags_wrapped!(ImageCreateFlags2KHR, Flags64);
+
+impl ImageCreateFlags2KHR {
+    pub const SparseBinding: Self = Self(0b1);
+    pub const SparseResidency: Self = Self(0b10);
+    pub const SparseAliased: Self = Self(0b100);
+    pub const MutableFormat: Self = Self(0b1000);
+    pub const CubeCompatible: Self = Self(0b1_0000);
+    pub const AliasSingleLayerDescriptor: Self = Self(0b100_0000_0000_0000_0000_0000);
+    pub const Type2DArrayCompatible: Self = Self(0b10_0000);
+    pub const SplitInstanceBindRegions: Self = Self(0b100_0000);
+    pub const BlockTexelViewCompatible: Self = Self(0b1000_0000);
+    pub const ExtendedUsage: Self = Self(0b1_0000_0000);
+    pub const Disjoint: Self = Self(0b10_0000_0000);
+    pub const Alias: Self = Self(0b100_0000_0000);
+    pub const Protected: Self = Self(0b1000_0000_0000);
+    pub const SampleLocationsCompatibleDepth: Self = Self(0b1_0000_0000_0000);
+    pub const CornerSampled: Self = Self(0b10_0000_0000_0000);
+    pub const Subsampled: Self = Self(0b100_0000_0000_0000);
+    pub const FragmentDensityMapOffset: Self = Self(0b1000_0000_0000_0000);
+    pub const DescriptorBufferCaptureReplay: Self = Self(0b1_0000_0000_0000_0000);
+    pub const Type2DViewCompatible: Self = Self(0b10_0000_0000_0000_0000);
+    pub const MultisampledRenderToSingleSampled: Self = Self(0b100_0000_0000_0000_0000);
+    pub const VideoProfileIndependent: Self = Self(0b1_0000_0000_0000_0000_0000);
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkAddressCopyFlagBitsKHR.html>
@@ -1691,6 +1765,28 @@ impl SpirvResourceTypeFlagsEXT {
     pub const Tensor: Self = Self(0b10_0000_0000);
 }
 
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGpaSqShaderStageFlagBitsAMD.html>
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct GpaSqShaderStageFlagsAMD(pub(crate) Flags);
+vk_bitflags_wrapped!(GpaSqShaderStageFlagsAMD, Flags);
+
+impl GpaSqShaderStageFlagsAMD {
+    pub const Ps: Self = Self(0b1);
+    pub const Vs: Self = Self(0b10);
+    pub const Gs: Self = Self(0b100);
+    pub const Es: Self = Self(0b1000);
+    pub const Hs: Self = Self(0b1_0000);
+    pub const Ls: Self = Self(0b10_0000);
+    pub const Cs: Self = Self(0b100_0000);
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkGpaPerfBlockPropertiesFlagsAMD.html>
+pub type GpaPerfBlockPropertiesFlagsAMD = Flags;
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkPhysicalDeviceGpaPropertiesFlagsAMD.html>
+pub type PhysicalDeviceGpaPropertiesFlagsAMD = Flags;
+
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkAddressCommandFlagBitsKHR.html>
 #[repr(transparent)]
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
@@ -1768,6 +1864,7 @@ impl SwapchainCreateFlagsKHR {
     /// Allow use of VK_KHR_present_wait2 with this swapchain
     pub const PresentWait2: Self = Self(0b1000_0000);
     pub const DeferredMemoryAllocation: Self = Self(0b1000);
+    pub const MultisampledRenderToSingleSampled: Self = Self(0b1_0000_0000);
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkDisplayModeCreateFlagsKHR.html>
@@ -2426,6 +2523,7 @@ impl ShaderCreateFlagsEXT {
     pub const FragmentShadingRateAttachment: Self = Self(0b10_0000);
     pub const FragmentDensityMapAttachment: Self = Self(0b100_0000);
     pub const IndirectBindable: Self = Self(0b1000_0000);
+    pub const OpacityMicromapDisallowMixedSpecialIndex: Self = Self(0b1_0000_0000_0000);
     pub const Type64BitIndexing: Self = Self(0b1000_0000_0000_0000);
     pub const IndependentSets: Self = Self(0b100_0000_0000_0000_0000);
 }
@@ -2735,6 +2833,25 @@ impl VideoEncodeFeedbackFlagsKHR {
     pub const BitstreamBufferOffset: Self = Self(0b1);
     pub const BitstreamBytesWritten: Self = Self(0b10);
     pub const BitstreamHasOverrides: Self = Self(0b100);
+    pub const AverageQuantization: Self = Self(0b1000);
+    pub const MinQuantization: Self = Self(0b1_0000);
+    pub const MaxQuantization: Self = Self(0b10_0000);
+    pub const IntraPixels: Self = Self(0b100_0000);
+    pub const InterPixels: Self = Self(0b1000_0000);
+    pub const SkippedPixels: Self = Self(0b1_0000_0000);
+    pub const PicturePartitionCount: Self = Self(0b10_0000_0000);
+}
+
+/// <https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodePerPartitionFeedbackFlagBitsKHR.html>
+#[repr(transparent)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+pub struct VideoEncodePerPartitionFeedbackFlagsKHR(pub(crate) Flags);
+vk_bitflags_wrapped!(VideoEncodePerPartitionFeedbackFlagsKHR, Flags);
+
+impl VideoEncodePerPartitionFeedbackFlagsKHR {
+    pub const Status: Self = Self(0b1);
+    pub const BitstreamBufferOffset: Self = Self(0b10);
+    pub const BitstreamBytesWritten: Self = Self(0b100);
 }
 
 /// <https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoEncodeRateControlFlagsKHR.html>

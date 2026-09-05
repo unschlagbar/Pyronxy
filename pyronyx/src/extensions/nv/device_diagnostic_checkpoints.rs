@@ -42,6 +42,7 @@ pub trait DeviceDiagnosticCheckpointsQueue {
     fn get_checkpoint_data_len(&self) -> usize;
 
     fn get_checkpoint_data2(&self, checkpoint_data: &mut [CheckpointData2NV]);
+    fn get_checkpoint_data2_len(&self) -> usize;
 }
 
 impl DeviceDiagnosticCheckpointsQueue for Queue {
@@ -50,6 +51,7 @@ impl DeviceDiagnosticCheckpointsQueue for Queue {
     /// Call [`get_checkpoint_data_len()`][`Self::get_checkpoint_data_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_checkpoint_data(&self, checkpoint_data: &mut [CheckpointDataNV]) {
+        let mut checkpoint_data_count = checkpoint_data.len() as u32;
         let call = self
             .fns()
             .nv_device_diagnostic_checkpoints
@@ -60,7 +62,7 @@ impl DeviceDiagnosticCheckpointsQueue for Queue {
         unsafe {
             (call)(
                 self.handle,
-                checkpoint_data.len() as *mut u32,
+                &mut checkpoint_data_count,
                 checkpoint_data.as_mut_ptr(),
             )
         };
@@ -69,7 +71,7 @@ impl DeviceDiagnosticCheckpointsQueue for Queue {
     /// Returns the required slice length for Call [`get_checkpoint_data`][`Self::get_checkpoint_data`].
     #[inline]
     fn get_checkpoint_data_len(&self) -> usize {
-        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
         unsafe {
             (self
                 .fns()
@@ -77,17 +79,18 @@ impl DeviceDiagnosticCheckpointsQueue for Queue {
                 .as_ref()
                 .expect(Self::EXT_LOAD_ERROR)
                 .get_queue_checkpoint_data_nv)(
-                self.handle,
-                out.as_mut_ptr() as *mut u32,
-                ptr::null_mut(),
+                self.handle, out.as_mut_ptr(), ptr::null_mut()
             );
-            out.assume_init()
+            out.assume_init() as usize
         }
     }
 
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetQueueCheckpointData2NV.html>
+    ///
+    /// Call [`get_checkpoint_data2_len()`][`Self::get_checkpoint_data2_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_checkpoint_data2(&self, checkpoint_data: &mut [CheckpointData2NV]) {
+        let mut checkpoint_data_count = checkpoint_data.len() as u32;
         let call = self
             .fns()
             .nv_device_diagnostic_checkpoints
@@ -98,9 +101,26 @@ impl DeviceDiagnosticCheckpointsQueue for Queue {
         unsafe {
             (call)(
                 self.handle,
-                checkpoint_data.len() as *mut u32,
+                &mut checkpoint_data_count,
                 checkpoint_data.as_mut_ptr(),
             )
         };
+    }
+
+    /// Returns the required slice length for Call [`get_checkpoint_data2`][`Self::get_checkpoint_data2`].
+    #[inline]
+    fn get_checkpoint_data2_len(&self) -> usize {
+        let mut out: MaybeUninit<u32> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .nv_device_diagnostic_checkpoints
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_queue_checkpoint_data2_nv)(
+                self.handle, out.as_mut_ptr(), ptr::null_mut()
+            );
+            out.assume_init() as usize
+        }
     }
 }

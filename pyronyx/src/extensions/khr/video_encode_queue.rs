@@ -6,6 +6,7 @@
 use crate::vk::*;
 use core::ffi::CStr;
 use core::mem::MaybeUninit;
+use core::ptr;
 
 /// Type: `Device`
 pub const NAME: &CStr = c"VK_KHR_video_encode_queue";
@@ -44,10 +45,17 @@ pub trait VideoEncodeQueueDevice {
         feedback_info: *mut VideoEncodeSessionParametersFeedbackInfoKHR,
         data: &mut [u8],
     ) -> Result<()>;
+    fn get_encoded_video_session_parameters_len(
+        &self,
+        video_session_parameters_info: &VideoEncodeSessionParametersGetInfoKHR,
+        feedback_info: *mut VideoEncodeSessionParametersFeedbackInfoKHR,
+    ) -> Result<usize>;
 }
 
 impl VideoEncodeQueueDevice for Device {
     /// <https://docs.vulkan.org/refpages/latest/refpages/source/vkGetEncodedVideoSessionParametersKHR.html>
+    ///
+    /// Call [`get_encoded_video_session_parameters_len()`][`Self::get_encoded_video_session_parameters_len()`] to query the number of elements to pass to `out`.
     #[inline]
     fn get_encoded_video_session_parameters(
         &self,
@@ -55,6 +63,7 @@ impl VideoEncodeQueueDevice for Device {
         feedback_info: *mut VideoEncodeSessionParametersFeedbackInfoKHR,
         data: &mut [u8],
     ) -> Result<()> {
+        let mut data_size = data.len();
         let call = self
             .fns()
             .khr_video_encode_queue
@@ -67,11 +76,36 @@ impl VideoEncodeQueueDevice for Device {
                 self.handle,
                 video_session_parameters_info,
                 feedback_info,
-                data.len() as *mut usize,
+                &mut data_size,
                 data.as_mut_ptr().cast(),
             )
         }
         .result()
+    }
+
+    /// Returns the required slice length for Call [`get_encoded_video_session_parameters`][`Self::get_encoded_video_session_parameters`].
+    #[inline]
+    fn get_encoded_video_session_parameters_len(
+        &self,
+        video_session_parameters_info: &VideoEncodeSessionParametersGetInfoKHR,
+        feedback_info: *mut VideoEncodeSessionParametersFeedbackInfoKHR,
+    ) -> Result<usize> {
+        let mut out: MaybeUninit<usize> = MaybeUninit::uninit();
+        unsafe {
+            (self
+                .fns()
+                .khr_video_encode_queue
+                .as_ref()
+                .expect(Self::EXT_LOAD_ERROR)
+                .get_encoded_video_session_parameters_khr)(
+                self.handle,
+                video_session_parameters_info,
+                feedback_info,
+                out.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        }
+        .init_on_success(out)
     }
 }
 
